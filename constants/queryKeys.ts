@@ -1,3 +1,4 @@
+import { QueryKeyOrPredicateFn } from 'react-query';
 import { CurrencyKey } from './currency';
 import { Period } from './period';
 
@@ -9,7 +10,8 @@ export const QUERY_KEYS = {
 			currencyKey,
 			period,
 		],
-		HistoricalRates: (currencyKey: CurrencyKey, period: Period) => [
+		TrendingSynthsVolume: ['rates', 'historicalVolume', 'trendingSynths'],
+		HistoricalRates: (currencyKey: CurrencyKey, period: Period): QueryKeyOrPredicateFn => [
 			'rates',
 			'historicalRates',
 			currencyKey,

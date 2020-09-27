@@ -109,10 +109,9 @@
 		},
 		"market-details-card": {
 			"title": "market details",
-			"24h-vol": "24H Volume",
+			"24h-vol": "24H Vol.",
 			"24h-high": "24H High",
 			"24h-low": "24H Low",
-			"market-cap": "Market cap",
 			"price-feed": "Price Feed"
 		},
 		"price-chart-card": {
@@ -179,7 +178,11 @@
 			"title": "Your Portfolio"
 		},
 		"synthSort": {
-			"price": "Price"
+			"price": "Price",
+			"change": "24hr Change",
+			"low": "24hr Low",
+			"high": "24hr High",
+			"volume": "24hr Volume"
 		},
 		"transactions": {
 			"synthSort": {

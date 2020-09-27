@@ -11,7 +11,8 @@ import {
 	calculateRateChange,
 	mockHistoricalRates,
 } from './utils';
-import { HistoricalRatesUpdates } from './types';
+import { HistoricalRatesUpdates, RateUpdates } from './types';
+import { Synth, Synths } from 'lib/synthetix';
 
 const useHistoricalRatesQuery = (
 	currencyKey: CurrencyKey | null,
@@ -30,24 +31,18 @@ const useHistoricalRatesQuery = (
 					high: sUSD_EXCHANGE_RATE,
 					change: 0,
 				};
-			} else {
-				const rates = await snxData.rate.updates({
-					synth: currencyKey,
-					// maxTimestamp: Math.trunc(now / 1000),
-					minTimestamp: calculateTimestampForPeriod(periodInHours),
-					max: 6000,
-				});
-
-				const [low, high] = getMinAndMaxRate(rates);
-				const change = calculateRateChange(rates);
-
-				return {
-					rates: rates.reverse(),
-					low,
-					high,
-					change,
-				};
 			}
+			const rates = await snxDataRateUpdates(currencyKey!, period);
+
+			const [low, high] = getMinAndMaxRate(rates);
+			const change = calculateRateChange(rates);
+
+			return {
+				rates: rates.reverse(),
+				low,
+				high,
+				change,
+			};
 		},
 		{
 			enabled: currencyKey,
@@ -55,5 +50,56 @@ const useHistoricalRatesQuery = (
 		}
 	);
 };
+
+const snxDataRateUpdates = async (currencyKey: string, period: Period) =>
+	snxData.rate.updates({
+		synth: currencyKey,
+		// maxTimestamp: Math.trunc(now / 1000),
+		minTimestamp: calculateTimestampForPeriod(PERIOD_IN_HOURS[period]),
+		max: 6000,
+	});
+
+export const getHistoricalRateUpdate = (rates: RateUpdates) => {
+	const [low, high] = getMinAndMaxRate(rates);
+	const change = calculateRateChange(rates);
+
+	return {
+		rates: rates.reverse(),
+		low,
+		high,
+		change,
+	};
+};
+
+export interface HistoricalRatesBySynth {
+	[key: string]: HistoricalRatesUpdates;
+}
+
+export const useHistoricalRatesListQuery = (
+	synths: Synths,
+	period: Period,
+	options?: BaseQueryOptions
+) =>
+	useQuery<HistoricalRatesBySynth, any>(
+		QUERY_KEYS.Rates.TrendingSynthsVolume,
+		() =>
+			Promise.all(
+				synths.map((synth: Synth) =>
+					snxDataRateUpdates(synth.name, period).then((response) => ({
+						name: synth.name,
+						rates: getHistoricalRateUpdate(response),
+					}))
+				)
+			).then((responses) =>
+				responses.reduce(
+					(arr, cur: any) => ({
+						...arr,
+						[cur.name]: cur.rates,
+					}),
+					{}
+				)
+			),
+		options
+	);
 
 export default useHistoricalRatesQuery;
