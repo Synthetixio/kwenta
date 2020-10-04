@@ -11,7 +11,7 @@ executors:
         default: '12.18'
     docker:
       - image: cimg/node:<<parameters.tag>>
-  sec-tools:
+  sec_tools:
     parameters:
       tag:
         type: string
@@ -21,7 +21,7 @@ executors:
 
 jobs:
   audit:
-    executor: sec-tools
+    executor: sec_tools
     steps:
       - checkout
       - run:
@@ -90,7 +90,7 @@ jobs:
           destination: build.tar
 
 workflows:
-  lint_and_build:
+  audit_lint_build:
     jobs:
       - audit
       - prepare:
