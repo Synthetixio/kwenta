@@ -11,8 +11,26 @@ executors:
         default: '12.18'
     docker:
       - image: cimg/node:<<parameters.tag>>
+  sec-tools:
+    parameters:
+      tag:
+        type: string
+        default: '12.18'
+    docker:
+      - image: drptbl/docker-sec-tools:<<parameters.tag>>
 
 jobs:
+  audit:
+    executor: sec-tools
+    steps:
+      - checkout
+      - run:
+          name: Lockfile lint
+          command: lockfile-lint -p package-lock.json --type npm --allowed-hosts npm github.com --allowed-schemes "https:" "git+https:" "github:"
+      - run:
+          name: Audit dependencies
+          command: audit-ci --critical --report-type important
+
   prepare:
     <<: *env_defaults
     steps:
@@ -74,7 +92,10 @@ jobs:
 workflows:
   lint_and_build:
     jobs:
-      - prepare
+      - audit
+      - prepare:
+          requires:
+                - audit
       - lint:
           requires:
                 - prepare
