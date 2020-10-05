@@ -17,7 +17,7 @@ executors:
         type: string
         default: '12.18'
     docker:
-      - image: drptbl/docker-sec-tools:<<parameters.tag>>
+      - image: ghcr.io/synthetixio/docker-sec-tools/base:<<parameters.tag>>
 
 jobs:
   audit:
