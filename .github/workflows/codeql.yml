@@ -3,8 +3,12 @@ name: CodeQL
 on:
   push:
     branches: [master, dev]
+    paths-ignore:
+    - node_modules
   pull_request:
     branches: [master, dev]
+    paths-ignore:
+    - node_modules
   schedule:
     - cron: '0 15 * * 0'
 
@@ -23,12 +27,9 @@ jobs:
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
-
         with:
           queries: security-and-quality
           languages: javascript, typescript
-          paths-ignore: 
-            node_modules
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v1
