@@ -26,6 +26,7 @@ import '../i18n';
 
 import Layout from 'sections/shared/Layout';
 
+//
 const queryCache = new QueryCache({
 	defaultConfig: {
 		queries: {
