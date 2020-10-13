@@ -84,8 +84,7 @@ jobs:
 
   verify:
       needs: build
-      # run only on master branch and pull requests
-      # enable dev in future
+      # run only on master/dev branch and pull requests
       if: github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
       runs-on: ubuntu-latest
 
