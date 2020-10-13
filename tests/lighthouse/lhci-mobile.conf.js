@@ -15,7 +15,7 @@ module.exports = {
 		},
 		upload: {
 			target: 'filesystem',
-			githubToken: process.env.GH_READ_REPO,
+			githubToken: process.env.GH_TOKEN,
 			githubStatusContextSuffix: '-kwenta',
 			outputDir: 'lighthouse-mobile-report',
 		},
