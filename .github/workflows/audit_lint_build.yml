@@ -102,13 +102,16 @@ jobs:
           token: ${{ secrets.GH_READ_REPO }}
           submodules: recursive
 
-      - name: Set deployment url for pull request
-        if: github.event_name == 'pull_request'
-        run: echo "BASE_URL=https://kwenta-git-${GITHUB_HEAD_REF#refs/heads/}.synthetixio.vercel.app" >> $GITHUB_ENV
-
-      - name: Set deployment url for branch
-        if: github.event_name != 'pull_request'
-        run: echo "BASE_URL=https://kwenta-git-${GITHUB_REF#refs/heads/}.synthetixio.vercel.app" >> $GITHUB_ENV
+      - name: Set deployment url
+        run: |
+          if [ '${{ github.event_name }}' == 'pull_request' ]
+          then
+            export BRANCH_NAME=$(echo ${GITHUB_HEAD_REF#refs/heads/} | sed -e 's/\//-/g')
+            echo "BASE_URL=https://kwenta-git-$BRANCH_NAME.${{ secrets.VERCEL_DOMAIN }}" >> $GITHUB_ENV
+          else
+            export BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed -e 's/\//-/g')
+            echo "BASE_URL=https://kwenta-git-$BRANCH_NAME.${{ secrets.VERCEL_DOMAIN }}" >> $GITHUB_ENV
+          fi
 
       - name: Run lighthouse
         run: |
