@@ -83,6 +83,7 @@ jobs:
         path: .next
 
   verify:
+      needs: build
       # run only on master branch and pull requests
       # enable dev in future
       if: github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
