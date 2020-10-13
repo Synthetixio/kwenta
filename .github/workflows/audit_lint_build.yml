@@ -104,11 +104,11 @@ jobs:
 
       - name: Set deployment url for pull request
         if: github.event_name == 'pull_request'
-        run: echo "https://kwenta-git-${GITHUB_HEAD_REF#refs/heads/}.synthetixio.vercel.app" >> $BASE_URL
+        run: echo "BASE_URL=https://kwenta-git-${GITHUB_HEAD_REF#refs/heads/}.synthetixio.vercel.app" >> $GITHUB_ENV
 
       - name: Set deployment url for branch
         if: github.event_name != 'pull_request'
-        run: echo "https://kwenta-git-${GITHUB_REF#refs/heads/}.synthetixio.vercel.app" >> $BASE_URL
+        run: echo "BASE_URL=https://kwenta-git-${GITHUB_REF#refs/heads/}.synthetixio.vercel.app" >> $GITHUB_ENV
 
       - name: Run lighthouse
         run: |
