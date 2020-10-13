@@ -104,7 +104,7 @@ jobs:
 
       - name: Set deployment url
         run: |
-          if [ ${{ github.event_name }} == 'pull_request' ]
+          if [ ${{ github.event_name }} == pull_request ]
           then
             echo "https://kwenta-git-${GITHUB_HEAD_REF#refs/heads/}.synthetixio.vercel.app" >> $BASE_URL
           else
