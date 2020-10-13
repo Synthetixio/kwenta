@@ -103,8 +103,9 @@ jobs:
           submodules: recursive
 
       - name: Set deployment url
+        shell: bash
         run: |
-          if [ '${{ github.event_name }}' == 'pull_request' ]
+          if [ ${{ github.event_name }} == pull_request ]
           then
             export BRANCH_NAME=$(echo ${GITHUB_HEAD_REF#refs/heads/} | sed -e 's/\//-/g')
             echo "BASE_URL=https://kwenta-git-$BRANCH_NAME.${{ secrets.VERCEL_DOMAIN }}" >> $GITHUB_ENV
