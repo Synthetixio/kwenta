@@ -10,10 +10,10 @@ on:
     paths-ignore:
     - node_modules
   schedule:
-    - cron: '0 15 * * 0'
+    - cron: '0 6 * * 3'
 
 jobs:
-  CodeQL-Build:
+  analyze:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,13 +26,13 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@b1e2c9b8bd0550a90e66c967d9795316f9f21910 #pin@codeql-bundle-20201008
+        uses: github/codeql-action/init@v1
         with:
           queries: security-and-quality
-          languages: javascript, typescript
+          languages: javascript
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@b1e2c9b8bd0550a90e66c967d9795316f9f21910 #pin@codeql-bundle-20201008
+        uses: github/codeql-action/autobuild@v1
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@b1e2c9b8bd0550a90e66c967d9795316f9f21910 #pin@codeql-bundle-20201008
+        uses: github/codeql-action/analyze@v1
