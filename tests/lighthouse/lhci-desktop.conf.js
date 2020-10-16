@@ -3,7 +3,7 @@ const isDev = process.env.BASE_URL.includes('vercel') ? true : false;
 const conf = {
 	ci: {
 		collect: {
-			numberOfRuns: 1,
+			numberOfRuns: 3,
 			settings: {
 				configPath: 'tests/lighthouse/desktop.conf.js',
 				plugins: ['lighthouse-plugin-field-performance', 'lighthouse-plugin-social-sharing'],
@@ -73,4 +73,5 @@ if (isDev) {
 		assertionObject.assertions['is-crawlable'] = 'off';
 	}
 }
+
 module.exports = conf;
