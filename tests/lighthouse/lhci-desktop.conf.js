@@ -12,6 +12,20 @@ module.exports = {
 		},
 		assert: {
 			preset: 'lighthouse:no-pwa',
+			assertMatrix: [
+				{
+					matchingUrlPattern: '.*',
+					assertions: {
+						'categories:accessibility': ['warn', { minScore: 0.9 }],
+					},
+				},
+				{
+					matchingUrlPattern: 'https://[^/]+/exchange',
+					assertions: {
+						'categories:accessibility': ['warn', { minScore: 0.9 }],
+					},
+				},
+			],
 		},
 		upload: {
 			target: 'filesystem',
