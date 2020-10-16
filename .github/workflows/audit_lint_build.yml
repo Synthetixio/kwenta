@@ -63,7 +63,13 @@ jobs:
       run: npm install --no-audit
 
     - name: Lint
-      run: npm run lint
+      run: npm run lint:sarif
+
+    - name: Upload lint results
+      uses: github/codeql-action/upload-sarif@b1e2c9b8bd0550a90e66c967d9795316f9f21910 # pin@codeql-bundle-20201008
+      if: always()
+      with:
+        sarif_file: lint-results.sarif
 
     - name: Cache next.js build cache
       uses: actions/cache@3b70782066bd817837b6bd8c518d45b54d91bf76 # pin@v2
