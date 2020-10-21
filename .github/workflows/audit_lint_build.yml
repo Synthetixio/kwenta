@@ -49,10 +49,7 @@ jobs:
         path: |
           .npm
           node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-          ${{ runner.os }}-
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
       continue-on-error: true
 
     - name: Install dependencies
