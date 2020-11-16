@@ -3,6 +3,9 @@ import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
+import { GetServerSideProps } from 'next';
+import { defaultServerSideProps } from 'utils/server';
+
 import HomeLayout from 'sections/shared/Layout/HomeLayout';
 
 import Hero from 'sections/homepage/Hero';
@@ -61,5 +64,9 @@ const LightContainer = styled.div`
 	background: ${(props) => props.theme.colors.elderberry};
 	padding: 0 20px;
 `;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+	return await defaultServerSideProps(context);
+};
 
 export default HomePage;

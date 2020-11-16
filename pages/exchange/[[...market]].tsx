@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import Slider from 'react-slick';
 import { Svg } from 'react-optimized-image';
 
+import { GetServerSideProps } from 'next';
+import { defaultServerSideProps } from 'utils/server';
+
 import ArrowsIcon from 'assets/svg/app/arrows.svg';
 
 import AppLayout from 'sections/shared/Layout/AppLayout';
@@ -196,5 +199,9 @@ const SliderContent = styled.div``;
 const SliderContentSpacer = styled.div`
 	height: 16px;
 `;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+	return await defaultServerSideProps(context);
+};
 
 export default ExchangePage;

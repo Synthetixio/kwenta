@@ -3,6 +3,9 @@ import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
 
+import { GetServerSideProps } from 'next';
+import { defaultServerSideProps } from 'utils/server';
+
 import { FlexDiv, FlexDivCol, PageContent, MobileContainerMixin } from 'styles/common';
 
 import { DesktopOnlyView, MobileOrTabletView } from 'components/Media';
@@ -80,5 +83,9 @@ const RightContainer = styled(FlexDivCol)`
 	position: relative;
 	margin-left: 20px;
 `;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+	return await defaultServerSideProps(context);
+};
 
 export default DashboardPage;
