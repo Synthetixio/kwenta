@@ -84,8 +84,12 @@ const RightContainer = styled(FlexDivCol)`
 	margin-left: 20px;
 `;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-	return await defaultServerSideProps(context);
-};
+export let getServerSideProps: GetServerSideProps;
+
+if (process.env.CF_IP) {
+	getServerSideProps = async (context) => {
+		return await defaultServerSideProps(context);
+	};
+}
 
 export default DashboardPage;

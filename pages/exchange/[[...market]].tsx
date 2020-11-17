@@ -200,8 +200,12 @@ const SliderContentSpacer = styled.div`
 	height: 16px;
 `;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-	return await defaultServerSideProps(context);
-};
+export let getServerSideProps: GetServerSideProps;
+
+if (process.env.CF_IP) {
+	getServerSideProps = async (context) => {
+		return await defaultServerSideProps(context);
+	};
+}
 
 export default ExchangePage;
