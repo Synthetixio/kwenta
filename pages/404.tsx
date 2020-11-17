@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
 
+import { GetServerSideProps } from 'next';
+import { defaultServerSideProps } from 'utils/server';
+
 import AppLayout from 'sections/shared/Layout/AppLayout';
 
 import media from 'styles/media';
@@ -77,5 +80,13 @@ const Subtitle = styled.h2`
 		font-size: 14px;
 	`}
 `;
+
+export let getServerSideProps: GetServerSideProps;
+
+if (process.env.CF_IP) {
+	getServerSideProps = async (context) => {
+		return await defaultServerSideProps(context);
+	};
+}
 
 export default NotFoundPage;
