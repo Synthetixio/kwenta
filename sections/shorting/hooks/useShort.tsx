@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useRecoilValue } from 'recoil';
 import get from 'lodash/get';
+import { useTranslation } from 'react-i18next';
 
 import BigNumber from 'bignumber.js';
 
@@ -43,27 +44,23 @@ import { toBigNumber, zeroBN } from 'utils/formatters/number';
 
 import useCollateralShortIssuanceFee from 'queries/collateral/useCollateralShortIssuanceFee';
 
-const MIN_SHORT_RATIO = 2;
+const MIN_SAFE_SHORT_RATIO = 2;
 
-type ExchangeCardProps = {
+type ShortCardProps = {
 	defaultBaseCurrencyKey?: CurrencyKey | null;
 	defaultQuoteCurrencyKey?: CurrencyKey | null;
 };
 
-const useExchange = ({
+const useShort = ({
 	defaultBaseCurrencyKey = null,
 	defaultQuoteCurrencyKey = null,
-}: ExchangeCardProps) => {
+}: ShortCardProps) => {
+	const { t } = useTranslation();
 	const { notify } = Connector.useContainer();
 	const { etherscanInstance } = Etherscan.useContainer();
 
-	const [currencyPair, setCurrencyPair] = useState<{
-		base: CurrencyKey | null;
-		quote: CurrencyKey | null;
-	}>({
-		base: defaultBaseCurrencyKey,
-		quote: defaultQuoteCurrencyKey,
-	});
+	const baseCurrencyKey = defaultBaseCurrencyKey ?? null;
+	const quoteCurrencyKey = defaultQuoteCurrencyKey ?? null;
 
 	const [isApproving, setIsApproving] = useState<boolean>(false);
 	const [isApproved, setIsApproved] = useState<boolean>(false);
@@ -77,10 +74,9 @@ const useExchange = ({
 	const gasSpeed = useRecoilValue(gasSpeedState);
 	const customGasPrice = useRecoilValue(customGasPriceState);
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
+	const [isLockedSafeRatio, setIsLockedSafeRatio] = useState<boolean>(true);
 
 	const [gasLimit, setGasLimit] = useState<number | null>(null);
-
-	const { base: baseCurrencyKey, quote: quoteCurrencyKey } = currencyPair;
 
 	const synthsWalletBalancesQuery = useSynthsBalancesQuery();
 	const ethGasPriceQuery = useEthGasPriceQuery();
@@ -142,6 +138,9 @@ const useExchange = ({
 	// }, [baseCurrencyAmount]);
 
 	const totalTradePrice = useMemo(() => {
+		if (quoteCurrencyAmountBN.isNaN()) {
+			return zeroBN;
+		}
 		let tradePrice = quoteCurrencyAmountBN.multipliedBy(quotePriceRate);
 		if (selectPriceCurrencyRate) {
 			tradePrice = tradePrice.dividedBy(selectPriceCurrencyRate);
@@ -232,11 +231,14 @@ const useExchange = ({
 	const checkAllowance = useCallback(async () => {
 		if (isWalletConnected && quoteCurrencyKey != null && quoteCurrencyAmount) {
 			try {
-				const allowance = await synthetix.js!.contracts[
-					synthToContractName(quoteCurrencyKey)
-				].allowance(walletAddress, synthetix.js!.contracts.CollateralShort.address);
+				const { contracts } = synthetix.js!;
 
-				setIsApproved(toBigNumber(allowance).gte(quoteCurrencyAmount));
+				const allowance = (await contracts[synthToContractName(quoteCurrencyKey)].allowance(
+					walletAddress,
+					contracts.CollateralShort.address
+				)) as ethers.BigNumber;
+
+				setIsApproved(toBigNumber(ethers.utils.formatEther(allowance)).gte(quoteCurrencyAmount));
 			} catch (e) {
 				console.log(e);
 			}
@@ -265,11 +267,11 @@ const useExchange = ({
 	}, [baseCurrencyKey, quoteCurrencyKey]);
 
 	const getShortParams = () => {
-		const baseKeyBytes32 = ethers.utils.formatBytes32String(baseCurrencyKey!);
-		const quoteCurrencyAmountBN = ethers.utils.parseEther(quoteCurrencyAmount);
-		const baseCurrencyAmountBN = ethers.utils.parseEther(baseCurrencyAmount);
-
-		return [quoteCurrencyAmountBN, baseCurrencyAmountBN, baseKeyBytes32];
+		return [
+			ethers.utils.parseEther(quoteCurrencyAmount),
+			ethers.utils.parseEther(baseCurrencyAmount),
+			ethers.utils.formatBytes32String(baseCurrencyKey!),
+		];
 	};
 
 	const getGasLimitEstimateForShort = async () => {
@@ -285,8 +287,33 @@ const useExchange = ({
 		return null;
 	};
 
+	const approve = async () => {
+		if (quoteCurrencyKey != null) {
+			try {
+				setIsApproving(true);
+
+				const { contracts } = synthetix.js!;
+				const tx = await contracts[synthToContractName(quoteCurrencyKey)].approve(
+					contracts.CollateralShort.address,
+					ethers.utils.parseEther(quoteCurrencyAmount)
+				);
+				await tx.wait();
+				await checkAllowance();
+			} catch (e) {
+				// show error
+			} finally {
+				setIsApproving(false);
+			}
+		}
+	};
+
 	const handleSubmit = async () => {
 		if (synthetix.js != null && gasPrice != null) {
+			if (!isApproved) {
+				approve();
+				return;
+			}
+
 			setTxError(false);
 			setTxConfirmationModalOpen(true);
 
@@ -347,8 +374,11 @@ const useExchange = ({
 					setBaseCurrencyAmount('');
 				} else {
 					setQuoteCurrencyAmount(value);
-					const baseAmount = toBigNumber(value).multipliedBy(rate);
-					setBaseCurrencyAmount(baseAmount.dividedBy(MIN_SHORT_RATIO).toString());
+					if (isLockedSafeRatio) {
+						setBaseCurrencyAmount(
+							toBigNumber(value).multipliedBy(rate).dividedBy(MIN_SAFE_SHORT_RATIO).toString()
+						);
+					}
 				}
 			}}
 			walletBalance={quoteCurrencyBalance}
@@ -359,7 +389,7 @@ const useExchange = ({
 				}
 			}}
 			priceRate={quotePriceRate}
-			tradingMode="short"
+			label={t('shorting.common.collateral')}
 		/>
 	);
 
@@ -374,9 +404,14 @@ const useExchange = ({
 					setQuoteCurrencyAmount('');
 				} else {
 					setBaseCurrencyAmount(value);
-					setQuoteCurrencyAmount(
-						toBigNumber(value).multipliedBy(inverseRate).multipliedBy(MIN_SHORT_RATIO).toString()
-					);
+					if (isLockedSafeRatio) {
+						setQuoteCurrencyAmount(
+							toBigNumber(value)
+								.multipliedBy(inverseRate)
+								.multipliedBy(MIN_SAFE_SHORT_RATIO)
+								.toString()
+						);
+					}
 				}
 			}}
 			walletBalance={baseCurrencyBalance}
@@ -392,7 +427,7 @@ const useExchange = ({
 			// 	allowBaseCurrencySelection ? () => setSelectBaseCurrencyModal(true) : undefined
 			// }
 			priceRate={basePriceRate}
-			tradingMode="short"
+			label={t('shorting.common.shorting')}
 		/>
 	);
 
@@ -424,6 +459,7 @@ const useExchange = ({
 					transactionFee={transactionFee}
 					feeCost={feeCost}
 					showFee={true}
+					isApproved={isApproved}
 				/>
 			)}
 			{txConfirmationModalOpen && (
@@ -453,4 +489,4 @@ const useExchange = ({
 	};
 };
 
-export default useExchange;
+export default useShort;

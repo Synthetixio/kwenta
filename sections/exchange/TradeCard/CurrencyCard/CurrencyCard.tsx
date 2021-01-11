@@ -1,4 +1,4 @@
-import { FC, MouseEvent } from 'react';
+import { FC, MouseEvent, ReactNode, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled, { css } from 'styled-components';
 import { Svg } from 'react-optimized-image';
@@ -18,7 +18,6 @@ import { FlexDivRowCentered, numericValueCSS, CapitalizedText } from 'styles/com
 
 import { Side } from '../types';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
-import { TradingMode } from 'sections/exchange/types';
 
 type CurrencyCardProps = {
 	side: Side;
@@ -30,7 +29,7 @@ type CurrencyCardProps = {
 	onCurrencySelect?: () => void;
 	priceRate: number;
 	className?: string;
-	tradingMode: TradingMode;
+	label: ReactNode;
 };
 
 const CurrencyCard: FC<CurrencyCardProps> = ({
@@ -42,7 +41,7 @@ const CurrencyCard: FC<CurrencyCardProps> = ({
 	onBalanceClick,
 	onCurrencySelect,
 	priceRate,
-	tradingMode,
+	label,
 	...rest
 }) => {
 	const { t } = useTranslation();
@@ -52,10 +51,13 @@ const CurrencyCard: FC<CurrencyCardProps> = ({
 		getPriceAtCurrentRate,
 	} = useSelectedPriceCurrency();
 
-	const isBase = side === 'base';
+	const isBase = useMemo(() => side === 'base', [side]);
 
-	const hasWalletBalance = walletBalance != null && currencyKey != null;
-	const amountBN = amount === '' ? zeroBN : toBigNumber(amount);
+	const hasWalletBalance = useMemo(() => walletBalance != null && currencyKey != null, [
+		walletBalance,
+		currencyKey,
+	]);
+	const amountBN = useMemo(() => (amount === '' ? zeroBN : toBigNumber(amount)), [amount]);
 
 	const insufficientBalance = !isBase && hasWalletBalance ? amountBN.gt(walletBalance!) : false;
 
@@ -70,11 +72,7 @@ const CurrencyCard: FC<CurrencyCardProps> = ({
 	return (
 		<Card className="currency-card" {...rest}>
 			<StyledCardBody>
-				<LabelContainer data-testid="destination">
-					{isBase
-						? t(`exchange.currency-card.trading-mode.${tradingMode}.base`)
-						: t(`exchange.currency-card.trading-mode.${tradingMode}.quote`)}
-				</LabelContainer>
+				<LabelContainer data-testid="destination">{label}</LabelContainer>
 				<CurrencyContainer>
 					<CurrencySelector
 						currencyKeySelected={currencyKeySelected}
