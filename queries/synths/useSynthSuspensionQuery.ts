@@ -1,5 +1,5 @@
 import { useQuery, QueryConfig } from 'react-query';
-import { BigNumberish, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useRecoilValue } from 'recoil';
 
 import QUERY_KEYS from 'constants/queryKeys';
@@ -60,7 +60,7 @@ const useSynthSuspensionQuery = (
 		async () => {
 			const [isSuspended, reason] = (await synthetix.js?.contracts.SystemStatus.synthSuspension(
 				ethers.utils.formatBytes32String(currencyKey!)
-			)) as [boolean, BigNumberish];
+			)) as [boolean, ethers.BigNumber];
 
 			const reasonCode = Number(reason);
 			return {

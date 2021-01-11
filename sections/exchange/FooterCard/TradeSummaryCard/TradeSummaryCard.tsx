@@ -37,7 +37,8 @@ export type SubmissionDisabledReason =
 	| 'insufficient-balance'
 	| 'submitting-order'
 	| 'connect-wallet'
-	| 'enter-amount';
+	| 'enter-amount'
+	| 'approving';
 
 type TradeSummaryCardProps = {
 	submissionDisabledReason: SubmissionDisabledReason | null;
@@ -52,7 +53,7 @@ type TradeSummaryCardProps = {
 	showFee?: boolean;
 	attached?: boolean;
 	className?: string;
-	exchangeFeeRate: number | null;
+	feeRate: BigNumber | null;
 	transactionFee?: number | null;
 	feeCost: BigNumber | null;
 };
@@ -69,7 +70,7 @@ const TradeSummaryCard: FC<TradeSummaryCardProps> = ({
 	quoteCurrencyKey,
 	showFee = true,
 	attached,
-	exchangeFeeRate,
+	feeRate,
 	transactionFee,
 	feeCost,
 	...rest
@@ -179,7 +180,7 @@ const TradeSummaryCard: FC<TradeSummaryCardProps> = ({
 					<SummaryItem>
 						<SummaryItemLabel>{t('exchange.summary-info.fee')}</SummaryItemLabel>
 						<SummaryItemValue data-testid="exchange-fee-rate">
-							{exchangeFeeRate != null ? formatPercent(exchangeFeeRate) : NO_VALUE}
+							{feeRate != null ? formatPercent(feeRate) : NO_VALUE}
 						</SummaryItemValue>
 					</SummaryItem>
 					<SummaryItem>

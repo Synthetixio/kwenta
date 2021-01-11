@@ -18,6 +18,7 @@ import { FlexDivRowCentered, numericValueCSS, CapitalizedText } from 'styles/com
 
 import { Side } from '../types';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
+import { TradingMode } from 'sections/exchange/types';
 
 type CurrencyCardProps = {
 	side: Side;
@@ -29,6 +30,7 @@ type CurrencyCardProps = {
 	onCurrencySelect?: () => void;
 	priceRate: number;
 	className?: string;
+	tradingMode: TradingMode;
 };
 
 const CurrencyCard: FC<CurrencyCardProps> = ({
@@ -40,6 +42,7 @@ const CurrencyCard: FC<CurrencyCardProps> = ({
 	onBalanceClick,
 	onCurrencySelect,
 	priceRate,
+	tradingMode,
 	...rest
 }) => {
 	const { t } = useTranslation();
@@ -68,7 +71,9 @@ const CurrencyCard: FC<CurrencyCardProps> = ({
 		<Card className="currency-card" {...rest}>
 			<StyledCardBody>
 				<LabelContainer data-testid="destination">
-					{isBase ? t('exchange.common.into') : t('exchange.common.from')}
+					{isBase
+						? t(`exchange.currency-card.trading-mode.${tradingMode}.base`)
+						: t(`exchange.currency-card.trading-mode.${tradingMode}.quote`)}
 				</LabelContainer>
 				<CurrencyContainer>
 					<CurrencySelector

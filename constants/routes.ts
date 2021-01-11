@@ -22,6 +22,9 @@ export const ROUTES = {
 			normalizeRoute('/exchange', `${baseCurrencyKey}-${quoteCurrencyKey}`, 'market'),
 		Into: (currencyKey: CurrencyKey) => normalizeRoute(`/exchange`, currencyKey, 'market'),
 	},
+	Shorting: {
+		Home: '/shorting',
+	},
 };
 
 export default ROUTES;
