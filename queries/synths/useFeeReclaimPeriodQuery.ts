@@ -1,5 +1,5 @@
 import { useQuery, QueryConfig } from 'react-query';
-import { BigNumberish, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { useRecoilValue } from 'recoil';
 
 import QUERY_KEYS from 'constants/queryKeys';
