@@ -6,10 +6,9 @@ import { useTranslation } from 'react-i18next';
 
 import BigNumber from 'bignumber.js';
 
-import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
+import { CurrencyKey, DEFAULT_TOKEN_DECIMALS, SYNTHS_MAP } from 'constants/currency';
 
 import Connector from 'containers/Connector';
-import Etherscan from 'containers/Etherscan';
 
 import useSynthsBalancesQuery from 'queries/walletBalances/useSynthsBalancesQuery';
 import useEthGasPriceQuery from 'queries/network/useEthGasPriceQuery';
@@ -43,6 +42,7 @@ import { getTransactionPrice, normalizeGasLimit, gasPriceInWei } from 'utils/net
 import { toBigNumber, zeroBN } from 'utils/formatters/number';
 
 import useCollateralShortIssuanceFee from 'queries/collateral/useCollateralShortIssuanceFee';
+import Notify from 'containers/Notify';
 
 const MIN_SAFE_SHORT_RATIO = 2;
 
@@ -57,7 +57,7 @@ const useShort = ({
 }: ShortCardProps) => {
 	const { t } = useTranslation();
 	const { notify } = Connector.useContainer();
-	const { etherscanInstance } = Etherscan.useContainer();
+	const { monitorHash } = Notify.useContainer();
 
 	const baseCurrencyKey = defaultBaseCurrencyKey ?? null;
 	const quoteCurrencyKey = defaultQuoteCurrencyKey ?? null;
@@ -131,7 +131,7 @@ const useShort = ({
 
 	// const baseCurrencyAmountEthersBN = useMemo(() => {
 	// 	try {
-	// 		return ethers.utils.parseUnits(baseCurrencyAmount.toString(), 18);
+	// 		return ethers.utils.parseUnits(baseCurrencyAmount.toString(), DEFAULT_TOKEN_DECIMALS);
 	// 	} catch {
 	// 		return ethers.BigNumber.from('0');
 	// 	}
@@ -268,8 +268,8 @@ const useShort = ({
 
 	const getShortParams = () => {
 		return [
-			ethers.utils.parseEther(quoteCurrencyAmount),
-			ethers.utils.parseEther(baseCurrencyAmount),
+			ethers.utils.parseUnits(quoteCurrencyAmount, DEFAULT_TOKEN_DECIMALS),
+			ethers.utils.parseUnits(baseCurrencyAmount, DEFAULT_TOKEN_DECIMALS),
 			ethers.utils.formatBytes32String(baseCurrencyKey!),
 		];
 	};
@@ -288,21 +288,41 @@ const useShort = ({
 	};
 
 	const approve = async () => {
-		if (quoteCurrencyKey != null) {
+		if (quoteCurrencyKey != null && gasPrice != null) {
 			try {
 				setIsApproving(true);
+				// open approve modal
 
 				const { contracts } = synthetix.js!;
-				const tx = await contracts[synthToContractName(quoteCurrencyKey)].approve(
+
+				const collateralContract = contracts[synthToContractName(quoteCurrencyKey)];
+
+				const gasEstimate = await collateralContract.estimateGas.approve(
 					contracts.CollateralShort.address,
-					ethers.utils.parseEther(quoteCurrencyAmount)
+					ethers.constants.MaxUint256
 				);
-				await tx.wait();
-				await checkAllowance();
+				const gasPriceWei = gasPriceInWei(gasPrice);
+
+				const tx = await collateralContract.approve(
+					contracts.CollateralShort.address,
+					ethers.constants.MaxUint256,
+					{
+						gasLimit: normalizeGasLimit(Number(gasEstimate)),
+						gasPrice: gasPriceWei,
+					}
+				);
+				if (tx != null) {
+					monitorHash({
+						txHash: tx.hash,
+						onTxConfirmed: () => {
+							setIsApproving(false);
+							// TODO: check for allowance or can we assume its ok?
+							setIsApproved(true);
+						},
+					});
+				}
 			} catch (e) {
-				// show error
-			} finally {
-				setIsApproving(false);
+				console.log(e);
 			}
 		}
 	};
@@ -333,25 +353,13 @@ const useShort = ({
 					gasLimit: gasLimitEstimate,
 				})) as ethers.ContractTransaction;
 
-				if (tx != null) {
-					if (notify) {
-						const { emitter } = notify.hash(tx.hash);
-						const link = etherscanInstance != null ? etherscanInstance.txLink(tx.hash) : undefined;
-
-						emitter.on('txConfirmed', () => {
+				if (tx != null && notify != null) {
+					monitorHash({
+						txHash: tx.hash,
+						onTxConfirmed: () => {
 							synthsWalletBalancesQuery.refetch();
-							return {
-								autoDismiss: 0,
-								link,
-							};
-						});
-
-						emitter.on('all', () => {
-							return {
-								link,
-							};
-						});
-					}
+						},
+					});
 				}
 				setTxConfirmationModalOpen(false);
 			} catch (e) {
