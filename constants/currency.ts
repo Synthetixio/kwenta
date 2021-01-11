@@ -110,3 +110,4 @@ export const FIAT_SYNTHS = new Set([
 ]);
 
 export const sUSD_EXCHANGE_RATE = 1;
+export const DEFAULT_TOKEN_DECIMALS = 18;

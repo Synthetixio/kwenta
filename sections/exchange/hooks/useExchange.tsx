@@ -9,10 +9,12 @@ import BigNumber from 'bignumber.js';
 import { useTranslation } from 'react-i18next';
 
 import ROUTES from 'constants/routes';
-import { CRYPTO_CURRENCY_MAP, CurrencyKey, SYNTHS_MAP } from 'constants/currency';
-
-import Connector from 'containers/Connector';
-import Etherscan from 'containers/Etherscan';
+import {
+	CRYPTO_CURRENCY_MAP,
+	CurrencyKey,
+	DEFAULT_TOKEN_DECIMALS,
+	SYNTHS_MAP,
+} from 'constants/currency';
 
 import useSynthsBalancesQuery from 'queries/walletBalances/useSynthsBalancesQuery';
 import useETHBalanceQuery from 'queries/walletBalances/useETHBalanceQuery';
@@ -53,6 +55,7 @@ import useMarketClosed from 'hooks/useMarketClosed';
 import OneInch from 'containers/OneInch';
 import useCurrencyPair from './useCurrencyPair';
 import { toBigNumber, zeroBN } from 'utils/formatters/number';
+import Notify from 'containers/Notify';
 
 type ExchangeCardProps = {
 	defaultBaseCurrencyKey?: CurrencyKey | null;
@@ -78,8 +81,7 @@ const useExchange = ({
 	showNoSynthsCard = true,
 }: ExchangeCardProps) => {
 	const { t } = useTranslation();
-	const { notify } = Connector.useContainer();
-	const { etherscanInstance } = Etherscan.useContainer();
+	const { monitorHash } = Notify.useContainer();
 	const { swap } = OneInch.useContainer();
 	const router = useRouter();
 
@@ -322,7 +324,7 @@ const useExchange = ({
 	const getExchangeParams = () => {
 		const quoteKeyBytes32 = ethers.utils.formatBytes32String(quoteCurrencyKey!);
 		const baseKeyBytes32 = ethers.utils.formatBytes32String(baseCurrencyKey!);
-		const amountToExchange = ethers.utils.parseEther(quoteCurrencyAmount);
+		const amountToExchange = ethers.utils.parseUnits(quoteCurrencyAmount, DEFAULT_TOKEN_DECIMALS);
 		const trackingCode = ethers.utils.formatBytes32String('KWENTA');
 
 		return [quoteKeyBytes32, amountToExchange, baseKeyBytes32, walletAddress, trackingCode];
@@ -388,11 +390,9 @@ const useExchange = ({
 					);
 					setHasOrdersNotification(true);
 
-					if (notify) {
-						const { emitter } = notify.hash(tx.hash);
-						const link = etherscanInstance != null ? etherscanInstance.txLink(tx.hash) : undefined;
-
-						emitter.on('txConfirmed', () => {
+					monitorHash({
+						txHash: tx.hash,
+						onTxConfirmed: () => {
 							setOrders((orders) =>
 								produce(orders, (draftState) => {
 									const orderIndex = orders.findIndex((order) => order.hash === tx.hash);
@@ -402,18 +402,8 @@ const useExchange = ({
 								})
 							);
 							synthsWalletBalancesQuery.refetch();
-							return {
-								autoDismiss: 0,
-								link,
-							};
-						});
-
-						emitter.on('all', () => {
-							return {
-								link,
-							};
-						});
-					}
+						},
+					});
 				}
 				setTxConfirmationModalOpen(false);
 			} catch (e) {
