@@ -6,20 +6,14 @@ import { SYNTHS_MAP } from 'constants/currency';
 
 import media from 'styles/media';
 
-import useExchange from 'sections/exchange/hooks/useExchange';
+import useShort from '../hooks/useShort';
 
 const ShortingCard: FC = () => {
 	const { t } = useTranslation();
 
-	const { quoteCurrencyCard, baseCurrencyCard, footerCard } = useExchange({
+	const { quoteCurrencyCard, baseCurrencyCard, footerCard } = useShort({
 		defaultBaseCurrencyKey: SYNTHS_MAP.sETH,
 		defaultQuoteCurrencyKey: SYNTHS_MAP.sUSD,
-		footerCardAttached: true,
-		persistSelectedCurrencies: false,
-		allowBaseCurrencySelection: true,
-		allowQuoteCurrencySelection: false,
-		showNoSynthsCard: true,
-		tradingMode: 'short',
 	});
 
 	return (
