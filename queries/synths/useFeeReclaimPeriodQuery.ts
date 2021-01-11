@@ -24,7 +24,7 @@ const useFeeReclaimPeriodQuery = (
 			const maxSecsLeftInWaitingPeriod = (await synthetix.js?.contracts.Exchanger.maxSecsLeftInWaitingPeriod(
 				walletAddress,
 				ethers.utils.formatBytes32String(currencyKey!)
-			)) as BigNumberish;
+			)) as ethers.BigNumberish;
 
 			return Number(maxSecsLeftInWaitingPeriod);
 		},

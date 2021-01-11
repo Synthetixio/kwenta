@@ -13,7 +13,8 @@
 	"header": {
 		"nav": {
 			"exchange": "exchange",
-			"dashboard": "dashboard"
+			"dashboard": "dashboard",
+			"shorting": "shorting"
 		}
 	},
 	"homepage": {
@@ -139,6 +140,16 @@
 			"wallet-balance": "wallet balance",
 			"currency-selector": {
 				"no-value": "select synth"
+			},
+			"trading-mode": {
+				"exchange": {
+					"quote": "from",
+					"base": "into"
+				},
+				"short": {
+					"quote": "collateral",
+					"base": "shorting"
+				}
 			}
 		},
 		"market-details-card": {
@@ -189,7 +200,9 @@
 				"enter-amount": "enter amount",
 				"select-synth": "select synth",
 				"submit-order": "submit order",
-				"submitting-order": "submitting order..."
+				"submitting-order": "submitting order...",
+				"appprove": "approve",
+				"short-c-ratio-low": "c-ratio low"
 			}
 		},
 		"onboard": {
@@ -287,6 +300,9 @@
 				"no-results": "No transactions found"
 			}
 		}
+	},
+	"shorting": {
+		"page-title": "Shorting | Kwenta"
 	},
 	"not-found": {
 		"page-title": "Not Found | Kwenta",
