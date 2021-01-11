@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import produce from 'immer';
 import castArray from 'lodash/castArray';
 import BigNumber from 'bignumber.js';
+import { useTranslation } from 'react-i18next';
 
 import ROUTES from 'constants/routes';
 import { CRYPTO_CURRENCY_MAP, CurrencyKey, SYNTHS_MAP } from 'constants/currency';
@@ -76,6 +77,7 @@ const useExchange = ({
 	allowCurrencySelection = true,
 	showNoSynthsCard = true,
 }: ExchangeCardProps) => {
+	const { t } = useTranslation();
 	const { notify } = Connector.useContainer();
 	const { etherscanInstance } = Etherscan.useContainer();
 	const { swap } = OneInch.useContainer();
@@ -477,7 +479,7 @@ const useExchange = ({
 				allowCurrencySelection ? () => setSelectQuoteCurrencyModalOpen(true) : undefined
 			}
 			priceRate={quotePriceRate}
-			tradingMode="exchange"
+			label={t('exchange.common.from')}
 		/>
 	);
 	const quotePriceChartCard = showPriceCard ? (
@@ -513,7 +515,7 @@ const useExchange = ({
 			}}
 			onCurrencySelect={allowCurrencySelection ? () => setSelectBaseCurrencyModal(true) : undefined}
 			priceRate={basePriceRate}
-			tradingMode="exchange"
+			label={t('exchange.common.into')}
 		/>
 	);
 

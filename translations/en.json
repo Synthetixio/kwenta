@@ -140,16 +140,6 @@
 			"wallet-balance": "wallet balance",
 			"currency-selector": {
 				"no-value": "select synth"
-			},
-			"trading-mode": {
-				"exchange": {
-					"quote": "from",
-					"base": "into"
-				},
-				"short": {
-					"quote": "collateral",
-					"base": "shorting"
-				}
 			}
 		},
 		"market-details-card": {
@@ -195,13 +185,14 @@
 			"fee": "fee",
 			"fee-cost": "fee cost",
 			"button": {
+				"approve": "approve",
+				"approving": "approving",
 				"fee-reclaim-period": "fee reclaim period",
 				"insufficient-balance": "insufficient balance",
 				"enter-amount": "enter amount",
 				"select-synth": "select synth",
 				"submit-order": "submit order",
 				"submitting-order": "submitting order...",
-				"appprove": "approve",
 				"short-c-ratio-low": "c-ratio low"
 			}
 		},
@@ -302,7 +293,11 @@
 		}
 	},
 	"shorting": {
-		"page-title": "Shorting | Kwenta"
+		"page-title": "Shorting | Kwenta",
+		"common": {
+			"collateral": "collateral",
+			"shorting": "shorting"
+		}
 	},
 	"not-found": {
 		"page-title": "Not Found | Kwenta",
