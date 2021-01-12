@@ -26,6 +26,7 @@ import MarketClosureCard from 'sections/exchange/FooterCard/MarketClosureCard';
 import ConnectWalletCard from 'sections/exchange/FooterCard/ConnectWalletCard';
 import TxConfirmationModal from 'sections/shared/modals/TxConfirmationModal';
 import TxApproveModal from 'sections/shared/modals/TxApproveModal';
+import SelectShortCurrencyModal from 'sections/shared/modals/SelectShortCurrencyModal';
 
 import {
 	customGasPriceState,
@@ -49,6 +50,8 @@ import useCollateralShortIssuanceFee from 'queries/collateral/useCollateralShort
 import Notify from 'containers/Notify';
 
 import { NoTextTransform } from 'styles/common';
+import useCurrencyPair from 'sections/exchange/hooks/useCurrencyPair';
+import { appReadyState } from 'store/app';
 
 const MIN_SAFE_SHORT_RATIO = 2;
 
@@ -65,9 +68,15 @@ const useShort = ({
 	const { notify } = Connector.useContainer();
 	const { monitorHash } = Notify.useContainer();
 
-	const baseCurrencyKey = defaultBaseCurrencyKey ?? null;
-	const quoteCurrencyKey = defaultQuoteCurrencyKey ?? null;
+	const [currencyPair, setCurrencyPair] = useCurrencyPair({
+		persistSelectedCurrencies: false,
+		defaultBaseCurrencyKey,
+		defaultQuoteCurrencyKey,
+	});
 
+	const { base: baseCurrencyKey, quote: quoteCurrencyKey } = currencyPair;
+
+	const isAppReady = useRecoilValue(appReadyState);
 	const [isApproving, setIsApproving] = useState<boolean>(false);
 	const [isApproved, setIsApproved] = useState<boolean>(false);
 	const [baseCurrencyAmount, setBaseCurrencyAmount] = useState<string>('');
@@ -77,6 +86,7 @@ const useShort = ({
 	const walletAddress = useRecoilValue(walletAddressState);
 	const [txConfirmationModalOpen, setTxConfirmationModalOpen] = useState<boolean>(false);
 	const [txApproveModalOpen, setTxApproveModalOpen] = useState<boolean>(false);
+	const [selectShortCurrencyModalOpen, setSelectShortCurrencyModalOpen] = useState<boolean>(false);
 	const [txError, setTxError] = useState<string | null>(null);
 	const gasSpeed = useRecoilValue(gasSpeedState);
 	const customGasPrice = useRecoilValue(customGasPriceState);
@@ -204,6 +214,16 @@ const useShort = ({
 		synthsWalletBalancesQuery.isSuccess && synthsWalletBalancesQuery.data
 			? synthsWalletBalancesQuery.data.balances.length === 0
 			: false;
+
+	// TODO: grab these from the smart contract
+	const synthsAvailableToShort = useMemo(() => {
+		if (isAppReady) {
+			return synthetix.js!.synths.filter((synth) =>
+				[SYNTHS_MAP.sBTC, SYNTHS_MAP.sETH].includes(synth.name)
+			);
+		}
+		return [];
+	}, [isAppReady]);
 
 	const gasPrice = useMemo(
 		() =>
@@ -439,9 +459,7 @@ const useShort = ({
 					);
 				}
 			}}
-			// onCurrencySelect={
-			// 	allowBaseCurrencySelection ? () => setSelectBaseCurrencyModal(true) : undefined
-			// }
+			onCurrencySelect={() => setSelectShortCurrencyModalOpen(true)}
 			priceRate={basePriceRate}
 			label={t('shorting.common.shorting')}
 		/>
@@ -502,6 +520,20 @@ const useShort = ({
 					attemptRetry={approve}
 					currencyKey={quoteCurrencyKey!}
 					currencyLabel={<NoTextTransform>{quoteCurrencyKey}</NoTextTransform>}
+				/>
+			)}
+			{selectShortCurrencyModalOpen && quoteCurrencyKey != null && (
+				<SelectShortCurrencyModal
+					onDismiss={() => setSelectShortCurrencyModalOpen(false)}
+					onSelect={(currencyKey) => {
+						// @ts-ignore
+						setCurrencyPair((pair) => ({
+							base: currencyKey,
+							quote: pair.quote === currencyKey ? null : pair.quote,
+						}));
+					}}
+					synths={synthsAvailableToShort}
+					collateralCurrencyKey={quoteCurrencyKey}
 				/>
 			)}
 		</>

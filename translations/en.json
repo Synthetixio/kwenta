@@ -331,6 +331,12 @@
 				"non-synths": "non-synths"
 			}
 		},
+		"select-short-currency": {
+			"title": "select short asset",
+			"header": {
+				"your-synths": "your <0>{{currencyKey}}</0> balance"
+			}
+		},
 		"confirm-transaction": {
 			"title": "confirm transaction",
 			"confirm-with-provider": "Confirm your transaction through your wallet."
@@ -405,6 +411,7 @@
 			"reattempt": "Try again"
 		},
 		"price": "price",
+		"asset": "asset",
 		"cancel": "cancel",
 		"order-types": {
 			"market": "market order",
@@ -447,7 +454,8 @@
 			}
 		},
 		"totals": {
-			"total-synth-value": "total synth value"
+			"total-synth-value": "total synth value",
+			"your-currencyKey-balance": "your <0>{{currencyKey}}</0> balance"
 		},
 		"pagination": {
 			"page": "Page",
