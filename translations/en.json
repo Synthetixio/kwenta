@@ -296,6 +296,7 @@
 		"page-title": "Shorting | Kwenta",
 		"common": {
 			"collateral": "collateral",
+			"posting": "posting",
 			"shorting": "shorting"
 		}
 	},
@@ -332,6 +333,10 @@
 		},
 		"confirm-transaction": {
 			"title": "confirm transaction",
+			"confirm-with-provider": "Confirm your transaction through your wallet."
+		},
+		"approve-transaction": {
+			"title": "approve transaction",
 			"confirm-with-provider": "Confirm your transaction through your wallet."
 		},
 		"settings": {

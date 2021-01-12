@@ -7,6 +7,9 @@ import produce from 'immer';
 import castArray from 'lodash/castArray';
 import BigNumber from 'bignumber.js';
 import { useTranslation } from 'react-i18next';
+import { Svg } from 'react-optimized-image';
+
+import ArrowsIcon from 'assets/svg/app/circle-arrows.svg';
 
 import ROUTES from 'constants/routes';
 import {
@@ -103,7 +106,7 @@ const useExchange = ({
 	const [txConfirmationModalOpen, setTxConfirmationModalOpen] = useState<boolean>(false);
 	const [selectBaseCurrencyModal, setSelectBaseCurrencyModal] = useState<boolean>(false);
 	const [selectQuoteCurrencyModalOpen, setSelectQuoteCurrencyModalOpen] = useState<boolean>(false);
-	const [txError, setTxError] = useState<boolean>(false);
+	const [txError, setTxError] = useState<string | null>(null);
 	const setOrders = useSetRecoilState(ordersState);
 	const setHasOrdersNotification = useSetRecoilState(hasOrdersNotificationState);
 	const gasSpeed = useRecoilValue(gasSpeedState);
@@ -348,7 +351,7 @@ const useExchange = ({
 
 	const handleSubmit = async () => {
 		if (synthetix.js != null && gasPrice != null) {
-			setTxError(false);
+			setTxError(null);
 			setTxConfirmationModalOpen(true);
 			const exchangeParams = getExchangeParams();
 
@@ -408,7 +411,7 @@ const useExchange = ({
 				setTxConfirmationModalOpen(false);
 			} catch (e) {
 				console.log(e);
-				setTxError(true);
+				setTxError(e.message);
 			} finally {
 				setIsSubmitting(false);
 			}
@@ -563,6 +566,9 @@ const useExchange = ({
 					quoteCurrencyKey={quoteCurrencyKey!}
 					totalTradePrice={totalTradePrice.toString()}
 					txProvider={txProvider}
+					quoteCurrencyLabel={t('exchange.common.from')}
+					baseCurrencyLabel={t('exchange.common.into')}
+					icon={<Svg src={ArrowsIcon} />}
 				/>
 			)}
 			{selectBaseCurrencyModal && (

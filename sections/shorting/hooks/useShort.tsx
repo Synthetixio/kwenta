@@ -3,6 +3,9 @@ import { ethers } from 'ethers';
 import { useRecoilValue } from 'recoil';
 import get from 'lodash/get';
 import { useTranslation } from 'react-i18next';
+import { Svg } from 'react-optimized-image';
+
+import ArrowRightIcon from 'assets/svg/app/circle-arrow-right.svg';
 
 import BigNumber from 'bignumber.js';
 
@@ -22,6 +25,7 @@ import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
 import MarketClosureCard from 'sections/exchange/FooterCard/MarketClosureCard';
 import ConnectWalletCard from 'sections/exchange/FooterCard/ConnectWalletCard';
 import TxConfirmationModal from 'sections/shared/modals/TxConfirmationModal';
+import TxApproveModal from 'sections/shared/modals/TxApproveModal';
 
 import {
 	customGasPriceState,
@@ -43,6 +47,8 @@ import { toBigNumber, zeroBN } from 'utils/formatters/number';
 
 import useCollateralShortIssuanceFee from 'queries/collateral/useCollateralShortIssuanceFee';
 import Notify from 'containers/Notify';
+
+import { NoTextTransform } from 'styles/common';
 
 const MIN_SAFE_SHORT_RATIO = 2;
 
@@ -70,7 +76,8 @@ const useShort = ({
 	const isWalletConnected = useRecoilValue(isWalletConnectedState);
 	const walletAddress = useRecoilValue(walletAddressState);
 	const [txConfirmationModalOpen, setTxConfirmationModalOpen] = useState<boolean>(false);
-	const [txError, setTxError] = useState<boolean>(false);
+	const [txApproveModalOpen, setTxApproveModalOpen] = useState<boolean>(false);
+	const [txError, setTxError] = useState<string | null>(null);
 	const gasSpeed = useRecoilValue(gasSpeedState);
 	const customGasPrice = useRecoilValue(customGasPriceState);
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
@@ -289,6 +296,9 @@ const useShort = ({
 
 	const approve = async () => {
 		if (quoteCurrencyKey != null && gasPrice != null) {
+			setTxError(null);
+			setTxApproveModalOpen(true);
+
 			try {
 				setIsApproving(true);
 				// open approve modal
@@ -321,20 +331,18 @@ const useShort = ({
 						},
 					});
 				}
+				setTxApproveModalOpen(false);
 			} catch (e) {
 				console.log(e);
+				setIsApproving(false);
+				setTxError(e.message);
 			}
 		}
 	};
 
 	const handleSubmit = async () => {
 		if (synthetix.js != null && gasPrice != null) {
-			if (!isApproved) {
-				approve();
-				return;
-			}
-
-			setTxError(false);
+			setTxError(null);
 			setTxConfirmationModalOpen(true);
 
 			try {
@@ -364,7 +372,7 @@ const useShort = ({
 				setTxConfirmationModalOpen(false);
 			} catch (e) {
 				console.log(e);
-				setTxError(true);
+				setTxError(e.message);
 			} finally {
 				setIsSubmitting(false);
 			}
@@ -455,7 +463,7 @@ const useShort = ({
 				<TradeSummaryCard
 					attached={true}
 					submissionDisabledReason={submissionDisabledReason}
-					onSubmit={handleSubmit}
+					onSubmit={isApproved ? handleSubmit : approve}
 					totalTradePrice={totalTradePrice.toString()}
 					baseCurrencyAmount={baseCurrencyAmount}
 					basePriceRate={basePriceRate}
@@ -477,11 +485,23 @@ const useShort = ({
 					attemptRetry={handleSubmit}
 					baseCurrencyAmount={baseCurrencyAmount}
 					quoteCurrencyAmount={quoteCurrencyAmount}
-					feeAmountInBaseCurrency={feeAmountInBaseCurrency}
+					feeAmountInBaseCurrency={null}
 					baseCurrencyKey={baseCurrencyKey!}
 					quoteCurrencyKey={quoteCurrencyKey!}
 					totalTradePrice={totalTradePrice.toString()}
 					txProvider="synthetix"
+					quoteCurrencyLabel={t('shorting.common.posting')}
+					baseCurrencyLabel={t('shorting.common.shorting')}
+					icon={<Svg src={ArrowRightIcon} />}
+				/>
+			)}
+			{txApproveModalOpen && (
+				<TxApproveModal
+					onDismiss={() => setTxApproveModalOpen(false)}
+					txError={txError}
+					attemptRetry={approve}
+					currencyKey={quoteCurrencyKey!}
+					currencyLabel={<NoTextTransform>{quoteCurrencyKey}</NoTextTransform>}
 				/>
 			)}
 		</>
