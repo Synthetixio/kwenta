@@ -1,6 +1,5 @@
 import { FC } from 'react';
 import styled from 'styled-components';
-// import { useTranslation } from 'react-i18next';
 
 import { SYNTHS_MAP } from 'constants/currency';
 
@@ -9,8 +8,6 @@ import media from 'styles/media';
 import useShort from '../hooks/useShort';
 
 const ShortingCard: FC = () => {
-	// const { t } = useTranslation();
-
 	const { quoteCurrencyCard, baseCurrencyCard, footerCard } = useShort({
 		defaultBaseCurrencyKey: SYNTHS_MAP.sETH,
 		defaultQuoteCurrencyKey: SYNTHS_MAP.sUSD,
