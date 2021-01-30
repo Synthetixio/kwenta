@@ -51,6 +51,7 @@ export const QUERY_KEYS = {
 	},
 	Collateral: {
 		ShortIssuanceFee: ['collateral', 'short', 'issuanceFee'],
+		ShortHistory: (walletAddress: string) => ['collateral', 'short', 'history', walletAddress],
 	},
 	Trades: {
 		AllTrades: ['trades', 'allTrades'],

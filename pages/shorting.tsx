@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
 import ShortingCard from 'sections/shorting/ShortingCard';
+import ShortingHistory from 'sections/shorting/ShortingHistory';
 
 import AppLayout from 'sections/shared/Layout/AppLayout';
 import { PageContent } from 'styles/common';
@@ -20,6 +21,7 @@ const Shorting: FC = () => {
 			<AppLayout>
 				<StyledPageContent>
 					<ShortingCard />
+					<ShortingHistory />
 				</StyledPageContent>
 			</AppLayout>
 		</>
