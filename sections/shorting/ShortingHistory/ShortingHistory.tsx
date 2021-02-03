@@ -21,6 +21,7 @@ const ShortingHistory: FC = () => {
 
 	const synthsAvailableToShort = useMemo(() => {
 		if (isAppReady) {
+			// TODO get list of assets from contract
 			return synthetix.js!.synths.filter((synth) =>
 				[SYNTHS_MAP.sBTC, SYNTHS_MAP.sETH].includes(synth.name)
 			);
@@ -69,11 +70,10 @@ const ShortingHistory: FC = () => {
 			synths
 				.filter((synth) => synth.name === synthFilter || synthFilter === 'ALL_SYNTHS')
 				.map((synth) => synth.name)
-				.indexOf(short.currency) !== -1,
+				.indexOf(short.synthBorrowed) !== -1,
 		[]
 	);
 
-	// This will always return true until we add limit orders back in.
 	const createDatesTypeFilter = useCallback(
 		(datesFilter: string) => (short: Short) => {
 			const currentTime = new Date().getTime();
@@ -96,13 +96,15 @@ const ShortingHistory: FC = () => {
 		(shortSize: string) => (short: Short) => {
 			switch (shortSize) {
 				case shortSizeFilterList[1].key:
-					return short.amount <= 1000;
+					return short.synthBorrowedAmount <= 1000;
 				case shortSizeFilterList[2].key:
-					return 1000 < short.amount && short.amount <= 10000;
+					return 1000 < short.synthBorrowedAmount && short.synthBorrowedAmount <= 10000;
 				case shortSizeFilterList[3].key:
-					return 10000 < short.amount && short.amount <= 100000;
+					return 10000 < short.synthBorrowedAmount && short.synthBorrowedAmount <= 100000;
 				case shortSizeFilterList[4].key:
-					return short.amount >= 100000;
+					return 100000 < short.synthBorrowedAmount && short.synthBorrowedAmount <= 1000000;
+				case shortSizeFilterList[5].key:
+					return short.synthBorrowedAmount >= 1000000;
 				default:
 					return true;
 			}

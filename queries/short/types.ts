@@ -6,8 +6,10 @@ export type Short = {
 	account: string;
 	collateralLocked: CurrencyKey;
 	collateralLockedAmount: number;
+	collateralLockedPrice: number;
 	synthBorrowed: CurrencyKey;
 	synthBorrowedAmount: number;
+	synthBorrowedPrice: number;
 	createdAt: number;
 	closedAt: number | null;
 	isOpen: boolean;

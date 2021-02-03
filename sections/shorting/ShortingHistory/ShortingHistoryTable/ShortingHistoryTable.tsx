@@ -11,7 +11,6 @@ import { formatNumber, formatPercent } from 'utils/formatters/number';
 import { NO_VALUE } from 'constants/placeholder';
 import ROUTES from 'constants/routes';
 import { ExternalLink, GridDivCenteredRow } from 'styles/common';
-
 import Etherscan from 'containers/Etherscan';
 
 import Table from 'components/Table';
@@ -94,14 +93,13 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 					accessor: 'liquidationPrice',
 					Cell: (cellProps: CellProps<Short>) => (
 						<span>
-							<StyledCurrencyKey>{cellProps.row.original.collateralLocked}</StyledCurrencyKey>
+							<StyledCurrencyKey>{cellProps.row.original.synthBorrowed}</StyledCurrencyKey>
 							<StyledPrice>
-								{/* 
-								  TODO need the synth price to calculate the liquidation price 
-								*/}
 								{formatNumber(
-									cellProps.row.original.synthBorrowedAmount /
-										cellProps.row.original.contractData.minCratio
+									(cellProps.row.original.collateralLockedAmount *
+										cellProps.row.original.collateralLockedPrice) /
+										(cellProps.row.original.synthBorrowedAmount *
+											cellProps.row.original.contractData.minCratio)
 								)}
 							</StyledPrice>
 						</span>
@@ -114,12 +112,11 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 					accessor: 'cRatio',
 					Cell: (cellProps: CellProps<Short>) => (
 						<PriceChangeText isPositive={true}>
-							{/* 
-								  TODO need the synth price to calculate the c-ratio as well
-								*/}
 							{formatPercent(
-								cellProps.row.original.synthBorrowedAmount /
-									cellProps.row.original.collateralLockedAmount
+								(cellProps.row.original.collateralLockedAmount *
+									cellProps.row.original.collateralLockedPrice) /
+									(cellProps.row.original.synthBorrowedAmount *
+										cellProps.row.original.synthBorrowedPrice)
 							)}
 						</PriceChangeText>
 					),
@@ -132,7 +129,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 					Cell: () => (
 						<PriceChangeText isPositive={true}>
 							{/* 
-									TODO need to calculate profit and loss
+									TODO need to calculate profit and loss - this is a bit tricky
 							*/}
 							{true ? '+' : '-'} {formatPercent(1)}
 						</PriceChangeText>

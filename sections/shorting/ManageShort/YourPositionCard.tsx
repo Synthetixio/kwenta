@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 // import TxConfirmationModal from 'sections/shared/modals/TxConfirmationModal';
 import { FlexDivCol, FlexDivRow, CapitalizedText, BoldText } from 'styles/common';
 import { Short } from 'queries/short/types';
-import { formatNumber } from 'utils/formatters/number';
+import { formatNumber, formatPercent } from 'utils/formatters/number';
 import { formatDateWithTime } from 'utils/formatters/date';
 // import synthetix from 'lib/synthetix';
 // import Connector from 'containers/Connector';
@@ -49,19 +49,19 @@ const YourPositionCard: FC<YourPositionCardProps> = ({ short }) => {
 						})}
 					</LightFieldText>
 					<DataField>
-						{/* 
-				      need some exchange rates here to calculate the liquidation price. this is just wrong and a placeholder for now
-				    */}
-						{formatNumber(short.synthBorrowedAmount / short.contractData.minCratio)}
+						{formatNumber(
+							(short.collateralLockedAmount * short.collateralLockedPrice) /
+								(short.synthBorrowedAmount * short.contractData.minCratio)
+						)}
 					</DataField>
 				</FlexDivRow>
 				<FlexDivRow>
 					<LightFieldText>{t('shorting.history.manageShort.collateralRatio')}</LightFieldText>
 					<DataField>
-						{/* 
-				      need some exchange rates here to calculate the liquidation price. this is just wrong and a placeholder for now
-				    */}
-						{formatNumber(short.collateralLockedAmount / short.synthBorrowedAmount)}
+						{formatPercent(
+							(short.collateralLockedAmount * short.collateralLockedPrice) /
+								(short.synthBorrowedAmount * short.synthBorrowedPrice)
+						)}
 					</DataField>
 				</FlexDivRow>
 			</SectionRow>
@@ -71,7 +71,7 @@ const YourPositionCard: FC<YourPositionCardProps> = ({ short }) => {
 						{t('shorting.history.manageShort.profitLoss', { asset: short.collateralLocked })}
 					</LightFieldText>
 					{/* 
-				      need to put profit loss here. this is just wrong and a placeholder for now
+				      need to put profit loss here. this is just a placeholder for now
 				    */}
 					<DataField profitLoss={1}>{formatNumber(1)}</DataField>
 				</FlexDivRow>
