@@ -9,10 +9,10 @@ import Select from 'components/Select';
 import { appReadyState } from 'store/app';
 import { CapitalizedText, GridDiv } from 'styles/common';
 import { SYNTHS_MAP } from 'constants/currency';
-
-import { ShortRecord } from 'queries/short/types';
-
+import { Short } from 'queries/short/types';
 import useShortHistoryQuery from 'queries/short/useShortHistoryQuery';
+
+import ShortingHistoryTable from './ShortingHistoryTable';
 
 const ShortingHistory: FC = () => {
 	const { t } = useTranslation();
@@ -65,7 +65,7 @@ const ShortingHistory: FC = () => {
 	const synths = synthetix.js?.synths || [];
 
 	const createSynthTypeFilter = useCallback(
-		(synths: Synth[], synthFilter: string) => (short: ShortRecord) =>
+		(synths: Synth[], synthFilter: string) => (short: Short) =>
 			synths
 				.filter((synth) => synth.name === synthFilter || synthFilter === 'ALL_SYNTHS')
 				.map((synth) => synth.name)
@@ -75,7 +75,7 @@ const ShortingHistory: FC = () => {
 
 	// This will always return true until we add limit orders back in.
 	const createDatesTypeFilter = useCallback(
-		(datesFilter: string) => (short: ShortRecord) => {
+		(datesFilter: string) => (short: Short) => {
 			const currentTime = new Date().getTime();
 			const day = 86400 * 1000;
 			switch (datesFilter) {
@@ -93,7 +93,7 @@ const ShortingHistory: FC = () => {
 	);
 
 	const createShortSizeFilter = useCallback(
-		(shortSize: string) => (short: ShortRecord) => {
+		(shortSize: string) => (short: Short) => {
 			switch (shortSize) {
 				case shortSizeFilterList[1].key:
 					return short.amount <= 1000;
@@ -166,11 +166,11 @@ const ShortingHistory: FC = () => {
 					}}
 				/>
 			</Filters>
-			{/* <ShortHistory
+			<ShortingHistoryTable
 				shortHistory={filteredShortHistory}
 				isLoaded={shortHistoryQuery.isSuccess}
 				isLoading={shortHistoryQuery.isLoading}
-			/> */}
+			/>
 		</>
 	);
 };

@@ -21,10 +21,10 @@ import LinkIcon from 'assets/svg/app/link.svg';
 import NoNotificationIcon from 'assets/svg/app/no-notifications.svg';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 
-import { ShortRecord } from 'queries/short/types';
+import { Short } from 'queries/short/types';
 
 type ShortingHistoryTableProps = {
-	shortHistory: ShortRecord[];
+	shortHistory: Short[];
 	isLoading: boolean;
 	isLoaded: boolean;
 };
@@ -48,16 +48,14 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 				{
 					Header: <StyledTableHeader>{t('shorting.history.table.id')}</StyledTableHeader>,
 					accessor: 'id',
-					Cell: (cellProps: CellProps<ShortRecord>) => (
-						<WhiteText>{cellProps.row.original.id}</WhiteText>
-					),
+					Cell: (cellProps: CellProps<Short>) => <WhiteText>{cellProps.row.original.id}</WhiteText>,
 					sortable: true,
 					width: 50,
 				},
 				{
 					Header: <StyledTableHeader>{t('shorting.history.table.date')}</StyledTableHeader>,
 					accessor: 'date',
-					Cell: (cellProps: CellProps<ShortRecord>) => (
+					Cell: (cellProps: CellProps<Short>) => (
 						<WhiteText>{formatDateWithTime(cellProps.row.original.createdAt)}</WhiteText>
 					),
 					width: 200,
@@ -66,7 +64,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 				{
 					Header: <StyledTableHeader>{t('shorting.history.table.shorting')}</StyledTableHeader>,
 					accessor: 'synthBorrowedAmount',
-					Cell: (cellProps: CellProps<ShortRecord>) => (
+					Cell: (cellProps: CellProps<Short>) => (
 						<span>
 							<StyledCurrencyKey>{cellProps.row.original.synthBorrowed}</StyledCurrencyKey>
 							<StyledPrice>{formatNumber(cellProps.row.original.synthBorrowedAmount)}</StyledPrice>
@@ -78,7 +76,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 				{
 					Header: <StyledTableHeader>{t('shorting.history.table.collateral')}</StyledTableHeader>,
 					accessor: 'collateralLockedAmount',
-					Cell: (cellProps: CellProps<ShortRecord>) => (
+					Cell: (cellProps: CellProps<Short>) => (
 						<span>
 							<StyledCurrencyKey>{cellProps.row.original.collateralLocked}</StyledCurrencyKey>
 							<StyledPrice>
@@ -94,7 +92,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 						<StyledTableHeader>{t('shorting.history.table.liquidationPrice')}</StyledTableHeader>
 					),
 					accessor: 'liquidationPrice',
-					Cell: (cellProps: CellProps<ShortRecord>) => (
+					Cell: (cellProps: CellProps<Short>) => (
 						<span>
 							<StyledCurrencyKey>{cellProps.row.original.collateralLocked}</StyledCurrencyKey>
 							<StyledPrice>
@@ -114,8 +112,11 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 				{
 					Header: <StyledTableHeader>{t('shorting.history.table.cRatio')}</StyledTableHeader>,
 					accessor: 'cRatio',
-					Cell: (cellProps: CellProps<ShortRecord>) => (
+					Cell: (cellProps: CellProps<Short>) => (
 						<PriceChangeText isPositive={true}>
+							{/* 
+								  TODO need the synth price to calculate the c-ratio as well
+								*/}
 							{formatPercent(
 								cellProps.row.original.synthBorrowedAmount /
 									cellProps.row.original.collateralLockedAmount
@@ -130,6 +131,9 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 					accessor: 'profitLoss',
 					Cell: () => (
 						<PriceChangeText isPositive={true}>
+							{/* 
+									TODO need to calculate profit and loss
+							*/}
 							{true ? '+' : '-'} {formatPercent(1)}
 						</PriceChangeText>
 					),
@@ -138,7 +142,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 				},
 				{
 					id: 'edit',
-					Cell: (cellProps: CellProps<ShortRecord>) => (
+					Cell: (cellProps: CellProps<Short>) => (
 						<div
 							onClick={() =>
 								router.push(ROUTES.Shorting.ManageShortAddCollateral(cellProps.row.original.id))
@@ -151,7 +155,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 				},
 				{
 					id: 'link',
-					Cell: (cellProps: CellProps<ShortRecord>) =>
+					Cell: (cellProps: CellProps<Short>) =>
 						etherscanInstance != null && cellProps.row.original.txHash ? (
 							<StyledExternalLink href={etherscanInstance.txLink(cellProps.row.original.txHash)}>
 								<StyledLinkIcon

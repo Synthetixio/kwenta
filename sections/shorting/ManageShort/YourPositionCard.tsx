@@ -2,13 +2,17 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
+// import TxConfirmationModal from 'sections/shared/modals/TxConfirmationModal';
 import { FlexDivCol, FlexDivRow, CapitalizedText, BoldText } from 'styles/common';
-import { ShortRecord } from 'queries/short/types';
+import { Short } from 'queries/short/types';
 import { formatNumber } from 'utils/formatters/number';
 import { formatDateWithTime } from 'utils/formatters/date';
+// import synthetix from 'lib/synthetix';
+// import Connector from 'containers/Connector';
+// import Notify from 'containers/Notify';
 
 interface YourPositionCardProps {
-	short: ShortRecord;
+	short: Short;
 }
 
 const YourPositionCard: FC<YourPositionCardProps> = ({ short }) => {
@@ -17,6 +21,10 @@ const YourPositionCard: FC<YourPositionCardProps> = ({ short }) => {
 		<Container>
 			<SectionRow>
 				<BoldText>{t('shorting.history.manageShort.subtitle')}</BoldText>
+				{/* 
+				  TODO determine if we really need the close here in which case 
+				  we need a lot of code to mange the tx vs adding another subtab in the manage positions section 
+				*/}
 				<RedCapitalized>{t('shorting.history.manageShort.close')}</RedCapitalized>
 			</SectionRow>
 			<SectionRow>
@@ -36,22 +44,24 @@ const YourPositionCard: FC<YourPositionCardProps> = ({ short }) => {
 			<SectionRow>
 				<FlexDivRow>
 					<LightFieldText>
-						{t('shorting.history.manageShort.liquidationPrice', { asset: short.collateralLocked })}
+						{t('shorting.history.manageShort.liquidationPrice', {
+							asset: short.collateralLocked,
+						})}
 					</LightFieldText>
 					<DataField>
-						{formatNumber(
-							((short.synthBorrowedAmount * short.synthPrice) / short.contractData.minCratio) *
-								short.collateralPrice
-						)}
+						{/* 
+				      need some exchange rates here to calculate the liquidation price. this is just wrong and a placeholder for now
+				    */}
+						{formatNumber(short.synthBorrowedAmount / short.contractData.minCratio)}
 					</DataField>
 				</FlexDivRow>
 				<FlexDivRow>
 					<LightFieldText>{t('shorting.history.manageShort.collateralRatio')}</LightFieldText>
 					<DataField>
-						{formatNumber(
-							(short.collateralLockedAmount * short.collateralPrice) /
-								(short.synthBorrowedAmount * short.synthPrice)
-						)}
+						{/* 
+				      need some exchange rates here to calculate the liquidation price. this is just wrong and a placeholder for now
+				    */}
+						{formatNumber(short.collateralLockedAmount / short.synthBorrowedAmount)}
 					</DataField>
 				</FlexDivRow>
 			</SectionRow>
@@ -60,7 +70,10 @@ const YourPositionCard: FC<YourPositionCardProps> = ({ short }) => {
 					<LightFieldText>
 						{t('shorting.history.manageShort.profitLoss', { asset: short.collateralLocked })}
 					</LightFieldText>
-					<DataField profitLoss={short.profitLoss}>{formatNumber(short.profitLoss)}</DataField>
+					{/* 
+				      need to put profit loss here. this is just wrong and a placeholder for now
+				    */}
+					<DataField profitLoss={1}>{formatNumber(1)}</DataField>
 				</FlexDivRow>
 				<FlexDivRow>
 					<LightFieldText>{t('shorting.history.manageShort.date')}</LightFieldText>

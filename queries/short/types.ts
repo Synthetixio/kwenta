@@ -1,10 +1,12 @@
-export type ShortRecord = {
+import { CurrencyKey } from 'constants/currency';
+
+export type Short = {
 	id: number;
 	txHash: string;
 	account: string;
-	collateralLocked: string;
+	collateralLocked: CurrencyKey;
 	collateralLockedAmount: number;
-	synthBorrowed: string;
+	synthBorrowed: CurrencyKey;
 	synthBorrowedAmount: number;
 	createdAt: number;
 	closedAt: number | null;
@@ -20,7 +22,7 @@ export type ShortCollateralChange = {
 	isDeposit: boolean;
 	amount: number;
 	collateralAfter: number;
-	short: ShortRecord;
+	short: Short;
 	timestamp: number;
 };
 
@@ -29,7 +31,7 @@ export type ShortLoanChange = {
 	isRepayment: boolean;
 	amount: number;
 	loanAfter: number;
-	short: ShortRecord;
+	short: Short;
 	timestamp: number;
 };
 
@@ -39,13 +41,13 @@ export type ShortLiquidation = {
 	isClosed: boolean;
 	liquidatedAmount: number;
 	liquidatedCollateral: number;
-	short: ShortRecord;
+	short: Short;
 	timestamp: number;
 };
 
 export type ShortContract = {
 	id: string;
-	shorts: ShortRecord[];
+	shorts: Short[];
 	contractUpdates: ShortContractUpdate[];
 	canOpenLoans: boolean;
 	interactionDelay: number;

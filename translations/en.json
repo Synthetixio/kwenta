@@ -337,6 +337,11 @@
 					},
 					"increasePosition": {
 						"nav-title": "Increase Position"
+					},
+					"panel": {
+						"collateral": "Collateral",
+						"shorting": "Shorting",
+						"wallet-balance": "Wallet Balance"
 					}
 				}
 			},
