@@ -1,4 +1,4 @@
-import { FC, useState, useMemo, useEffect } from 'react';
+import { FC, useState, useMemo, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useRecoilValue } from 'recoil';
 import { useTranslation } from 'react-i18next';
@@ -64,9 +64,9 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 	const gasSpeed = useRecoilValue(gasSpeedState);
 	const walletAddress = useRecoilValue(walletAddressState);
 	const synthsWalletBalancesQuery = useSynthsBalancesQuery();
-	const collateralShortFeeRateQuery = useCollateralShortIssuanceFee();
-	const collateralShortFeeRate = collateralShortFeeRateQuery.isSuccess
-		? collateralShortFeeRateQuery.data ?? null
+	const collateralShortIssuanceFeeQuery = useCollateralShortIssuanceFee();
+	const collateralShortIssuanceFee = collateralShortIssuanceFeeQuery.isSuccess
+		? collateralShortIssuanceFeeQuery.data ?? null
 		: null;
 
 	const needsApproval = tab === ShortingTab.AddCollateral;
@@ -130,7 +130,7 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 
 	const exchangeRates = exchangeRatesQuery.isSuccess ? exchangeRatesQuery.data ?? null : null;
 
-	const synthPriceRate = useMemo(
+	const assetPriceRate = useMemo(
 		() => getExchangeRatesForCurrencies(exchangeRates, currencyKey, selectedPriceCurrency.name),
 		[exchangeRates, currencyKey, selectedPriceCurrency.name]
 	);
@@ -144,13 +144,13 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 		if (inputAmountBN.isNaN()) {
 			return zeroBN;
 		}
-		let tradePrice = inputAmountBN.multipliedBy(synthPriceRate);
+		let tradePrice = inputAmountBN.multipliedBy(assetPriceRate);
 		if (selectPriceCurrencyRate) {
 			tradePrice = tradePrice.dividedBy(selectPriceCurrencyRate);
 		}
 
 		return tradePrice;
-	}, [inputAmountBN, synthPriceRate, selectPriceCurrencyRate]);
+	}, [inputAmountBN, assetPriceRate, selectPriceCurrencyRate]);
 
 	const submissionDisabledReason: SubmissionDisabledReason | null = useMemo(() => {
 		if (!isWalletConnected || inputAmountBN.isNaN() || inputAmountBN.lte(0)) {
@@ -168,7 +168,7 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 		return null;
 	}, [isApproving, balance, isSubmitting, inputAmountBN, isWalletConnected]);
 
-	const getGasLimitEstimate = async (): Promise<number | null> => {
+	const getGasLimitEstimate = useCallback(async (): Promise<number | null> => {
 		try {
 			const { tx, params } = getMethodAndParams(true);
 			const gasEstimate = await tx(params);
@@ -177,7 +177,7 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 			console.log('getGasEstimate error:', e);
 			return null;
 		}
-	};
+	}, [getMethodAndParams, normalizeGasLimit]);
 
 	useEffect(() => {
 		async function updateGasLimit() {
@@ -202,8 +202,6 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 				let transaction: ethers.ContractTransaction | null = null;
 
 				const gasPriceWei = gasPriceInWei(gasPrice);
-				getGasLimitEstimate();
-
 				const gasLimitEstimate = await getGasLimitEstimate();
 
 				setGasLimit(gasLimitEstimate);
@@ -218,9 +216,7 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 				if (transaction != null && notify != null) {
 					monitorHash({
 						txHash: transaction.hash,
-						onTxConfirmed: () => {
-							shortHistoryQuery.refetch();
-						},
+						onTxConfirmed: () => shortHistoryQuery.refetch(),
 					});
 				}
 				setTxConfirmationModalOpen(false);
@@ -264,7 +260,6 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 						txHash: tx.hash,
 						onTxConfirmed: () => {
 							setIsApproving(false);
-							// TODO: check for allowance or can we assume its ok?
 							setIsApproved(true);
 						},
 					});
@@ -284,19 +279,19 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 		ethPriceRate,
 	]);
 
-	const feeAmountInBaseCurrency = useMemo(() => {
-		if (collateralShortFeeRate != null && inputAmountBN.gt(0)) {
-			return inputAmountBN.multipliedBy(collateralShortFeeRate);
+	const issuanceFee = useMemo(() => {
+		if (collateralShortIssuanceFee != null && inputAmountBN.gt(0)) {
+			return inputAmountBN.multipliedBy(collateralShortIssuanceFee);
 		}
 		return null;
-	}, [inputAmountBN, collateralShortFeeRate]);
+	}, [inputAmountBN, collateralShortIssuanceFee]);
 
 	const feeCost = useMemo(() => {
-		if (feeAmountInBaseCurrency != null) {
-			return feeAmountInBaseCurrency.multipliedBy(synthPriceRate);
+		if (issuanceFee != null) {
+			return issuanceFee.multipliedBy(assetPriceRate);
 		}
 		return null;
-	}, [feeAmountInBaseCurrency, synthPriceRate]);
+	}, [issuanceFee, assetPriceRate]);
 
 	const currency =
 		currencyKey != null && synthetix.synthsMap != null ? synthetix.synthsMap[currencyKey] : null;
@@ -314,7 +309,7 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 						onAmountChange={setInputAmount}
 						walletBalance={balance}
 						onBalanceClick={() => (balance != null ? setInputAmount(balance.toString()) : null)}
-						priceRate={synthPriceRate}
+						priceRate={assetPriceRate}
 						label={
 							isCollateralChange
 								? t('shorting.history.manageShort.sections.panel.collateral')
@@ -327,12 +322,12 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 						onSubmit={needsApproval ? (isApproved ? handleSubmit : approve) : handleSubmit}
 						totalTradePrice={totalTradePrice.toString()}
 						baseCurrencyAmount={inputAmount}
-						basePriceRate={synthPriceRate}
+						basePriceRate={assetPriceRate}
 						baseCurrency={currency}
 						gasPrices={ethGasPriceQuery.data}
 						feeReclaimPeriodInSeconds={0}
 						quoteCurrencyKey={null}
-						feeRate={collateralShortFeeRate}
+						feeRate={collateralShortIssuanceFee}
 						transactionFee={tab === ShortingTab.AddCollateral ? transactionFee : 0}
 						feeCost={feeCost}
 						showFee={true}

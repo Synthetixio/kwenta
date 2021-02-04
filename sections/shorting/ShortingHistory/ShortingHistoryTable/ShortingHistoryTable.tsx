@@ -35,7 +35,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const { etherscanInstance } = Etherscan.useContainer();
-	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
+	const { selectPriceCurrencyRate } = useSelectedPriceCurrency();
 
 	const columnsDeps = useMemo(() => [selectPriceCurrencyRate], [selectPriceCurrencyRate]);
 	const router = useRouter();

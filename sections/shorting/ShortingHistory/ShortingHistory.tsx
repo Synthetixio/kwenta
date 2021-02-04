@@ -21,7 +21,6 @@ const ShortingHistory: FC = () => {
 
 	const synthsAvailableToShort = useMemo(() => {
 		if (isAppReady) {
-			// TODO get list of assets from contract
 			return synthetix.js!.synths.filter((synth) =>
 				[SYNTHS_MAP.sBTC, SYNTHS_MAP.sETH].includes(synth.name)
 			);
@@ -34,7 +33,7 @@ const ShortingHistory: FC = () => {
 			{ label: t('shorting.history.assetsSort.allAssets'), key: 'ALL_SYNTHS' },
 			...synthsAvailableToShort.map((synth) => ({ label: synth.name, key: synth.name })),
 		],
-		[t]
+		[t, synthsAvailableToShort]
 	);
 
 	const datesFilterList = useMemo(
@@ -56,7 +55,7 @@ const ShortingHistory: FC = () => {
 			{ label: '100,000 < x < 1,000,000', key: 'GT100000LTET1000000' },
 			{ label: '1,000,000+', key: 'GT1000000' },
 		],
-		[]
+		[t]
 	);
 	const [synthFilter, setSynthFilter] = useState(synthFilterList[0]);
 	const [datesFilter, setDatesFilter] = useState(datesFilterList[0]);
@@ -89,7 +88,7 @@ const ShortingHistory: FC = () => {
 					return true;
 			}
 		},
-		[]
+		[datesFilterList]
 	);
 
 	const createShortSizeFilter = useCallback(
