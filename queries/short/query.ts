@@ -1,8 +1,8 @@
 import { gql } from 'graphql-request';
 
-export const query = gql`
+export const shortsQuery = gql`
 	query shorts($account: String!) {
-		shorts(first: 100, where: { account: $account }, orderBy: id, orderDirection: $orderDirection: desc) {
+		shorts(first: 100, where: { account: $account }, orderBy: id, orderDirection: desc) {
 			id
 			contractData {
 				issueFeeRate
@@ -44,6 +44,21 @@ export const query = gql`
 				loanAfter
 				timestamp
 			}
+		}
+	}
+`;
+
+export const shortContractQuery = gql`
+	query shortContracts($account: String!) {
+		shortContracts(first: 1, where: { id: $account }) {
+			id
+			issueFeeRate
+			canOpenLoans
+			minCratio
+			minCollateral
+			maxLoansPerAccount
+			interactionDelay
+			manager
 		}
 	}
 `;

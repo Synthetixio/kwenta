@@ -338,6 +338,9 @@
 					"increasePosition": {
 						"nav-title": "Increase Position"
 					},
+					"interestAccrued": {
+						"nav-title": "Interest Accrued"
+					},
 					"panel": {
 						"collateral": "Collateral",
 						"shorting": "Shorting",
@@ -353,7 +356,8 @@
 				"liquidationPrice": "Liquidation Price",
 				"cRatio": "C-Ratio",
 				"profitLoss": "Profit / Loss",
-				"noResults": "No shorts found"
+				"noResults": "No shorts found",
+				"interestAccrued": "Interest Accrued"
 			}
 		}
 	},

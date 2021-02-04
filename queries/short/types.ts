@@ -13,10 +13,11 @@ export type Short = {
 	createdAt: number;
 	closedAt: number | null;
 	isOpen: boolean;
-	contractData: ShortContract;
-	collateralChanges: ShortCollateralChange[];
-	liquidations: ShortLiquidation[];
-	loanChanges: ShortLoanChange[];
+	contractData?: ShortContract;
+	interestAccrued: number;
+	collateralChanges?: ShortCollateralChange[];
+	liquidations?: ShortLiquidation[];
+	loanChanges?: ShortLoanChange[];
 };
 
 export type ShortCollateralChange = {
@@ -24,7 +25,7 @@ export type ShortCollateralChange = {
 	isDeposit: boolean;
 	amount: number;
 	collateralAfter: number;
-	short: Short;
+	short?: Short;
 	timestamp: number;
 };
 
@@ -33,7 +34,7 @@ export type ShortLoanChange = {
 	isRepayment: boolean;
 	amount: number;
 	loanAfter: number;
-	short: Short;
+	short?: Short;
 	timestamp: number;
 };
 
@@ -43,14 +44,14 @@ export type ShortLiquidation = {
 	isClosed: boolean;
 	liquidatedAmount: number;
 	liquidatedCollateral: number;
-	short: Short;
+	short?: Short;
 	timestamp: number;
 };
 
 export type ShortContract = {
 	id: string;
-	shorts: Short[];
-	contractUpdates: ShortContractUpdate[];
+	shorts?: Short[];
+	contractUpdates?: ShortContractUpdate[];
 	canOpenLoans: boolean;
 	interactionDelay: number;
 	issueFeeRate: number;
@@ -64,6 +65,6 @@ export type ShortContractUpdate = {
 	id: string;
 	field: string;
 	value: string;
-	contractData: ShortContract;
+	contractData?: ShortContract;
 	timestamp: number;
 };

@@ -48,7 +48,7 @@ const ShortingHistory: FC = () => {
 
 	const shortSizeFilterList = useMemo(
 		() => [
-			{ label: t('shorting.history.datesSort.allSizes'), key: 'ALL_SIZES' },
+			{ label: t('shorting.history.sizesSort.allSizes'), key: 'ALL_SIZES' },
 			{ label: '< 1000', key: 'LTET1000' },
 			{ label: '1000 < x < 10,000', key: 'GT1000LTET10000' },
 			{ label: '10,000 < x < 100,000', key: 'GT10000LTET100000' },
@@ -167,12 +167,11 @@ const ShortingHistory: FC = () => {
 					}}
 				/>
 			</Filters>
-			{/* 
 			<ShortingHistoryTable
 				shortHistory={filteredShortHistory}
 				isLoaded={shortHistoryQuery.isSuccess}
 				isLoading={shortHistoryQuery.isLoading}
-			/> */}
+			/>
 		</>
 	);
 };
@@ -180,6 +179,7 @@ const ShortingHistory: FC = () => {
 const Filters = styled(GridDiv)`
 	grid-template-columns: repeat(3, 1fr);
 	grid-gap: 18px;
+	margin-top: 50px;
 `;
 
 export default ShortingHistory;

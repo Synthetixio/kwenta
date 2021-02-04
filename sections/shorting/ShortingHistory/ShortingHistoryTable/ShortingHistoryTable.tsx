@@ -57,7 +57,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 					Cell: (cellProps: CellProps<Short>) => (
 						<WhiteText>{formatDateWithTime(cellProps.row.original.createdAt)}</WhiteText>
 					),
-					width: 200,
+					width: 80,
 					sortable: true,
 				},
 				{
@@ -69,7 +69,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 							<StyledPrice>{formatNumber(cellProps.row.original.synthBorrowedAmount)}</StyledPrice>
 						</span>
 					),
-					width: 200,
+					width: 100,
 					sortable: true,
 				},
 				{
@@ -83,7 +83,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 							</StyledPrice>
 						</span>
 					),
-					width: 200,
+					width: 100,
 					sortable: true,
 				},
 				{
@@ -104,7 +104,21 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 							</StyledPrice>
 						</span>
 					),
-					width: 200,
+					width: 100,
+					sortable: true,
+				},
+				{
+					Header: (
+						<StyledTableHeader>{t('shorting.history.table.interestAccrued')}</StyledTableHeader>
+					),
+					accessor: 'interestAccrued',
+					Cell: (cellProps: CellProps<Short>) => (
+						<span>
+							<StyledCurrencyKey>{cellProps.row.original.synthBorrowed}</StyledCurrencyKey>
+							<StyledPrice>{formatNumber(cellProps.row.original.interestAccrued)}</StyledPrice>
+						</span>
+					),
+					width: 100,
 					sortable: true,
 				},
 				{
@@ -120,7 +134,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 							)}
 						</PriceChangeText>
 					),
-					width: 200,
+					width: 100,
 					sortable: true,
 				},
 				{
@@ -134,7 +148,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 							{true ? '+' : '-'} {formatPercent(1)}
 						</PriceChangeText>
 					),
-					width: 200,
+					width: 100,
 					sortable: true,
 				},
 				{
@@ -149,6 +163,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 						</div>
 					),
 					sortable: false,
+					width: 30,
 				},
 				{
 					id: 'link',
@@ -164,6 +179,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 							NO_VALUE
 						),
 					sortable: false,
+					width: 30,
 				},
 			]}
 			columnsDeps={columnsDeps}

@@ -10,9 +10,9 @@ import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
 import { getExchangeRatesForCurrencies } from 'utils/currencies';
 
 import { Short } from './types';
-import { query } from './query';
-
-const SHORT_GRAPH_ENDPOINT = 'https://api.thegraph.com//subgraphs/name/dvd-schwrtz/test';
+import { shortsQuery } from './query';
+import { mockShorts } from './mockShorts';
+import { formatShort, SHORT_GRAPH_ENDPOINT } from './utils';
 
 const useShortHistoryQuery = (options?: QueryConfig<Short[]>) => {
 	const isAppReady = useRecoilValue(appReadyState);
@@ -26,23 +26,26 @@ const useShortHistoryQuery = (options?: QueryConfig<Short[]>) => {
 		QUERY_KEYS.Collateral.ShortHistory(walletAddress ?? ''),
 		async () => {
 			if (walletAddress != null) {
-				const unformattedShortsList = await request(SHORT_GRAPH_ENDPOINT, query, {
+				const response = await request(SHORT_GRAPH_ENDPOINT, shortsQuery, {
 					account: walletAddress,
 				});
-				console.log('unformattedShortsList', unformattedShortsList);
-				return unformattedShortsList.map((short: Partial<Short>) => ({
-					...short,
-					synthBorrowedPrice: getExchangeRatesForCurrencies(
-						exchangeRates,
-						short.synthBorrowed as string,
-						selectedPriceCurrency.name
-					) as number,
-					collateralLockedPrice: getExchangeRatesForCurrencies(
-						exchangeRates,
-						short.collateralLocked as string,
-						selectedPriceCurrency.name
-					) as number,
-				}));
+
+				return (response?.shorts ?? []).length > 0
+					? response.shorts.map((short: Partial<Short>) => ({
+							...formatShort(short),
+							synthBorrowedPrice: getExchangeRatesForCurrencies(
+								exchangeRates,
+								short.synthBorrowed as string,
+								selectedPriceCurrency.name
+							) as number,
+							collateralLockedPrice: getExchangeRatesForCurrencies(
+								exchangeRates,
+								short.collateralLocked as string,
+								selectedPriceCurrency.name
+							) as number,
+							interestAccrued: 1,
+					  }))
+					: mockShorts.map(formatShort);
 			} else {
 				return [];
 			}
