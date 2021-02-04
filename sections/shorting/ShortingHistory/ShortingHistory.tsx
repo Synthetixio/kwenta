@@ -167,11 +167,12 @@ const ShortingHistory: FC = () => {
 					}}
 				/>
 			</Filters>
+			{/* 
 			<ShortingHistoryTable
 				shortHistory={filteredShortHistory}
 				isLoaded={shortHistoryQuery.isSuccess}
 				isLoading={shortHistoryQuery.isLoading}
-			/>
+			/> */}
 		</>
 	);
 };

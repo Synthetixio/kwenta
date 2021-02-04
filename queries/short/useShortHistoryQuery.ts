@@ -25,23 +25,27 @@ const useShortHistoryQuery = (options?: QueryConfig<Short[]>) => {
 	return useQuery<Short[]>(
 		QUERY_KEYS.Collateral.ShortHistory(walletAddress ?? ''),
 		async () => {
-			const unformattedShortsList = await request(SHORT_GRAPH_ENDPOINT, query, {
-				account: walletAddress,
-			});
-			console.log('unformattedShortsList', unformattedShortsList);
-			return unformattedShortsList.map((short: Partial<Short>) => ({
-				...short,
-				synthBorrowedPrice: getExchangeRatesForCurrencies(
-					exchangeRates,
-					short.synthBorrowed as string,
-					selectedPriceCurrency.name
-				) as number,
-				collateralLockedPrice: getExchangeRatesForCurrencies(
-					exchangeRates,
-					short.collateralLocked as string,
-					selectedPriceCurrency.name
-				) as number,
-			}));
+			if (walletAddress != null) {
+				const unformattedShortsList = await request(SHORT_GRAPH_ENDPOINT, query, {
+					account: walletAddress,
+				});
+				console.log('unformattedShortsList', unformattedShortsList);
+				return unformattedShortsList.map((short: Partial<Short>) => ({
+					...short,
+					synthBorrowedPrice: getExchangeRatesForCurrencies(
+						exchangeRates,
+						short.synthBorrowed as string,
+						selectedPriceCurrency.name
+					) as number,
+					collateralLockedPrice: getExchangeRatesForCurrencies(
+						exchangeRates,
+						short.collateralLocked as string,
+						selectedPriceCurrency.name
+					) as number,
+				}));
+			} else {
+				return [];
+			}
 		},
 		{
 			enabled: isAppReady && isWalletConnected,

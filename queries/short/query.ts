@@ -1,8 +1,8 @@
 import { gql } from 'graphql-request';
 
 export const query = gql`
-	query getShorts($account: String!) {
-		shorts(account: $account) {
+	query shorts($account: String!) {
+		shorts(first: 100, where: { account: $account }, orderBy: id, orderDirection: $orderDirection: desc) {
 			id
 			contractData {
 				issueFeeRate
