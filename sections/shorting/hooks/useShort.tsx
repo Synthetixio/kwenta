@@ -46,7 +46,7 @@ import { getTransactionPrice, normalizeGasLimit, gasPriceInWei } from 'utils/net
 
 import { toBigNumber, zeroBN } from 'utils/formatters/number';
 
-import useCollateralShortIssuanceFee from 'queries/collateral/useCollateralShortIssuanceFee';
+import useCollateralShortDataQuery from 'queries/collateral/useCollateralShortDataQuery';
 import Notify from 'containers/Notify';
 
 import { NoTextTransform } from 'styles/common';
@@ -98,9 +98,12 @@ const useShort = ({
 	const synthsWalletBalancesQuery = useSynthsBalancesQuery();
 	const ethGasPriceQuery = useEthGasPriceQuery();
 	const exchangeRatesQuery = useExchangeRatesQuery();
-	const collateralShortFeeRateQuery = useCollateralShortIssuanceFee();
-	const collateralShortFeeRate = collateralShortFeeRateQuery.isSuccess
-		? collateralShortFeeRateQuery.data ?? null
+	const collateralShortDataQuery = useCollateralShortDataQuery(quoteCurrencyKey);
+	const issueFeeRate = collateralShortDataQuery.isSuccess
+		? collateralShortDataQuery?.data?.issueFeeRate ?? null
+		: null;
+	const shortRate = collateralShortDataQuery.isSuccess
+		? collateralShortDataQuery?.data?.shortRate ?? null
 		: null;
 
 	const baseCurrency =
@@ -242,11 +245,11 @@ const useShort = ({
 	]);
 
 	const feeAmountInBaseCurrency = useMemo(() => {
-		if (collateralShortFeeRate != null && baseCurrencyAmount) {
-			return toBigNumber(baseCurrencyAmount).multipliedBy(collateralShortFeeRate);
+		if (issueFeeRate != null && baseCurrencyAmount) {
+			return toBigNumber(baseCurrencyAmount).multipliedBy(issueFeeRate);
 		}
 		return null;
-	}, [baseCurrencyAmount, collateralShortFeeRate]);
+	}, [baseCurrencyAmount, issueFeeRate]);
 
 	const feeCost = useMemo(() => {
 		if (feeAmountInBaseCurrency != null) {
@@ -489,11 +492,13 @@ const useShort = ({
 					gasPrices={ethGasPriceQuery.data}
 					feeReclaimPeriodInSeconds={0}
 					quoteCurrencyKey={quoteCurrencyKey}
-					feeRate={collateralShortFeeRate}
+					feeRate={issueFeeRate}
 					transactionFee={transactionFee}
 					feeCost={feeCost}
 					showFee={true}
 					isApproved={isApproved}
+					isCreateShort={true}
+					shortInterestRate={shortRate}
 				/>
 			)}
 			{txConfirmationModalOpen && (

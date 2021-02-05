@@ -14,7 +14,7 @@ import ConnectWalletCard from 'sections/exchange/FooterCard/ConnectWalletCard';
 import TxConfirmationModal from 'sections/shared/modals/TxConfirmationModal';
 import useEthGasPriceQuery from 'queries/network/useEthGasPriceQuery';
 
-import useCollateralShortIssuanceFee from 'queries/collateral/useCollateralShortIssuanceFee';
+import useCollateralShortDataQuery from 'queries/collateral/useCollateralShortDataQuery';
 import useSynthsBalancesQuery from 'queries/walletBalances/useSynthsBalancesQuery';
 import TradeSummaryCard, {
 	SubmissionDisabledReason,
@@ -64,9 +64,9 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 	const gasSpeed = useRecoilValue(gasSpeedState);
 	const walletAddress = useRecoilValue(walletAddressState);
 	const synthsWalletBalancesQuery = useSynthsBalancesQuery();
-	const collateralShortIssuanceFeeQuery = useCollateralShortIssuanceFee();
-	const collateralShortIssuanceFee = collateralShortIssuanceFeeQuery.isSuccess
-		? collateralShortIssuanceFeeQuery.data ?? null
+	const collateralShortDataQuery = useCollateralShortDataQuery(short.synthBorrowed);
+	const issueFeeRate = collateralShortDataQuery.isSuccess
+		? collateralShortDataQuery?.data?.issueFeeRate ?? null
 		: null;
 
 	const needsApproval = tab === ShortingTab.AddCollateral;
@@ -279,11 +279,11 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 	]);
 
 	const issuanceFee = useMemo(() => {
-		if (collateralShortIssuanceFee != null && inputAmountBN.gt(0)) {
-			return inputAmountBN.multipliedBy(collateralShortIssuanceFee);
+		if (issueFeeRate != null && inputAmountBN.gt(0)) {
+			return inputAmountBN.multipliedBy(issueFeeRate);
 		}
 		return null;
-	}, [inputAmountBN, collateralShortIssuanceFee]);
+	}, [inputAmountBN, issueFeeRate]);
 
 	const feeCost = useMemo(() => {
 		if (issuanceFee != null) {
@@ -326,7 +326,7 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 						gasPrices={ethGasPriceQuery.data}
 						feeReclaimPeriodInSeconds={0}
 						quoteCurrencyKey={null}
-						feeRate={collateralShortIssuanceFee}
+						feeRate={issueFeeRate}
 						transactionFee={tab === ShortingTab.AddCollateral ? transactionFee : 0}
 						feeCost={feeCost}
 						showFee={true}

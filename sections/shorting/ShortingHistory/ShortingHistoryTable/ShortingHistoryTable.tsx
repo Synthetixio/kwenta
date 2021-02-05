@@ -6,7 +6,7 @@ import { Svg } from 'react-optimized-image';
 import { useRouter } from 'next/router';
 
 import { formatDateWithTime } from 'utils/formatters/date';
-import { formatNumber, formatPercent } from 'utils/formatters/number';
+import { formatNumber, formatPercent, formatCurrency } from 'utils/formatters/number';
 
 import { NO_VALUE } from 'constants/placeholder';
 import ROUTES from 'constants/routes';
@@ -35,7 +35,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const { etherscanInstance } = Etherscan.useContainer();
-	const { selectPriceCurrencyRate } = useSelectedPriceCurrency();
+	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
 
 	const columnsDeps = useMemo(() => [selectPriceCurrencyRate], [selectPriceCurrencyRate]);
 	const router = useRouter();
@@ -145,7 +145,10 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 							{/* 
 									TODO need to calculate profit and loss - this is a bit tricky
 							*/}
-							{true ? '+' : '-'} {formatPercent(1)}
+							{true ? '+' : '-'}{' '}
+							{formatCurrency(selectedPriceCurrency.name, 200, {
+								sign: selectedPriceCurrency.sign,
+							})}
 						</PriceChangeText>
 					),
 					width: 100,

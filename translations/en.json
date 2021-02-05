@@ -297,7 +297,8 @@
 		"common": {
 			"collateral": "collateral",
 			"posting": "posting",
-			"shorting": "shorting"
+			"shorting": "shorting",
+			"interestRate": "Interest Rate"
 		},
 		"history": {
 			"assetsSort": {
