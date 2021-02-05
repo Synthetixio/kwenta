@@ -23,6 +23,7 @@ export const mockShorts = [
 		],
 		collateralLocked: '0x7355534400000000000000000000000000000000000000000000000000000000',
 		collateralLockedAmount: '44650504719745945992',
+		collateralLockedPrice: 1,
 		contractData: mockShortContract,
 		createdAt: '1610688253',
 		id: '47',
@@ -56,6 +57,7 @@ export const mockShorts = [
 		],
 		synthBorrowed: '0x7345544800000000000000000000000000000000000000000000000000000000',
 		synthBorrowedAmount: '26194964020240575',
+		synthBorrowedPrice: 325.23,
 		txHash: '0xc07149d6d41f30f9e3e85ecee7ac777eba7dc381c04eebd60f14418fc6b8e4a1',
 	},
 	{
@@ -64,6 +66,7 @@ export const mockShorts = [
 		collateralChanges: [],
 		collateralLocked: '0x7355534400000000000000000000000000000000000000000000000000000000',
 		collateralLockedAmount: '1000000000000000000000',
+		collateralLockedPrice: 1,
 		contractData: {
 			canOpenLoans: true,
 			interactionDelay: '3600',
@@ -80,6 +83,7 @@ export const mockShorts = [
 		loanChanges: [],
 		synthBorrowed: '0x7345544800000000000000000000000000000000000000000000000000000000',
 		synthBorrowedAmount: '500000000000000000',
+		synthBorrowedPrice: 325.23,
 		txHash: '0x44c6c5b815b65fe40ec0c7437434bb74336fb15da17d3383e09d5a301905e8d0',
 	},
 	{
@@ -96,6 +100,7 @@ export const mockShorts = [
 		],
 		collateralLocked: '0x7355534400000000000000000000000000000000000000000000000000000000',
 		collateralLockedAmount: '1250000000000000000000',
+		collateralLockedPrice: 1,
 		contractData: {
 			canOpenLoans: true,
 			interactionDelay: '3600',
@@ -120,6 +125,7 @@ export const mockShorts = [
 		],
 		synthBorrowed: '0x7345544800000000000000000000000000000000000000000000000000000000',
 		synthBorrowedAmount: '30000000000000000',
+		synthBorrowedPrice: 325.23,
 		txHash: '0x9fe9a646371702afd7859b2af52dce131713843274cef125fab56aeae73dbab3',
 	},
 	{
@@ -128,6 +134,7 @@ export const mockShorts = [
 		collateralChanges: [],
 		collateralLocked: '0x7355534400000000000000000000000000000000000000000000000000000000',
 		collateralLockedAmount: '1250000000000000000000',
+		collateralLockedPrice: 1,
 		contractData: {
 			canOpenLoans: true,
 			interactionDelay: '3600',
@@ -144,6 +151,7 @@ export const mockShorts = [
 		loanChanges: [],
 		synthBorrowed: '0x7342544300000000000000000000000000000000000000000000000000000000',
 		synthBorrowedAmount: '15000000000000000',
+		synthBorrowedPrice: 325.23,
 		txHash: '0x67192e0d8d789b8344c6c8a7df1c07f117ddbc7efd6c8ec3027ce59ccea4936b',
 	},
 	{
@@ -152,6 +160,7 @@ export const mockShorts = [
 		collateralChanges: [],
 		collateralLocked: '0x7355534400000000000000000000000000000000000000000000000000000000',
 		collateralLockedAmount: '1500000000000000000000',
+		collateralLockedPrice: 1,
 		contractData: {
 			canOpenLoans: true,
 			interactionDelay: '3600',
@@ -168,6 +177,7 @@ export const mockShorts = [
 		loanChanges: [],
 		synthBorrowed: '0x7345544800000000000000000000000000000000000000000000000000000000',
 		synthBorrowedAmount: '500000000000000000',
+		synthBorrowedPrice: 325.23,
 		txHash: '0x7d508a2de93dd9d2b85e12e7c4e84e4900e384e38f75abe003226382f867b86f',
 	},
 ];

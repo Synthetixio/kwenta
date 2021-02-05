@@ -25,13 +25,13 @@ export const ROUTES = {
 	Shorting: {
 		Home: '/shorting',
 		ManageShortAddCollateral: (id: number) =>
-			normalizeRoute(`/shorting/add-collateral`, String(id), 'id'),
+			normalizeRoute(`/shorting/manage/add-collateral`, String(id), 'id'),
 		ManageShortRemoveCollateral: (id: number) =>
-			normalizeRoute(`/shorting/remove-collateral`, String(id), 'id'),
+			normalizeRoute(`/shorting/manage/remove-collateral`, String(id), 'id'),
 		ManageShortDecreasePosition: (id: number) =>
-			normalizeRoute(`/shorting/decrease-position`, String(id), 'id'),
+			normalizeRoute(`/shorting/manage/decrease-position`, String(id), 'id'),
 		ManageShortIncreasePosition: (id: number) =>
-			normalizeRoute(`/shorting/increase-position`, String(id), 'id'),
+			normalizeRoute(`/shorting/manage/increase-position`, String(id), 'id'),
 	},
 };
 

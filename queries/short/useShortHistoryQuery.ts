@@ -45,7 +45,11 @@ const useShortHistoryQuery = (options?: QueryConfig<Short[]>) => {
 							) as number,
 							interestAccrued: 1,
 					  }))
-					: mockShorts.map(formatShort);
+					: mockShorts.map((short) => ({
+							...formatShort(short),
+							collateralLockedPrice: short.collateralLockedPrice,
+							synthBorrowedPrice: short.synthBorrowedPrice,
+					  }));
 			} else {
 				return [];
 			}

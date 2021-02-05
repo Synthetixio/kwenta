@@ -112,6 +112,7 @@ const ShortingHistory: FC = () => {
 	);
 
 	const shortHistory = useMemo(() => shortHistoryQuery.data || [], [shortHistoryQuery.data]);
+
 	const filteredShortHistory = useMemo(
 		() =>
 			shortHistory

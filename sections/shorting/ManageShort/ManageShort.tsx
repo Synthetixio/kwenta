@@ -29,17 +29,17 @@ const ManageShort: FC = () => {
 	const { t } = useTranslation();
 	const router = useRouter();
 
-	const tabQuery = useMemo(() => {
+	const [tabQuery, positionID] = useMemo(() => {
 		if (router.query.tab) {
 			const tab = castArray(router.query.tab)[0] as ShortingTab;
+			const positionID = castArray(router.query.tab)[1] as ShortingTab;
 			if (ShortingTabs.includes(tab)) {
-				return tab;
+				return [tab, positionID];
 			}
 		}
-		return null;
+		return [null, null];
 	}, [router.query]);
 
-	const positionID = useMemo(() => router.query.positionID ?? null, [router.query]);
 	const shortHistoryQuery = useShortHistoryQuery();
 	const shortHistory = useMemo(() => shortHistoryQuery.data || [], [shortHistoryQuery.data]);
 	const short = find(shortHistory, ({ id }) => id === Number(positionID ?? 0));

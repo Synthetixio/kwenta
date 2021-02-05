@@ -76,7 +76,7 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 
 	const currencyKey = isCollateralChange ? short.collateralLocked : short.synthBorrowed;
 
-	const balance = synthsWalletBalancesQuery.data?.balancesMap[currencyKey].balance ?? null;
+	const balance = synthsWalletBalancesQuery.data?.balancesMap[currencyKey]?.balance ?? null;
 
 	const inputAmountBN = useMemo(() => toBigNumber(inputAmount ?? 0), [inputAmount]);
 
@@ -174,7 +174,6 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 			const gasEstimate = await tx(params);
 			return normalizeGasLimit(Number(gasEstimate));
 		} catch (e) {
-			console.log('getGasEstimate error:', e);
 			return null;
 		}
 	}, [getMethodAndParams, normalizeGasLimit]);

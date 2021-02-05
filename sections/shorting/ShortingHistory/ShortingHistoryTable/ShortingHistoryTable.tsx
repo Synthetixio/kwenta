@@ -99,7 +99,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 									(cellProps.row.original.collateralLockedAmount *
 										cellProps.row.original.collateralLockedPrice) /
 										(cellProps.row.original.synthBorrowedAmount *
-											cellProps.row.original.contractData.minCratio)
+											(cellProps.row.original.contractData?.minCratio ?? 0))
 								)}
 							</StyledPrice>
 						</span>

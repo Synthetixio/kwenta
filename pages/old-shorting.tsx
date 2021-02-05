@@ -31,7 +31,7 @@ const Shorting: FC = () => {
 const StyledPageContent = styled(PageContent)`
 	padding-top: 55px;
 	${media.greaterThan('md')`
-		max-width: 800px;
+		max-width: 1000px;
 	`}
 `;
 
