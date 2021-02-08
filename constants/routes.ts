@@ -32,6 +32,8 @@ export const ROUTES = {
 			normalizeRoute(`/shorting/manage/decrease-position`, String(id), 'id'),
 		ManageShortIncreasePosition: (id: number) =>
 			normalizeRoute(`/shorting/manage/increase-position`, String(id), 'id'),
+		ManageShortClosePosition: (id: number) =>
+			normalizeRoute(`/shorting/manage/close-position`, String(id), 'id'),
 	},
 };
 

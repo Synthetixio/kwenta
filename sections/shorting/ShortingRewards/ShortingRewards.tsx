@@ -195,14 +195,11 @@ const ShortingRewards: FC<ShortingRewardsProps> = ({ synth }) => {
 };
 
 export const MessageContainer = styled(GridDivCentered)<{ attached?: boolean }>`
-	width: 45%;
-	margin-top: 50px;
+	width: 48%;
 	border-radius: 4px;
 	grid-template-columns: 1fr auto;
 	background-color: ${(props) => props.theme.colors.elderberry};
 	padding: 16px 32px;
-	max-width: 750px;
-	margin: 0 auto;
 	${(props) =>
 		props.attached &&
 		css`

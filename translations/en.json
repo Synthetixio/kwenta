@@ -317,14 +317,16 @@
 				"noResults": "Short not found",
 				"title": "Manage Position",
 				"close": "Close",
-				"subtitle": "Your Position",
+				"subtitle": "Position Details",
 				"fields": {
 					"collateral": "Collateral ({{asset}})",
 					"liquidationPrice": "Liquidation Price ({{asset}})",
 					"profitLoss": "Profit / Loss ({{asset}})",
-					"shorting": "Shorting ({{asset}})",
+					"shorting": "Shorting",
 					"collateralRatio": "Collateral Ratio",
-					"date": "Date Opened"
+					"date": "Date Opened",
+					"interestRate": "Interest Rate",
+					"interestAccrued": "Interest Accrued"
 				},
 				"sections": {
 					"addCollateral": {
@@ -341,6 +343,9 @@
 					},
 					"interestAccrued": {
 						"nav-title": "Interest Accrued"
+					},
+					"closePosition": {
+						"nav-title": "Close Position"
 					},
 					"panel": {
 						"collateral": "Collateral",

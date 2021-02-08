@@ -180,7 +180,7 @@ const ShortingHistory: FC = () => {
 const Filters = styled(GridDiv)`
 	grid-template-columns: repeat(3, 1fr);
 	grid-gap: 18px;
-	margin-top: 50px;
+	margin-top: 30px;
 `;
 
 export default ShortingHistory;

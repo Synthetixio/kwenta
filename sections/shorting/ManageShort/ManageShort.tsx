@@ -11,6 +11,7 @@ import { TabList, TabPanel, TabButton } from 'components/Tab';
 import Loader from 'components/Loader';
 import { CardTitle } from 'sections/dashboard/common';
 import BackIcon from 'assets/svg/app/go-back.svg';
+import { FlexDivRow } from 'styles/common';
 import useShortHistoryQuery from 'queries/short/useShortHistoryQuery';
 
 import ManageShortAction from './ManageShortAction';
@@ -21,6 +22,7 @@ export enum ShortingTab {
 	RemoveCollateral = 'remove-collateral',
 	DecreasePosition = 'decrease-position',
 	IncreasePosition = 'increase-position',
+	ClosePosition = 'close-position',
 }
 
 const ShortingTabs = Object.values(ShortingTab);
@@ -74,6 +76,12 @@ const ManageShort: FC = () => {
 							active: activeTab === ShortingTab.IncreasePosition,
 							onClick: () => router.push(ROUTES.Shorting.ManageShortIncreasePosition(short.id)),
 						},
+						{
+							name: ShortingTab.ClosePosition,
+							label: t('shorting.history.manageShort.sections.closePosition.nav-title'),
+							active: activeTab === ShortingTab.ClosePosition,
+							onClick: () => router.push(ROUTES.Shorting.ManageShortClosePosition(short.id)),
+						},
 				  ]
 				: [],
 		[t, activeTab, router, short?.id]
@@ -89,20 +97,38 @@ const ManageShort: FC = () => {
 				)
 			) : (
 				<>
-					<StyledBackIcon src={BackIcon} viewBox={`0 0 ${BackIcon.width} ${BackIcon.height}`} />
+					<div onClick={() => router.push(ROUTES.Shorting.Home)}>
+						<StyledBackIcon src={BackIcon} viewBox={`0 0 ${BackIcon.width} ${BackIcon.height}`} />
+					</div>
 					<ManageShortTitle>{t('shorting.history.manageShort.title')}</ManageShortTitle>
 					<YourPositionCard short={short} />
-					{TABS.map(({ name, label, active, onClick }) => (
-						<>
-							<StyledTabList>
-								<TabButton key={name} name={name} active={active} onClick={onClick}>
-									{label}
-								</TabButton>
-							</StyledTabList>
-							<TabPanel name={name} activeTab={activeTab}>
-								<ManageShortAction tab={name} isActive={name === activeTab} short={short} />
-							</TabPanel>
-						</>
+					<FlexDivRow>
+						<LeftTabContainer>
+							{TABS.map(({ name, label, active, onClick }) =>
+								name === ShortingTab.ClosePosition ? null : (
+									<StyledTabList>
+										<TabButton key={name} name={name} active={active} onClick={onClick}>
+											{label}
+										</TabButton>
+									</StyledTabList>
+								)
+							)}
+						</LeftTabContainer>
+						{TABS.length > 0 ? (
+							<CloseTabButton
+								key={TABS[TABS.length - 1].name}
+								name={TABS[TABS.length - 1].name}
+								active={TABS[TABS.length - 1].active}
+								onClick={TABS[TABS.length - 1].onClick}
+							>
+								{TABS[TABS.length - 1].label}
+							</CloseTabButton>
+						) : null}
+					</FlexDivRow>
+					{TABS.map(({ name }) => (
+						<TabPanel name={name} activeTab={activeTab}>
+							<ManageShortAction tab={name} isActive={name === activeTab} short={short} />
+						</TabPanel>
 					))}
 				</>
 			)}
@@ -112,6 +138,15 @@ const ManageShort: FC = () => {
 
 const Container = styled.div`
 	position: relative;
+`;
+
+const LeftTabContainer = styled(FlexDivRow)`
+	justify-content: flex-start;
+`;
+
+const CloseTabButton = styled(TabButton)`
+	color: ${(props) => props.theme.colors.red};
+	margin-bottom: 12px;
 `;
 
 const NoResultsFound = styled.div`
@@ -124,21 +159,24 @@ const NoResultsFound = styled.div`
 
 const ManageShortTitle = styled(CardTitle)`
 	margin-bottom: 12px;
-	border-bottom: 1px solid ${(props) => props.theme.colors.navy};
-	padding-bottom: 5px;
+	padding: 15px 0 10px 0;
+	font-size: 26px;
+	color: ${(props) => props.theme.colors.white};
 `;
 
 const StyledBackIcon = styled(Svg)`
-	width: 14px;
-	height: 14px;
+	width: 18px;
+	height: 18px;
 	color: ${(props) => props.theme.colors.blueberry};
 	&:hover {
+		cursor: pointer;
 		color: ${(props) => props.theme.colors.goldColors.color1};
 	}
 `;
 
 const StyledTabList = styled(TabList)`
 	margin-bottom: 12px;
+	margin-right: 30px;
 `;
 
 export default ManageShort;

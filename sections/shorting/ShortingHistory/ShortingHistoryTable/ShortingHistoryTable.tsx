@@ -197,6 +197,7 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 				) : undefined
 			}
 			showPagination={true}
+			pageSize={6}
 		/>
 	);
 };

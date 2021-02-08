@@ -12,8 +12,8 @@ export const formatShort = (response: any): Partial<Short> => ({
 	collateralLockedAmount: response.collateralLockedAmount / 1e18,
 	synthBorrowed: hexToAscii(response.synthBorrowed),
 	synthBorrowedAmount: response.synthBorrowedAmount / 1e18,
-	createdAt: Number(response.createdAt),
-	closedAt: response.closedAt != null ? Number(response.closedAt) : null,
+	createdAt: Number(response.createdAt) * 1000,
+	closedAt: response.closedAt != null ? Number(response.closedAt) * 1000 : null,
 	isOpen: Boolean(response.isOpen),
 	contractData: formatShortContractData(response.contractData),
 	collateralChanges: (response?.collateralChanges ?? []).map(formatShortCollateralChanges),
@@ -38,7 +38,7 @@ export const formatShortLiquidations = (response: any): ShortLiquidation => ({
 	liquidatedAmount: response.liquidatedAmount / 1e18,
 	liquidatedCollateral: response.liquidatedCollateral / 1e18,
 	liquidator: response.liquidator,
-	timestamp: Number(response.timestamp),
+	timestamp: Number(response.timestamp) * 1000,
 });
 
 export const formatShortCollateralChanges = (response: any) => ({
@@ -46,7 +46,7 @@ export const formatShortCollateralChanges = (response: any) => ({
 	collateralAfter: response.collateralAfter,
 	id: response.id,
 	isDeposit: Boolean(response.isDeposit),
-	timestamp: Number(response.timestamp),
+	timestamp: Number(response.timestamp) * 1000,
 });
 
 export const formatShortLoanChanges = (response: any) => ({
@@ -54,5 +54,5 @@ export const formatShortLoanChanges = (response: any) => ({
 	id: response.id,
 	isRepayment: Boolean(response.isRepayment),
 	loanAfter: response.loanAfter / 1e18,
-	timestamp: Number(response.timestamp),
+	timestamp: Number(response.timestamp) * 1000,
 });
