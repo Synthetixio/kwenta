@@ -17,7 +17,7 @@ import { FixedFooterMixin, GridDivCentered, NumericValue } from 'styles/common';
 import media from 'styles/media';
 import { gasSpeedState, customGasPriceState } from 'store/wallet';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
-import { formatCurrency } from 'utils/formatters/number';
+import { formatCurrency, formatCryptoCurrency } from 'utils/formatters/number';
 import useEthGasPriceQuery from 'queries/network/useEthGasPriceQuery';
 import { SYNTHS_MAP } from 'constants/currency';
 import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
@@ -37,9 +37,7 @@ import {
 	CustomGasPrice,
 	GasSelectContainer,
 	CustomGasPriceContainer,
-	ErrorTooltip,
 	MobileCard,
-	SubmissionDisabledReason,
 	StyledGasEditButton,
 } from 'sections/exchange/FooterCard/TradeSummaryCard';
 
@@ -61,15 +59,8 @@ const ShortingRewards: FC<ShortingRewardsProps> = ({ synth }) => {
 
 	const [gasLimit, setGasLimit] = useState<number | null>(null);
 
-	const submissionDisabledReason: SubmissionDisabledReason | null = useMemo(() => {
-		if (shortingRewards == null || shortingRewards.lte(0)) {
-			return 'insufficient-balance';
-		}
-		return null;
-	}, [shortingRewards]);
-
-	const isSubmissionDisabled = useMemo(() => (submissionDisabledReason != null ? true : false), [
-		submissionDisabledReason,
+	const isSubmissionDisabled = useMemo(() => shortingRewards == null || shortingRewards.lte(0), [
+		shortingRewards,
 	]);
 
 	const gasPrices = useMemo(() => ethGasPriceQuery?.data ?? null, [ethGasPriceQuery.data]);
@@ -101,8 +92,16 @@ const ShortingRewards: FC<ShortingRewardsProps> = ({ synth }) => {
 		console.log('submitting');
 	};
 
+	console.log('synth', synth);
+
 	const summaryItems = (
 		<SummaryItems attached={false}>
+			<SummaryItem>
+				<SummaryItemLabel>{t('shorting.rewards.available')}</SummaryItemLabel>
+				<SummaryItemValue>
+					{formatCryptoCurrency(shortingRewards ?? 0, { currencyKey: synth })}
+				</SummaryItemValue>
+			</SummaryItem>
 			<SummaryItem>
 				<SummaryItemLabel>{t('exchange.summary-info.gas-price-gwei')}</SummaryItemLabel>
 				<SummaryItemValue>
@@ -185,9 +184,7 @@ const ShortingRewards: FC<ShortingRewardsProps> = ({ synth }) => {
 					size="lg"
 					data-testid="submit-order"
 				>
-					{isSubmissionDisabled
-						? t(`exchange.summary-info.button.${submissionDisabledReason}`)
-						: t('exchange.summary-info.button.submit-order')}
+					{t('shorting.rewards.button.claim')}
 				</Button>
 			</MessageContainer>
 		</>

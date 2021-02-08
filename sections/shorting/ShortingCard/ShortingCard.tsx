@@ -11,6 +11,7 @@ const ShortingCard: FC = () => {
 	const { quoteCurrencyCard, baseCurrencyCard, footerCard } = useShort({
 		defaultBaseCurrencyKey: SYNTHS_MAP.sETH,
 		defaultQuoteCurrencyKey: SYNTHS_MAP.sUSD,
+		shortRatio: 2,
 	});
 
 	return (

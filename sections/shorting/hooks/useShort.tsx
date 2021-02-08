@@ -53,16 +53,16 @@ import { NoTextTransform } from 'styles/common';
 import useCurrencyPair from 'sections/exchange/hooks/useCurrencyPair';
 import { appReadyState } from 'store/app';
 
-const MIN_SAFE_SHORT_RATIO = 2;
-
 type ShortCardProps = {
 	defaultBaseCurrencyKey?: CurrencyKey | null;
 	defaultQuoteCurrencyKey?: CurrencyKey | null;
+	shortRatio: number;
 };
 
 const useShort = ({
 	defaultBaseCurrencyKey = null,
 	defaultQuoteCurrencyKey = null,
+	shortRatio,
 }: ShortCardProps) => {
 	const { t } = useTranslation();
 	const { notify } = Connector.useContainer();
@@ -415,7 +415,7 @@ const useShort = ({
 					setQuoteCurrencyAmount(value);
 					if (isLockedSafeRatio) {
 						setBaseCurrencyAmount(
-							toBigNumber(value).multipliedBy(rate).dividedBy(MIN_SAFE_SHORT_RATIO).toString()
+							toBigNumber(value).multipliedBy(rate).dividedBy(shortRatio).toString()
 						);
 					}
 				}
@@ -445,10 +445,7 @@ const useShort = ({
 					setBaseCurrencyAmount(value);
 					if (isLockedSafeRatio) {
 						setQuoteCurrencyAmount(
-							toBigNumber(value)
-								.multipliedBy(inverseRate)
-								.multipliedBy(MIN_SAFE_SHORT_RATIO)
-								.toString()
+							toBigNumber(value).multipliedBy(inverseRate).multipliedBy(shortRatio).toString()
 						);
 					}
 				}

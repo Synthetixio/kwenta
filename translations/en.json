@@ -300,6 +300,12 @@
 			"shorting": "shorting",
 			"interestRate": "Interest Rate"
 		},
+		"rewards": {
+			"available": "Available Rewards",
+			"button": {
+				"claim": "Claim"
+			}
+		},
 		"history": {
 			"assetsSort": {
 				"allAssets": "All Assets"
