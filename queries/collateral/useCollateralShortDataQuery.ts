@@ -37,7 +37,7 @@ const useCollateralShortDataQuery = (
 			const shortRate = await synthetix.js?.contracts.CollateralManager.getShortRate(
 				synthetix.js?.toBytes32(currencyKey)
 			);
-			const shortingRewards = await synthetix.js?.CollateralShort.shortingRewards(
+			const shortingRewards = await synthetix.js?.contracts.CollateralShort.shortingRewards(
 				synthetix.js?.toBytes32(currencyKey)
 			);
 

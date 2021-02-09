@@ -303,7 +303,8 @@
 		"rewards": {
 			"available": "Available Rewards",
 			"button": {
-				"claim": "Claim"
+				"claim": "Claim",
+				"submitting": "Submitting..."
 			}
 		},
 		"history": {
