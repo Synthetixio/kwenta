@@ -53,7 +53,7 @@ const SubText = styled.div`
 `;
 
 const ConfirmText = styled.div`
-	color: ${(props) => props.theme.colors.gray};
+	color: ${(props) => props.theme.colors.elderberry};
 `;
 
 export default BalancerApproveModal;

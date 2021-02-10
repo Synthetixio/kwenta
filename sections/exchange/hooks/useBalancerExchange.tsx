@@ -220,6 +220,8 @@ const useBalancerExchange = ({
 		baseCurrencyAmountBN,
 		quoteCurrencyAmountBN,
 		isWalletConnected,
+		baseAllowance,
+		isApproving,
 	]);
 
 	const noSynths =
@@ -270,7 +272,7 @@ const useBalancerExchange = ({
 			provider != null &&
 			gasPrice != null &&
 			network?.id != null &&
-			(network.id == NetworkId.Mainnet || network.id == NetworkId.Kovan)
+			(network.id === NetworkId.Mainnet || network.id === NetworkId.Kovan)
 		) {
 			const maxNoPools = 1;
 			const sor = new SOR(
@@ -302,7 +304,7 @@ const useBalancerExchange = ({
 				synthetix?.js != null &&
 				provider != null &&
 				id != null &&
-				(id == NetworkId.Mainnet || id == NetworkId.Kovan)
+				(id === NetworkId.Mainnet || id === NetworkId.Kovan)
 			) {
 				if (contractNeedsInit) {
 					const proxyContract = new ethers.Contract(
@@ -319,7 +321,7 @@ const useBalancerExchange = ({
 				setBaseAllowance(new BigNumber(allowance).toString());
 			}
 		},
-		[]
+		[provider]
 	);
 
 	useEffect(() => {
@@ -329,7 +331,7 @@ const useBalancerExchange = ({
 			id: network?.id ?? null,
 			contractNeedsInit: true,
 		});
-	}, [walletAddress, baseCurrencyKey, network?.id]);
+	}, [walletAddress, baseCurrencyKey, network?.id, getAllowanceAndInitProxyContract]);
 
 	useEffect(() => {
 		if (synthetix?.js && baseCurrencyKey != null && baseCurrencyKey != null) {
@@ -447,6 +449,13 @@ const useBalancerExchange = ({
 		walletAddress,
 		baseCurrencyKey,
 		network?.id,
+		baseCurrencyAmount,
+		getAllowanceAndInitProxyContract,
+		notify,
+		quoteCurrencyAmount,
+		quoteCurrencyKey,
+		setHasOrdersNotification,
+		setOrders,
 	]);
 
 	const handleSubmit = useCallback(async () => {
@@ -534,8 +543,18 @@ const useBalancerExchange = ({
 		swaps,
 		baseCurrencyAddress,
 		quoteCurrencyAddress,
-		baseCurrencyAmountBN.toString(),
-		quoteCurrencyAmountBN.toString(),
+		baseCurrencyAmountBN,
+		quoteCurrencyAmountBN,
+		baseCurrencyAmount,
+		baseCurrencyKey,
+		quoteCurrencyAmount,
+		quoteCurrencyKey,
+		provider,
+		notify,
+		etherscanInstance,
+		synthsWalletBalancesQuery,
+		setOrders,
+		setHasOrdersNotification,
 	]);
 
 	const handleAmountChange = useCallback(
@@ -561,7 +580,7 @@ const useBalancerExchange = ({
 				calculateExchangeRate({ value: new BigNumber(quoteAmount), isBase: true });
 			}
 		},
-		[(baseCurrencyBalance ?? 0).toString(), (quoteCurrencyBalance ?? 0).toString()]
+		[baseCurrencyBalance, quoteCurrencyBalance, calculateExchangeRate]
 	);
 
 	const quoteCurrencyCard = (
