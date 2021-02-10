@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import get from 'lodash/get';
@@ -27,6 +27,7 @@ import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
 import MarketClosureCard from 'sections/exchange/FooterCard/MarketClosureCard';
 import ConnectWalletCard from 'sections/exchange/FooterCard/ConnectWalletCard';
 import TxConfirmationModal from 'sections/shared/modals/TxConfirmationModal';
+import BalancerApproveModal from 'sections/shared/modals/BalancerApproveModal';
 
 import { hasOrdersNotificationState } from 'store/ui';
 import {
@@ -43,10 +44,9 @@ import { getExchangeRatesForCurrencies } from 'utils/currencies';
 import synthetix from 'lib/synthetix';
 
 import useFeeReclaimPeriodQuery from 'queries/synths/useFeeReclaimPeriodQuery';
-import { getTransactionPrice, gasPriceInWei } from 'utils/network';
+import { gasPriceInWei, normalizeGasLimit } from 'utils/network';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useMarketClosed from 'hooks/useMarketClosed';
-import OneInch from 'containers/OneInch';
 import useCurrencyPair from './useCurrencyPair';
 import { toBigNumber, zeroBN } from 'utils/formatters/number';
 
@@ -99,11 +99,12 @@ const useBalancerExchange = ({
 	const [quoteCurrencyAmount, setQuoteCurrencyAmount] = useState<string>('');
 	const [baseCurrencyAddress, setBaseCurrencyAddress] = useState<string | null>(null);
 	const [quoteCurrencyAddress, setQuoteCurrencyAddress] = useState<string | null>(null);
-	const [balancerProxyAddress, setBalancerProxyAddress] = useState<string | null>(null);
 	const [smartOrderRouter, setSmartOrderRouter] = useState<SOR | null>(null);
+	const [balancerProxyContract, setBalancerProxyContract] = useState<ethers.Contract | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [isApproving, setIsApproving] = useState<boolean>(false);
-	const [txModalOpen, setTxModalOpen] = useState<boolean>(false);
+	const [baseAllowance, setBaseAllowance] = useState<string | null>(null);
+	const [approveModalOpen, setApproveModalOpen] = useState<boolean>(false);
 
 	// TODO type swaps
 	const [swaps, setSwaps] = useState<Array<any> | null>(null);
@@ -139,8 +140,6 @@ const useBalancerExchange = ({
 			: null;
 
 	const exchangeRates = exchangeRatesQuery.isSuccess ? exchangeRatesQuery.data ?? null : null;
-	const rate = getExchangeRatesForCurrencies(exchangeRates, quoteCurrencyKey, baseCurrencyKey);
-	const inverseRate = rate > 0 ? 1 / rate : 0;
 	const baseCurrencyBalance =
 		baseCurrencyKey != null && synthsWalletBalancesQuery.isSuccess
 			? get(synthsWalletBalancesQuery.data, ['balancesMap', baseCurrencyKey, 'balance'], zeroBN)
@@ -167,11 +166,6 @@ const useBalancerExchange = ({
 		quoteCurrencyKey,
 		selectedPriceCurrency.name
 	);
-	const ethPriceRate = getExchangeRatesForCurrencies(
-		exchangeRates,
-		SYNTHS_MAP.sETH,
-		selectedPriceCurrency.name
-	);
 
 	const baseCurrencyAmountBN = toBigNumber(baseCurrencyAmount);
 	const quoteCurrencyAmountBN = toBigNumber(quoteCurrencyAmount);
@@ -190,6 +184,9 @@ const useBalancerExchange = ({
 		const insufficientBalance =
 			quoteCurrencyBalance != null ? quoteCurrencyAmountBN.gt(quoteCurrencyBalance) : false;
 
+		if (baseAllowance == null || quoteCurrencyAmountBN.lte(baseAllowance)) {
+			return 'approve';
+		}
 		if (feeReclaimPeriodInSeconds > 0) {
 			return 'fee-reclaim-period';
 		}
@@ -266,13 +263,13 @@ const useBalancerExchange = ({
 
 	useEffect(() => {
 		if (
+			synthetix?.js != null &&
 			provider != null &&
 			gasPrice != null &&
 			network?.id != null &&
 			(network.id == NetworkId.Mainnet || network.id == NetworkId.Kovan)
 		) {
-			let maxNoPools = 1;
-			setBalancerProxyAddress(BALANCER_LINKS[network.id].proxyAddr);
+			const maxNoPools = 1;
 			const sor = new SOR(
 				provider as ethers.providers.BaseProvider,
 				new BigNumber(gasPrice),
@@ -283,6 +280,48 @@ const useBalancerExchange = ({
 			setSmartOrderRouter(sor);
 		}
 	}, [provider, gasPrice, network?.id]);
+
+	const createBalancerContractsAndGetAllowance = useCallback(
+		async (
+			address: string | null,
+			key: CurrencyKey | null,
+			id: NetworkId | null,
+			createContract: boolean
+		) => {
+			if (
+				address != null &&
+				key != null &&
+				synthetix?.js != null &&
+				provider != null &&
+				id != null &&
+				(id == NetworkId.Mainnet || id == NetworkId.Kovan)
+			) {
+				if (createContract) {
+					const proxyContract = new ethers.Contract(
+						BALANCER_LINKS[id].proxyAddr,
+						balancerExchangeProxyABI,
+						provider
+					);
+					setBalancerProxyContract(proxyContract);
+				}
+				const allowance = await synthetix.js.contracts[`Synth${key}`].allowance(
+					address,
+					BALANCER_LINKS[id].proxyAddr
+				);
+				setBaseAllowance(new BigNumber(allowance).toString());
+			}
+		},
+		[]
+	);
+
+	useEffect(() => {
+		createBalancerContractsAndGetAllowance(
+			walletAddress,
+			baseCurrencyKey,
+			network?.id ?? null,
+			true
+		);
+	}, [walletAddress, baseCurrencyKey, network?.id]);
 
 	useEffect(() => {
 		if (synthetix?.js && baseCurrencyKey != null && baseCurrencyKey != null) {
@@ -321,95 +360,100 @@ const useBalancerExchange = ({
 		}
 	};
 
-	const handleApprove = async () => {
-		try {
-			const {
-				contracts,
-				utils: { parseEther },
-			} = synthetix.js!;
-			setIsApproving(true);
-			setError(null);
-			setTxModalOpen(true);
-			const allowanceTx: ethers.ContractTransaction = await contracts[
-				`Synth${baseCurrencyKey}`
-			].approve(balancerProxyAddress, ethers.constants.MaxUint256, {
-				// TODO sort out gas price for approval
-				gasPrice: normalizedGasPrice(gasPrice),
-				gasLimit: gasLimitEstimate,
-			});
-			if (tx) {
-				setOrders((orders) =>
-					produce(orders, (draftState) => {
-						draftState.push({
-							timestamp: Date.now(),
-							hash: tx.hash,
-							baseCurrencyKey: baseCurrencyKey!,
-							baseCurrencyAmount,
-							quoteCurrencyKey: quoteCurrencyKey!,
-							quoteCurrencyAmount,
-							orderType: 'market',
-							status: 'pending',
-							transaction: tx,
-						});
-					})
+	const handleApprove = useCallback(async () => {
+		if (gasPrice != null && balancerProxyContract != null) {
+			try {
+				const { contracts } = synthetix.js!;
+				setIsApproving(true);
+				setError(null);
+				setApproveModalOpen(true);
+				const gasLimitEstimate = await contracts[`Synth${baseCurrencyKey}`].estimateGas.approve(
+					balancerProxyContract.address,
+					ethers.constants.MaxUint256
 				);
-				setHasOrdersNotification(true);
+				const allowanceTx: ethers.ContractTransaction = await contracts[
+					`Synth${baseCurrencyKey}`
+				].approve(balancerProxyContract.address, ethers.constants.MaxUint256, {
+					// TODO sort out gas price for approval
+					gasPrice: gasPriceInWei(gasPrice),
+					gasLimit: normalizeGasLimit(gasLimitEstimate.toNumber()),
+				});
+				if (allowanceTx) {
+					setOrders((orders) =>
+						produce(orders, (draftState) => {
+							draftState.push({
+								timestamp: Date.now(),
+								hash: allowanceTx.hash,
+								baseCurrencyKey: baseCurrencyKey!,
+								baseCurrencyAmount,
+								quoteCurrencyKey: quoteCurrencyKey!,
+								quoteCurrencyAmount,
+								orderType: 'market',
+								status: 'pending',
+								transaction: allowanceTx,
+							});
+						})
+					);
+					setHasOrdersNotification(true);
 
-				if (notify) {
-					const { emitter } = notify.hash(tx.hash);
-					const link = etherscanInstance != null ? etherscanInstance.txLink(tx.hash) : undefined;
+					if (notify) {
+						const { emitter } = notify.hash(allowanceTx.hash);
+						const link =
+							etherscanInstance != null ? etherscanInstance.txLink(allowanceTx.hash) : undefined;
 
-					emitter.on('txConfirmed', () => {
-						setOrders((orders) =>
-							produce(orders, (draftState) => {
-								const orderIndex = orders.findIndex((order) => order.hash === tx.hash);
-								if (draftState[orderIndex]) {
-									draftState[orderIndex].status = 'confirmed';
-								}
-							})
-						);
-						synthsWalletBalancesQuery.refetch();
-						return {
-							autoDismiss: 0,
-							link,
-						};
-					});
+						emitter.on('txConfirmed', () => {
+							setOrders((orders) =>
+								produce(orders, (draftState) => {
+									const orderIndex = orders.findIndex((order) => order.hash === allowanceTx.hash);
+									if (draftState[orderIndex]) {
+										draftState[orderIndex].status = 'confirmed';
+									}
+								})
+							);
+							createBalancerContractsAndGetAllowance(
+								walletAddress,
+								baseCurrencyKey,
+								network?.id ?? null,
+								false
+							);
+							return {
+								autoDismiss: 0,
+								link,
+							};
+						});
 
-					emitter.on('all', () => {
-						return {
-							link,
-						};
-					});
+						emitter.on('all', () => {
+							return {
+								link,
+							};
+						});
+					}
 				}
+			} catch (e) {
+				console.log(e);
+				setError(e.message);
+				setIsApproving(false);
 			}
-		} catch (e) {
-			console.log(e);
-			setError(e.message);
-			setIsApproving(false);
 		}
-	};
+	}, []);
 
-	const handleSubmit = async () => {
+	const handleSubmit = useCallback(async () => {
 		if (
 			synthetix.js != null &&
 			gasPrice != null &&
-			balancerProxyAddress != null &&
-			provider != null
+			balancerProxyContract?.address != null &&
+			provider != null &&
+			balancerProxyContract != null
 		) {
 			setTxError(false);
 			setTxConfirmationModalOpen(true);
 
-			let proxyContract = new ethers.Contract(
-				balancerProxyAddress,
-				balancerExchangeProxyABI,
-				provider
-			);
 			try {
 				setIsSubmitting(true);
 
 				const gasPriceWei = gasPriceInWei(gasPrice);
 
-				const tx = await proxyContract.multihopBatchSwapExactIn(
+				const tx = await balancerProxyContract.multihopBatchSwapExactIn(
 					swaps,
 					baseCurrencyAddress,
 					quoteCurrencyAddress,
@@ -473,7 +517,7 @@ const useBalancerExchange = ({
 				setIsSubmitting(false);
 			}
 		}
-	};
+	}, []);
 
 	const handleAmountChange = ({
 		value,
@@ -510,13 +554,6 @@ const useBalancerExchange = ({
 			priceRate={quotePriceRate}
 		/>
 	);
-	const quotePriceChartCard = showPriceCard ? (
-		<PriceChartCard side="quote" currencyKey={quoteCurrencyKey} priceRate={quotePriceRate} />
-	) : null;
-
-	const quoteMarketDetailsCard = showMarketDetailsCard ? (
-		<MarketDetailsCard currencyKey={quoteCurrencyKey} priceRate={quotePriceRate} />
-	) : null;
 
 	const baseCurrencyCard = (
 		<CurrencyCard
@@ -558,7 +595,7 @@ const useBalancerExchange = ({
 				<TradeSummaryCard
 					attached={footerCardAttached}
 					submissionDisabledReason={submissionDisabledReason}
-					onSubmit={handleSubmit}
+					onSubmit={submissionDisabledReason === 'approve' ? handleApprove : handleSubmit}
 					totalTradePrice={totalTradePrice.toString()}
 					baseCurrencyAmount={baseCurrencyAmount}
 					basePriceRate={basePriceRate}
@@ -587,17 +624,19 @@ const useBalancerExchange = ({
 					txProvider={txProvider}
 				/>
 			)}
-			{/* TODO add approval modal */}
+			{approveModalOpen && (
+				<BalancerApproveModal
+					onDismiss={() => setApproveModalOpen(false)}
+					synth={baseCurrencyKey!}
+				/>
+			)}
 		</>
 	);
 
 	return {
 		baseCurrencyKey,
 		quoteCurrencyKey,
-		inverseRate,
 		quoteCurrencyCard,
-		quotePriceChartCard,
-		quoteMarketDetailsCard,
 		baseCurrencyCard,
 		basePriceChartCard,
 		baseMarketDetailsCard,

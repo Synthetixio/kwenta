@@ -26,10 +26,12 @@ import TradeSummaryCard, {
 } from 'sections/exchange/FooterCard/TradeSummaryCard';
 import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
 import MarketClosureCard from 'sections/exchange/FooterCard/MarketClosureCard';
+import TradeBalancerCard from 'sections/exchange/FooterCard/TradeBalancerCard';
 import ConnectWalletCard from 'sections/exchange/FooterCard/ConnectWalletCard';
 import TxConfirmationModal from 'sections/shared/modals/TxConfirmationModal';
 import SelectBaseCurrencyModal from 'sections/shared/modals/SelectBaseCurrencyModal';
 import SelectQuoteCurrencyModal from 'sections/shared/modals/SelectQuoteCurrencyModal';
+import BalancerTradeModal from 'sections/shared/modals/BalancerTradeModal';
 
 import { hasOrdersNotificationState } from 'store/ui';
 import {
@@ -99,6 +101,7 @@ const useExchange = ({
 	const [txConfirmationModalOpen, setTxConfirmationModalOpen] = useState<boolean>(false);
 	const [selectBaseCurrencyModal, setSelectBaseCurrencyModal] = useState<boolean>(false);
 	const [selectQuoteCurrencyModalOpen, setSelectQuoteCurrencyModalOpen] = useState<boolean>(false);
+	const [selectBalancerTradeModal, setSelectBalancerTradeModal] = useState<boolean>(false);
 	const [txError, setTxError] = useState<boolean>(false);
 	const setOrders = useSetRecoilState(ordersState);
 	const setHasOrdersNotification = useSetRecoilState(hasOrdersNotificationState);
@@ -521,6 +524,13 @@ const useExchange = ({
 		<>
 			{!isWalletConnected ? (
 				<ConnectWalletCard attached={footerCardAttached} />
+			) : (baseCurrencyMarketClosed.isMarketClosed && baseCurrencyKey === SYNTHS_MAP.sTSLA) ||
+			  (quoteCurrencyMarketClosed.isMarketClosed && quoteCurrencyKey === SYNTHS_MAP.sTSLA) ? (
+				<TradeBalancerCard
+					synth={SYNTHS_MAP.sETH}
+					attached={footerCardAttached}
+					onClick={() => setSelectBalancerTradeModal(true)}
+				/>
 			) : baseCurrencyMarketClosed.isMarketClosed || quoteCurrencyMarketClosed.isMarketClosed ? (
 				<MarketClosureCard
 					baseCurrencyMarketClosed={baseCurrencyMarketClosed}
@@ -598,6 +608,9 @@ const useExchange = ({
 						}
 					}}
 				/>
+			)}
+			{selectBalancerTradeModal && (
+				<BalancerTradeModal onDismiss={() => setSelectBalancerTradeModal(false)} />
 			)}
 		</>
 	);

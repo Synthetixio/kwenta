@@ -65,6 +65,7 @@ export const SYNTHS = [
 	'sCHF',
 	'sCEX',
 	'sDEFI',
+	'sTSLA',
 	'iCEX',
 	'iDEFI',
 	'iAAVE',
@@ -73,6 +74,7 @@ export const SYNTHS = [
 	'iDOT',
 	'iREN',
 	'iCOMP',
+	'iTSLA',
 ];
 
 export const SYNTHS_MAP = keyBy(SYNTHS);

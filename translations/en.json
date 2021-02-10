@@ -189,7 +189,8 @@
 				"enter-amount": "enter amount",
 				"select-synth": "select synth",
 				"submit-order": "submit order",
-				"submitting-order": "submitting order..."
+				"submitting-order": "submitting order...",
+				"approve": "approve"
 			}
 		},
 		"onboard": {
@@ -219,6 +220,10 @@
 					},
 					"both-synths-suspended": {
 						"message": "Synths selected are currently paused - reset in progress."
+					},
+					"after-hours": {
+						"message": "{{asset}} stock exchange is closed - trade on Balancer in the meantime",
+						"button-label": "Open Balancer Pool"
 					}
 				}
 			}
@@ -324,7 +329,10 @@
 			"confirm-with-provider": "Confirm your transaction through your wallet."
 		},
 		"afterHours": {
-			"title": "Aftermarket {{synth}} Trading Pool"
+			"title": "Aftermarket {{synth}} Trading Pool",
+			"approve": "Approve {{synth}}",
+			"balancer-pool": "Balancer Pool",
+			"confirm-text": "Confirm your transaction with your web3 provider"
 		},
 		"settings": {
 			"title": "settings",

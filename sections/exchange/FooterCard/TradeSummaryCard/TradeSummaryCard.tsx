@@ -37,7 +37,8 @@ export type SubmissionDisabledReason =
 	| 'insufficient-balance'
 	| 'submitting-order'
 	| 'connect-wallet'
-	| 'enter-amount';
+	| 'enter-amount'
+	| 'approve';
 
 type TradeSummaryCardProps = {
 	submissionDisabledReason: SubmissionDisabledReason | null;

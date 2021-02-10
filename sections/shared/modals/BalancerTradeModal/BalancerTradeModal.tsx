@@ -25,7 +25,7 @@ const BalancerTradeModal: FC<BalancerTradeModalProps> = ({ onDismiss }) => {
 		footerCard,
 	} = useBalancerExchange({
 		defaultBaseCurrencyKey: SYNTHS_MAP.sUSD,
-		defaultQuoteCurrencyKey: SYNTHS_MAP.sETH,
+		defaultQuoteCurrencyKey: SYNTHS_MAP.sTSLA,
 		footerCardAttached: true,
 		persistSelectedCurrencies: true,
 		showNoSynthsCard: true,
@@ -35,7 +35,7 @@ const BalancerTradeModal: FC<BalancerTradeModalProps> = ({ onDismiss }) => {
 		<StyledCenteredModal
 			onDismiss={onDismiss}
 			isOpen={true}
-			title={t('modals.afterHours.title', { synth: SYNTHS_MAP.sETH })}
+			title={t('modals.afterHours.title', { synth: SYNTHS_MAP.sTSLA })}
 		>
 			<StyledPageContent>
 				{quoteCurrencyCard}
@@ -60,14 +60,6 @@ const StyledPageContent = styled.div`
 		width: 312px;
 		${media.lessThan('md')`
 		width: 100%;
-	`}
-	}
-
-	.market-details-card {
-		max-width: 618px;
-		width: 100%;
-		${media.lessThan('md')`
-		max-width: unset;
 	`}
 	}
 `;
