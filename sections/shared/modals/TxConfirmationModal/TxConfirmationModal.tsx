@@ -39,7 +39,7 @@ type TxConfirmationModalProps = {
 	quoteCurrencyAmount: string;
 	totalTradePrice: string;
 	feeAmountInBaseCurrency: BigNumber | null;
-	txProvider: 'synthetix' | '1inch';
+	txProvider: 'synthetix' | '1inch' | 'balancer';
 };
 
 export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({

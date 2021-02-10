@@ -323,6 +323,9 @@
 			"title": "confirm transaction",
 			"confirm-with-provider": "Confirm your transaction through your wallet."
 		},
+		"afterHours": {
+			"title": "Aftermarket {{synth}} Trading Pool"
+		},
 		"settings": {
 			"title": "settings",
 			"options": {
