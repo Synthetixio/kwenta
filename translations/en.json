@@ -190,6 +190,7 @@
 				"select-synth": "select synth",
 				"submit-order": "submit order",
 				"submitting-order": "submitting order...",
+				"submitting-approval": "submitting approval...",
 				"approve": "approve"
 			}
 		},

@@ -38,6 +38,7 @@ export type SubmissionDisabledReason =
 	| 'submitting-order'
 	| 'connect-wallet'
 	| 'enter-amount'
+	| 'submitting-approval'
 	| 'approve';
 
 type TradeSummaryCardProps = {

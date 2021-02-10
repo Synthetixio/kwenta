@@ -7,7 +7,7 @@ import { SOR } from '@balancer-labs/sor';
 import { BigNumber } from 'bignumber.js';
 import { NetworkId } from '@synthetixio/js';
 
-import { CRYPTO_CURRENCY_MAP, CurrencyKey, SYNTHS_MAP } from 'constants/currency';
+import { CRYPTO_CURRENCY_MAP, CurrencyKey } from 'constants/currency';
 
 import Connector from 'containers/Connector';
 import Etherscan from 'containers/Etherscan';
@@ -18,8 +18,6 @@ import useEthGasPriceQuery from 'queries/network/useEthGasPriceQuery';
 import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
 
 import CurrencyCard from 'sections/exchange/TradeCard/CurrencyCard';
-import PriceChartCard from 'sections/exchange/TradeCard/PriceChartCard';
-import MarketDetailsCard from 'sections/exchange/TradeCard/MarketDetailsCard';
 import TradeSummaryCard, {
 	SubmissionDisabledReason,
 } from 'sections/exchange/FooterCard/TradeSummaryCard';
@@ -63,6 +61,8 @@ type ExchangeCardProps = {
 	showNoSynthsCard?: boolean;
 };
 
+const TX_PROVIDER = 'balancer';
+
 const BALANCER_LINKS = {
 	[NetworkId.Mainnet]: {
 		poolsUrl:
@@ -101,7 +101,7 @@ const useBalancerExchange = ({
 	const [quoteCurrencyAddress, setQuoteCurrencyAddress] = useState<string | null>(null);
 	const [smartOrderRouter, setSmartOrderRouter] = useState<SOR | null>(null);
 	const [balancerProxyContract, setBalancerProxyContract] = useState<ethers.Contract | null>(null);
-	const [error, setError] = useState<string | null>(null);
+	const [approveError, setApproveError] = useState<string | null>(null);
 	const [isApproving, setIsApproving] = useState<boolean>(false);
 	const [baseAllowance, setBaseAllowance] = useState<string | null>(null);
 	const [approveModalOpen, setApproveModalOpen] = useState<boolean>(false);
@@ -199,6 +199,9 @@ const useBalancerExchange = ({
 		if (isSubmitting) {
 			return 'submitting-order';
 		}
+		if (isApproving) {
+			return 'submitting-approval';
+		}
 		if (
 			!isWalletConnected ||
 			baseCurrencyAmountBN.isNaN() ||
@@ -281,13 +284,18 @@ const useBalancerExchange = ({
 		}
 	}, [provider, gasPrice, network?.id]);
 
-	const createBalancerContractsAndGetAllowance = useCallback(
-		async (
-			address: string | null,
-			key: CurrencyKey | null,
-			id: NetworkId | null,
-			createContract: boolean
-		) => {
+	const getAllowanceAndInitProxyContract = useCallback(
+		async ({
+			address,
+			key,
+			id,
+			contractNeedsInit,
+		}: {
+			address: string | null;
+			key: CurrencyKey | null;
+			id: NetworkId | null;
+			contractNeedsInit: boolean;
+		}) => {
 			if (
 				address != null &&
 				key != null &&
@@ -296,7 +304,7 @@ const useBalancerExchange = ({
 				id != null &&
 				(id == NetworkId.Mainnet || id == NetworkId.Kovan)
 			) {
-				if (createContract) {
+				if (contractNeedsInit) {
 					const proxyContract = new ethers.Contract(
 						BALANCER_LINKS[id].proxyAddr,
 						balancerExchangeProxyABI,
@@ -315,12 +323,12 @@ const useBalancerExchange = ({
 	);
 
 	useEffect(() => {
-		createBalancerContractsAndGetAllowance(
-			walletAddress,
-			baseCurrencyKey,
-			network?.id ?? null,
-			true
-		);
+		getAllowanceAndInitProxyContract({
+			address: walletAddress,
+			key: baseCurrencyKey,
+			id: network?.id ?? null,
+			contractNeedsInit: true,
+		});
 	}, [walletAddress, baseCurrencyKey, network?.id]);
 
 	useEffect(() => {
@@ -330,42 +338,39 @@ const useBalancerExchange = ({
 		}
 	}, [baseCurrencyKey, quoteCurrencyKey]);
 
-	const calculateExchangeRate = async ({
-		value,
-		isBase,
-	}: {
-		value: BigNumber;
-		isBase: boolean;
-	}) => {
-		if (smartOrderRouter != null && quoteCurrencyAddress != null && baseCurrencyAddress != null) {
-			let swapType = isBase ? 'swapExactIn' : 'swapExactOut';
-			await smartOrderRouter.fetchPools();
+	const calculateExchangeRate = useCallback(
+		async ({ value, isBase }: { value: BigNumber; isBase: boolean }) => {
+			if (smartOrderRouter != null && quoteCurrencyAddress != null && baseCurrencyAddress != null) {
+				let swapType = isBase ? 'swapExactIn' : 'swapExactOut';
+				await smartOrderRouter.fetchPools();
 
-			if (!hasSetCostOutputTokenCalled) {
-				await smartOrderRouter.setCostOutputToken(quoteCurrencyAddress);
-				setHasSetCostOutputTokenCalled(true);
+				if (!hasSetCostOutputTokenCalled) {
+					await smartOrderRouter.setCostOutputToken(quoteCurrencyAddress);
+					setHasSetCostOutputTokenCalled(true);
+				}
+
+				const [tradeSwaps, resultingAmount] = await smartOrderRouter.getSwaps(
+					baseCurrencyAddress,
+					quoteCurrencyAddress,
+					swapType,
+					value
+				);
+
+				setSwaps(tradeSwaps);
+				isBase
+					? setBaseCurrencyAmount(resultingAmount.toString())
+					: setQuoteCurrencyAmount(resultingAmount.toString());
 			}
-
-			const [tradeSwaps, resultingAmount] = await smartOrderRouter.getSwaps(
-				baseCurrencyAddress,
-				quoteCurrencyAddress,
-				swapType,
-				value
-			);
-
-			setSwaps(tradeSwaps);
-			isBase
-				? setBaseCurrencyAmount(resultingAmount.toString())
-				: setQuoteCurrencyAmount(resultingAmount.toString());
-		}
-	};
+		},
+		[smartOrderRouter, quoteCurrencyAddress, baseCurrencyAddress, hasSetCostOutputTokenCalled]
+	);
 
 	const handleApprove = useCallback(async () => {
 		if (gasPrice != null && balancerProxyContract != null) {
 			try {
 				const { contracts } = synthetix.js!;
 				setIsApproving(true);
-				setError(null);
+				setApproveError(null);
 				setApproveModalOpen(true);
 				const gasLimitEstimate = await contracts[`Synth${baseCurrencyKey}`].estimateGas.approve(
 					balancerProxyContract.address,
@@ -410,12 +415,12 @@ const useBalancerExchange = ({
 									}
 								})
 							);
-							createBalancerContractsAndGetAllowance(
-								walletAddress,
-								baseCurrencyKey,
-								network?.id ?? null,
-								false
-							);
+							getAllowanceAndInitProxyContract({
+								address: walletAddress,
+								key: baseCurrencyKey,
+								id: network?.id ?? null,
+								contractNeedsInit: false,
+							});
 							return {
 								autoDismiss: 0,
 								link,
@@ -431,19 +436,25 @@ const useBalancerExchange = ({
 				}
 			} catch (e) {
 				console.log(e);
-				setError(e.message);
+				setApproveError(e.message);
 				setIsApproving(false);
 			}
 		}
-	}, []);
+	}, [
+		gasPrice,
+		balancerProxyContract,
+		etherscanInstance,
+		walletAddress,
+		baseCurrencyKey,
+		network?.id,
+	]);
 
 	const handleSubmit = useCallback(async () => {
 		if (
 			synthetix.js != null &&
 			gasPrice != null &&
 			balancerProxyContract?.address != null &&
-			provider != null &&
-			balancerProxyContract != null
+			provider != null
 		) {
 			setTxError(false);
 			setTxConfirmationModalOpen(true);
@@ -517,30 +528,41 @@ const useBalancerExchange = ({
 				setIsSubmitting(false);
 			}
 		}
-	}, []);
+	}, [
+		gasPrice,
+		balancerProxyContract,
+		swaps,
+		baseCurrencyAddress,
+		quoteCurrencyAddress,
+		baseCurrencyAmountBN.toString(),
+		quoteCurrencyAmountBN.toString(),
+	]);
 
-	const handleAmountChange = ({
-		value,
-		isBase,
-		isMaxClick = false,
-	}: {
-		value: string;
-		isBase: boolean;
-		isMaxClick?: boolean;
-	}) => {
-		if (value === '' && !isMaxClick) {
-			setBaseCurrencyAmount('');
-			setQuoteCurrencyAmount('');
-		} else if (isBase) {
-			const baseAmount = isMaxClick ? (baseCurrencyBalance ?? 0).toString() : value;
-			setBaseCurrencyAmount(baseAmount);
-			calculateExchangeRate({ value: new BigNumber(baseAmount), isBase: true });
-		} else {
-			const quoteAmount = isMaxClick ? (quoteCurrencyBalance ?? 0).toString() : value;
-			setQuoteCurrencyAmount(quoteAmount);
-			calculateExchangeRate({ value: new BigNumber(quoteAmount), isBase: true });
-		}
-	};
+	const handleAmountChange = useCallback(
+		({
+			value,
+			isBase,
+			isMaxClick = false,
+		}: {
+			value: string;
+			isBase: boolean;
+			isMaxClick?: boolean;
+		}) => {
+			if (value === '' && !isMaxClick) {
+				setBaseCurrencyAmount('');
+				setQuoteCurrencyAmount('');
+			} else if (isBase) {
+				const baseAmount = isMaxClick ? (baseCurrencyBalance ?? 0).toString() : value;
+				setBaseCurrencyAmount(baseAmount);
+				calculateExchangeRate({ value: new BigNumber(baseAmount), isBase: true });
+			} else {
+				const quoteAmount = isMaxClick ? (quoteCurrencyBalance ?? 0).toString() : value;
+				setQuoteCurrencyAmount(quoteAmount);
+				calculateExchangeRate({ value: new BigNumber(quoteAmount), isBase: true });
+			}
+		},
+		[(baseCurrencyBalance ?? 0).toString(), (quoteCurrencyBalance ?? 0).toString()]
+	);
 
 	const quoteCurrencyCard = (
 		<CurrencyCard
@@ -567,17 +589,6 @@ const useBalancerExchange = ({
 			priceRate={basePriceRate}
 		/>
 	);
-
-	const basePriceChartCard = showPriceCard ? (
-		<PriceChartCard side="base" currencyKey={baseCurrencyKey} priceRate={basePriceRate} />
-	) : null;
-
-	const baseMarketDetailsCard = showMarketDetailsCard ? (
-		<MarketDetailsCard currencyKey={baseCurrencyKey} priceRate={basePriceRate} />
-	) : null;
-
-	// TODO: support more providers
-	const txProvider = 'balancer';
 
 	const footerCard = (
 		<>
@@ -621,25 +632,22 @@ const useBalancerExchange = ({
 					baseCurrencyKey={baseCurrencyKey!}
 					quoteCurrencyKey={quoteCurrencyKey!}
 					totalTradePrice={totalTradePrice.toString()}
-					txProvider={txProvider}
+					txProvider={TX_PROVIDER}
 				/>
 			)}
 			{approveModalOpen && (
 				<BalancerApproveModal
 					onDismiss={() => setApproveModalOpen(false)}
 					synth={baseCurrencyKey!}
+					approveError={approveError}
 				/>
 			)}
 		</>
 	);
 
 	return {
-		baseCurrencyKey,
-		quoteCurrencyKey,
 		quoteCurrencyCard,
 		baseCurrencyCard,
-		basePriceChartCard,
-		baseMarketDetailsCard,
 		footerCard,
 		handleCurrencySwap,
 	};

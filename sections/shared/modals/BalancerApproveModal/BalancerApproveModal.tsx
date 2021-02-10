@@ -11,9 +11,14 @@ import { CenteredModal } from '../common';
 type BalancerApproveModalProps = {
 	onDismiss: () => void;
 	synth: CurrencyKey;
+	approveError: string | null;
 };
 
-export const BalancerApproveModal: FC<BalancerApproveModalProps> = ({ onDismiss, synth }) => {
+export const BalancerApproveModal: FC<BalancerApproveModalProps> = ({
+	onDismiss,
+	synth,
+	approveError,
+}) => {
 	const { t } = useTranslation();
 	return (
 		<StyledCenteredModal
@@ -26,6 +31,7 @@ export const BalancerApproveModal: FC<BalancerApproveModalProps> = ({ onDismiss,
 			</IconWrap>
 			<SubText>{'modals.afterHours.balancer-pool'}</SubText>
 			<ConfirmText>{'modals.afterHours.confirm-text'}</ConfirmText>
+			{approveError != null ? <ErrorText>{approveError}</ErrorText> : null}
 		</StyledCenteredModal>
 	);
 };
@@ -36,6 +42,10 @@ const StyledCenteredModal = styled(CenteredModal)`
 
 const IconWrap = styled.div`
 	padding: 20px 0 5px 0;
+`;
+
+const ErrorText = styled.div`
+	color: ${(props) => props.theme.colors.red};
 `;
 
 const SubText = styled.div`
