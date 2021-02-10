@@ -159,7 +159,9 @@
 				},
 				"market-closure": {
 					"title": "This market has been closed",
-					"subtitle": "Reset in progress."
+					"subtitle": "Reset in progress.",
+					"after-hours": "Aftermarket trading pool available <linkTag>{{linkText}}</linkTag>",
+					"here": "here"
 				},
 				"system-upgrade": {
 					"title": "Synth paused",
@@ -191,7 +193,7 @@
 				"submit-order": "submit order",
 				"submitting-order": "submitting order...",
 				"submitting-approval": "submitting approval...",
-				"approve": "approve"
+				"approve-balancer": "approve balancer contract"
 			}
 		},
 		"onboard": {
@@ -333,7 +335,8 @@
 			"title": "Aftermarket {{synth}} Trading Pool",
 			"approve": "Approve {{synth}}",
 			"balancer-pool": "Balancer Pool",
-			"confirm-text": "Confirm your transaction with your web3 provider"
+			"confirm-text": "Confirm your transaction with your web3 provider",
+			"notice-text": "During trading hours we provide exact prices based on Chainlink data. After trading hours you may trade {{synth}} at the going rate on Balancer. Please take note of potential price deviations and slippage on larger orders."
 		},
 		"settings": {
 			"title": "settings",

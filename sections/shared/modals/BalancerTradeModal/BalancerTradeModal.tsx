@@ -37,6 +37,7 @@ const BalancerTradeModal: FC<BalancerTradeModalProps> = ({ onDismiss }) => {
 			isOpen={true}
 			title={t('modals.afterHours.title', { synth: SYNTHS_MAP.sTSLA })}
 		>
+			<NoticeText>{t('modals.afterHours.notice-text', { synth: SYNTHS_MAP.sTSLA })}</NoticeText>
 			{quoteCurrencyCard}
 			<VerticalSpacer>
 				<SwapCurrenciesButton onClick={handleCurrencySwap} data-testid="swap-btn">
@@ -50,12 +51,15 @@ const BalancerTradeModal: FC<BalancerTradeModalProps> = ({ onDismiss }) => {
 };
 
 const StyledCenteredModal = styled(CenteredModal)`
-	padding: 15px 20px;
 	.currency-card {
 		width: 312px;
 		${media.lessThan('md')`
 		width: 100%;
 	`}
+	}
+	.card {
+		width: 420px;
+		margin: 0 auto;
 	}
 `;
 
@@ -68,6 +72,12 @@ const VerticalSpacer = styled.div`
 		transform: translate(-50%, -50%) rotate(90deg);
 		border: 2px solid ${(props) => props.theme.colors.black};
 	}
+`;
+
+const NoticeText = styled.div`
+	color: ${(props) => props.theme.colors.silver};
+	text-align: center;
+	padding: 15px 20px 10px 20px;
 `;
 
 export default BalancerTradeModal;

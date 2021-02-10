@@ -474,7 +474,12 @@ const useExchange = ({
 		/>
 	);
 	const quotePriceChartCard = showPriceCard ? (
-		<PriceChartCard side="quote" currencyKey={quoteCurrencyKey} priceRate={quotePriceRate} />
+		<PriceChartCard
+			side="quote"
+			currencyKey={quoteCurrencyKey}
+			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
+			priceRate={quotePriceRate}
+		/>
 	) : null;
 
 	const quoteMarketDetailsCard = showMarketDetailsCard ? (

@@ -41,9 +41,18 @@ type ChartCardProps = {
 	currencyKey: CurrencyKey | null;
 	priceRate: number | null;
 	className?: string;
+	openAfterHoursModalCallback?: () => void;
 };
 
-const ChartCard: FC<ChartCardProps> = ({ side, currencyKey, priceRate, ...rest }) => {
+const AFTER_HOURS_SYNTHS = [SYNTHS_MAP.sTSLA];
+
+const ChartCard: FC<ChartCardProps> = ({
+	side,
+	currencyKey,
+	priceRate,
+	openAfterHoursModalCallback,
+	...rest
+}) => {
 	const { t } = useTranslation();
 	const [selectedPeriod, setSelectedPeriod] = useState<PeriodLabel>(PERIOD_LABELS_MAP.ONE_DAY);
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
@@ -254,6 +263,20 @@ const ChartCard: FC<ChartCardProps> = ({ side, currencyKey, priceRate, ...rest }
 							<OverlayMessageSubtitle>
 								{t(`exchange.price-chart-card.overlay-messages.${marketClosureReason}.subtitle`)}
 							</OverlayMessageSubtitle>
+							{openAfterHoursModalCallback != null &&
+							AFTER_HOURS_SYNTHS.includes(currencyKey ?? '') ? (
+								<OverlayMessageSubtitle>
+									<Trans
+										i18nKey="exchange.price-chart-card.overlay-messages.market-closure.after-hours"
+										values={{
+											linkText: t('exchange.price-chart-card.overlay-messages.market-closure.here'),
+										}}
+										components={{
+											linkTag: <div onClick={openAfterHoursModalCallback} />,
+										}}
+									/>
+								</OverlayMessageSubtitle>
+							) : null}
 						</OverlayMessage>
 					) : showLoader ? (
 						<Svg src={LoaderIcon} />

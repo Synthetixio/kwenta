@@ -39,7 +39,7 @@ export type SubmissionDisabledReason =
 	| 'connect-wallet'
 	| 'enter-amount'
 	| 'submitting-approval'
-	| 'approve';
+	| 'approve-balancer';
 
 type TradeSummaryCardProps = {
 	submissionDisabledReason: SubmissionDisabledReason | null;
@@ -225,7 +225,7 @@ const TradeSummaryCard: FC<TradeSummaryCardProps> = ({
 						<Button
 							variant="primary"
 							isRounded={true}
-							disabled={isSubmissionDisabled && submissionDisabledReason !== 'approve'}
+							disabled={isSubmissionDisabled && submissionDisabledReason !== 'approve-balancer'}
 							onClick={onSubmit}
 							size="lg"
 							data-testid="submit-order"

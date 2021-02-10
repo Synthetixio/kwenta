@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import { Svg } from 'react-optimized-image';
 import { CurrencyKey } from 'constants/currency';
 
 import BalancerIcon from 'assets/svg/app/market-closure/balancer.svg';
@@ -26,12 +25,14 @@ export const BalancerApproveModal: FC<BalancerApproveModalProps> = ({
 			isOpen={true}
 			title={t('modals.afterHours.approve', { synth })}
 		>
-			<IconWrap>
-				<Svg src={BalancerIcon} />
-			</IconWrap>
-			<SubText>{t('modals.afterHours.balancer-pool')}</SubText>
-			<ConfirmText>{t('modals.afterHours.confirm-text')}</ConfirmText>
-			{approveError != null ? <ErrorText>{approveError}</ErrorText> : null}
+			<InnerModalWrap>
+				<IconWrap>
+					<img alt="" src={BalancerIcon.src} width="48px" height="48px" />
+				</IconWrap>
+				<SubText>{t('modals.afterHours.balancer-pool')}</SubText>
+				<ConfirmText>{t('modals.afterHours.confirm-text')}</ConfirmText>
+				{approveError != null ? <ErrorText>{approveError}</ErrorText> : null}
+			</InnerModalWrap>
 		</StyledCenteredModal>
 	);
 };
@@ -40,8 +41,13 @@ const StyledCenteredModal = styled(CenteredModal)`
 	padding: 10px;
 `;
 
+const InnerModalWrap = styled.div`
+	text-align: center;
+`;
+
 const IconWrap = styled.div`
 	padding: 20px 0 5px 0;
+	margin: 0 auto;
 `;
 
 const ErrorText = styled.div`
@@ -50,10 +56,12 @@ const ErrorText = styled.div`
 
 const SubText = styled.div`
 	color: ${(props) => props.theme.colors.white};
+	padding: 20px 0;
 `;
 
 const ConfirmText = styled.div`
-	color: ${(props) => props.theme.colors.white};
+	color: ${(props) => props.theme.colors.silver};
+	padding: 20px 0;
 `;
 
 export default BalancerApproveModal;

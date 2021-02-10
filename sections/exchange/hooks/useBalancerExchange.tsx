@@ -44,7 +44,6 @@ import synthetix from 'lib/synthetix';
 import useFeeReclaimPeriodQuery from 'queries/synths/useFeeReclaimPeriodQuery';
 import { gasPriceInWei, normalizeGasLimit } from 'utils/network';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
-import useMarketClosed from 'hooks/useMarketClosed';
 import useCurrencyPair from './useCurrencyPair';
 import { toBigNumber, zeroBN } from 'utils/formatters/number';
 
@@ -182,7 +181,7 @@ const useBalancerExchange = ({
 			baseAllowance === '0' ||
 			quoteCurrencyAmountBN.lte(baseAllowance)
 		) {
-			return 'approve';
+			return 'approve-balancer';
 		}
 		if (feeReclaimPeriodInSeconds > 0) {
 			return 'fee-reclaim-period';
@@ -616,7 +615,7 @@ const useBalancerExchange = ({
 				<TradeSummaryCard
 					attached={footerCardAttached}
 					submissionDisabledReason={submissionDisabledReason}
-					onSubmit={submissionDisabledReason === 'approve' ? handleApprove : handleSubmit}
+					onSubmit={submissionDisabledReason === 'approve-balancer' ? handleApprove : handleSubmit}
 					totalTradePrice={totalTradePrice.toString()}
 					baseCurrencyAmount={baseCurrencyAmount}
 					basePriceRate={basePriceRate}
