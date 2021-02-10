@@ -225,7 +225,7 @@ const TradeSummaryCard: FC<TradeSummaryCardProps> = ({
 						<Button
 							variant="primary"
 							isRounded={true}
-							disabled={isSubmissionDisabled}
+							disabled={isSubmissionDisabled && submissionDisabledReason !== 'approve'}
 							onClick={onSubmit}
 							size="lg"
 							data-testid="submit-order"

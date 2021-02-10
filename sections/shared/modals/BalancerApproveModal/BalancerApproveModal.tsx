@@ -29,8 +29,8 @@ export const BalancerApproveModal: FC<BalancerApproveModalProps> = ({
 			<IconWrap>
 				<Svg src={BalancerIcon} />
 			</IconWrap>
-			<SubText>{'modals.afterHours.balancer-pool'}</SubText>
-			<ConfirmText>{'modals.afterHours.confirm-text'}</ConfirmText>
+			<SubText>{t('modals.afterHours.balancer-pool')}</SubText>
+			<ConfirmText>{t('modals.afterHours.confirm-text')}</ConfirmText>
 			{approveError != null ? <ErrorText>{approveError}</ErrorText> : null}
 		</StyledCenteredModal>
 	);
@@ -53,7 +53,7 @@ const SubText = styled.div`
 `;
 
 const ConfirmText = styled.div`
-	color: ${(props) => props.theme.colors.elderberry};
+	color: ${(props) => props.theme.colors.white};
 `;
 
 export default BalancerApproveModal;

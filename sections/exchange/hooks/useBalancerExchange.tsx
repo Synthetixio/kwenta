@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import styled from 'styled-components';
 import { ethers } from 'ethers';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import get from 'lodash/get';
@@ -22,7 +23,6 @@ import TradeSummaryCard, {
 	SubmissionDisabledReason,
 } from 'sections/exchange/FooterCard/TradeSummaryCard';
 import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
-import MarketClosureCard from 'sections/exchange/FooterCard/MarketClosureCard';
 import ConnectWalletCard from 'sections/exchange/FooterCard/ConnectWalletCard';
 import TxConfirmationModal from 'sections/shared/modals/TxConfirmationModal';
 import BalancerApproveModal from 'sections/shared/modals/BalancerApproveModal';
@@ -53,8 +53,6 @@ import balancerExchangeProxyABI from './balancerExchangeProxyABI';
 type ExchangeCardProps = {
 	defaultBaseCurrencyKey?: CurrencyKey | null;
 	defaultQuoteCurrencyKey?: CurrencyKey | null;
-	showPriceCard?: boolean;
-	showMarketDetailsCard?: boolean;
 	footerCardAttached?: boolean;
 	persistSelectedCurrencies?: boolean;
 	allowCurrencySelection?: boolean;
@@ -79,8 +77,6 @@ const BALANCER_LINKS = {
 const useBalancerExchange = ({
 	defaultBaseCurrencyKey = null,
 	defaultQuoteCurrencyKey = null,
-	showPriceCard = false,
-	showMarketDetailsCard = false,
 	footerCardAttached = false,
 	persistSelectedCurrencies = false,
 	showNoSynthsCard = true,
@@ -177,14 +173,15 @@ const useBalancerExchange = ({
 
 	const selectedBothSides = baseCurrencyKey != null && quoteCurrencyKey != null;
 
-	const baseCurrencyMarketClosed = useMarketClosed(baseCurrencyKey);
-	const quoteCurrencyMarketClosed = useMarketClosed(quoteCurrencyKey);
-
 	const submissionDisabledReason: SubmissionDisabledReason | null = useMemo(() => {
 		const insufficientBalance =
 			quoteCurrencyBalance != null ? quoteCurrencyAmountBN.gt(quoteCurrencyBalance) : false;
 
-		if (baseAllowance == null || quoteCurrencyAmountBN.lte(baseAllowance)) {
+		if (
+			baseAllowance == null ||
+			baseAllowance === '0' ||
+			quoteCurrencyAmountBN.lte(baseAllowance)
+		) {
 			return 'approve';
 		}
 		if (feeReclaimPeriodInSeconds > 0) {
@@ -318,7 +315,7 @@ const useBalancerExchange = ({
 					address,
 					BALANCER_LINKS[id].proxyAddr
 				);
-				setBaseAllowance(new BigNumber(allowance).toString());
+				setBaseAllowance(allowance.toString());
 			}
 		},
 		[provider]
@@ -584,7 +581,7 @@ const useBalancerExchange = ({
 	);
 
 	const quoteCurrencyCard = (
-		<CurrencyCard
+		<StyledCurrencyCard
 			side="quote"
 			currencyKey={quoteCurrencyKey}
 			amount={quoteCurrencyAmount}
@@ -597,7 +594,7 @@ const useBalancerExchange = ({
 	);
 
 	const baseCurrencyCard = (
-		<CurrencyCard
+		<StyledCurrencyCard
 			side="base"
 			currencyKey={baseCurrencyKey}
 			amount={baseCurrencyAmount}
@@ -613,12 +610,6 @@ const useBalancerExchange = ({
 		<>
 			{!isWalletConnected ? (
 				<ConnectWalletCard attached={footerCardAttached} />
-			) : baseCurrencyMarketClosed.isMarketClosed || quoteCurrencyMarketClosed.isMarketClosed ? (
-				<MarketClosureCard
-					baseCurrencyMarketClosed={baseCurrencyMarketClosed}
-					quoteCurrencyMarketClosed={quoteCurrencyMarketClosed}
-					attached={footerCardAttached}
-				/>
 			) : showNoSynthsCard && noSynths ? (
 				<NoSynthsCard attached={footerCardAttached} />
 			) : (
@@ -671,5 +662,10 @@ const useBalancerExchange = ({
 		handleCurrencySwap,
 	};
 };
+
+const StyledCurrencyCard = styled(CurrencyCard)`
+	align-items: center;
+	margin-top: 10px;
+`;
 
 export default useBalancerExchange;

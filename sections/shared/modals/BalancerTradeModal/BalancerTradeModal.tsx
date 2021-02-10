@@ -25,7 +25,7 @@ const BalancerTradeModal: FC<BalancerTradeModalProps> = ({ onDismiss }) => {
 		footerCard,
 	} = useBalancerExchange({
 		defaultBaseCurrencyKey: SYNTHS_MAP.sUSD,
-		defaultQuoteCurrencyKey: SYNTHS_MAP.sTSLA,
+		defaultQuoteCurrencyKey: SYNTHS_MAP.iBNB,
 		footerCardAttached: true,
 		persistSelectedCurrencies: true,
 		showNoSynthsCard: true,
@@ -37,25 +37,20 @@ const BalancerTradeModal: FC<BalancerTradeModalProps> = ({ onDismiss }) => {
 			isOpen={true}
 			title={t('modals.afterHours.title', { synth: SYNTHS_MAP.sTSLA })}
 		>
-			<StyledPageContent>
-				{quoteCurrencyCard}
-				<VerticalSpacer>
-					<SwapCurrenciesButton onClick={handleCurrencySwap} data-testid="swap-btn">
-						<Svg src={ArrowsIcon} />
-					</SwapCurrenciesButton>
-				</VerticalSpacer>
-				{baseCurrencyCard}
-				{footerCard}
-			</StyledPageContent>
+			{quoteCurrencyCard}
+			<VerticalSpacer>
+				<SwapCurrenciesButton onClick={handleCurrencySwap} data-testid="swap-btn">
+					<Svg src={ArrowsIcon} />
+				</SwapCurrenciesButton>
+			</VerticalSpacer>
+			{baseCurrencyCard}
+			{footerCard}
 		</StyledCenteredModal>
 	);
 };
 
 const StyledCenteredModal = styled(CenteredModal)`
 	padding: 15px 20px;
-`;
-
-const StyledPageContent = styled.div`
 	.currency-card {
 		width: 312px;
 		${media.lessThan('md')`
@@ -67,6 +62,7 @@ const StyledPageContent = styled.div`
 const VerticalSpacer = styled.div`
 	height: 2px;
 	position: relative;
+	margin: 0 auto;
 	${SwapCurrenciesButton} {
 		position: absolute;
 		transform: translate(-50%, -50%) rotate(90deg);
