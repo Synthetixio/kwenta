@@ -25,7 +25,7 @@ const BalancerTradeModal: FC<BalancerTradeModalProps> = ({ onDismiss }) => {
 		handleCurrencySwap,
 		footerCard,
 	} = useBalancerExchange({
-		defaultBaseCurrencyKey: SYNTHS_MAP.iBNB,
+		defaultBaseCurrencyKey: SYNTHS_MAP.sTSLA,
 		defaultQuoteCurrencyKey: SYNTHS_MAP.sUSD,
 		footerCardAttached: true,
 		persistSelectedCurrencies: true,

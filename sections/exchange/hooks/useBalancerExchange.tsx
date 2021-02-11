@@ -7,6 +7,7 @@ import produce from 'immer';
 import { SOR } from '@balancer-labs/sor';
 import { BigNumber } from 'bignumber.js';
 import { NetworkId } from '@synthetixio/js';
+import throttle from 'lodash/throttle';
 
 import { CurrencyKey, SYNTHS_MAP, sUSD_EXCHANGE_RATE } from 'constants/currency';
 
@@ -333,8 +334,6 @@ const useBalancerExchange = ({
 					swapType,
 					formattedValue
 				);
-				console.log('tradeSwaps', tradeSwaps);
-				console.log('resultingAmount', resultingAmount);
 
 				const [, smallTradeResult] = await smartOrderRouter.getSwaps(
 					quoteCurrencyAddress,

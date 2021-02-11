@@ -116,7 +116,7 @@ const TradeBalancerSummaryCard: FC<TradeBalancerSummaryCardProps> = ({
 			</SummaryItem>
 			<SummaryItem>
 				<SummaryItemLabel>{t('modals.afterHours.estimated-slippage')}</SummaryItemLabel>
-				<SummaryItemValue>{formatPercent(estimatedSlippage)}</SummaryItemValue>
+				<SummaryItemValue>{formatPercent(estimatedSlippage.toNumber())}</SummaryItemValue>
 			</SummaryItem>
 			<SummaryItem>
 				<SummaryItemLabel>{t('exchange.summary-info.gas-price-gwei')}</SummaryItemLabel>

@@ -44,7 +44,7 @@ type ChartCardProps = {
 	openAfterHoursModalCallback?: () => void;
 };
 
-const AFTER_HOURS_SYNTHS = [SYNTHS_MAP.sTSLA, SYNTHS_MAP.iBNB];
+const AFTER_HOURS_SYNTHS = [SYNTHS_MAP.sTSLA];
 
 const ChartCard: FC<ChartCardProps> = ({
 	side,

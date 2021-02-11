@@ -46,6 +46,11 @@ export const BalancerApproveModal: FC<BalancerApproveModalProps> = ({
 
 const StyledCenteredModal = styled(CenteredModal)`
 	padding: 10px;
+	text-align: center;
+	.card {
+		width: 420px;
+		margin: 0 auto;
+	}
 `;
 
 const InnerModalWrap = styled.div`
