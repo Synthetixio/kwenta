@@ -540,12 +540,6 @@ const useExchange = ({
 					attached={footerCardAttached}
 					onClick={() => setSelectBalancerTradeModal(true)}
 				/>
-			) : baseCurrencyKey === SYNTHS_MAP.sTSLA || quoteCurrencyKey === SYNTHS_MAP.sTSLA ? (
-				<TradeBalancerFooterCard
-					synth={SYNTHS_MAP.sTSLA}
-					attached={footerCardAttached}
-					onClick={() => setSelectBalancerTradeModal(true)}
-				/>
 			) : baseCurrencyMarketClosed.isMarketClosed || quoteCurrencyMarketClosed.isMarketClosed ? (
 				<MarketClosureCard
 					baseCurrencyMarketClosed={baseCurrencyMarketClosed}
