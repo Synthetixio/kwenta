@@ -5,6 +5,7 @@ import Tippy from '@tippyjs/react';
 import { customGasPriceState, gasSpeedState } from 'store/wallet';
 import { useRecoilState } from 'recoil';
 import { Svg } from 'react-optimized-image';
+import BigNumber from 'bignumber.js';
 
 import CaretDownIcon from 'assets/svg/app/caret-down.svg';
 import { GasPrices, GAS_SPEEDS } from 'queries/network/useEthGasPriceQuery';
@@ -23,7 +24,7 @@ type TradeBalancerSummaryCardProps = {
 	submissionDisabledReason: SubmissionDisabledReason | null;
 	onSubmit: () => void;
 	gasPrices: GasPrices | undefined;
-	estimatedSlippage: number | null;
+	estimatedSlippage: BigNumber;
 	setMaxSlippageTolerance: (num: string) => void;
 	maxSlippageTolerance: string;
 };
@@ -115,7 +116,7 @@ const TradeBalancerSummaryCard: FC<TradeBalancerSummaryCardProps> = ({
 			</SummaryItem>
 			<SummaryItem>
 				<SummaryItemLabel>{t('modals.afterHours.estimated-slippage')}</SummaryItemLabel>
-				<SummaryItemValue>{formatPercent(estimatedSlippage ?? 0)}</SummaryItemValue>
+				<SummaryItemValue>{formatPercent(estimatedSlippage)}</SummaryItemValue>
 			</SummaryItem>
 			<SummaryItem>
 				<SummaryItemLabel>{t('exchange.summary-info.gas-price-gwei')}</SummaryItemLabel>

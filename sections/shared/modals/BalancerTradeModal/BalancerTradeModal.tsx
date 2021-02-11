@@ -86,6 +86,7 @@ const NoticeText = styled.div`
 	color: ${(props) => props.theme.colors.silver};
 	text-align: center;
 	padding: 15px 20px 10px 20px;
+	text-align: justify;
 `;
 
 const PoweredBySection = styled(FlexDivRowCentered)`

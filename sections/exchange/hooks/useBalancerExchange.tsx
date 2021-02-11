@@ -47,6 +47,7 @@ import useCurrencyPair from './useCurrencyPair';
 import { toBigNumber, zeroBN } from 'utils/formatters/number';
 
 import balancerExchangeProxyABI from './balancerExchangeProxyABI';
+import { SYNTHS_MAP } from '../../../constants/currency';
 
 type ExchangeCardProps = {
 	defaultBaseCurrencyKey?: CurrencyKey | null;
@@ -100,6 +101,7 @@ const useBalancerExchange = ({
 	const [baseAllowance, setBaseAllowance] = useState<string | null>(null);
 	const [approveModalOpen, setApproveModalOpen] = useState<boolean>(false);
 	const [maxSlippageTolerance, setMaxSlippageTolerance] = useState<string>('0');
+	const [estimatedSlippage, setEstimatedSlippage] = useState<BigNumber>(new BigNumber(0));
 
 	// TODO type swaps
 	const [swaps, setSwaps] = useState<Array<any> | null>(null);
@@ -160,7 +162,10 @@ const useBalancerExchange = ({
 	const baseCurrencyAmountBN = toBigNumber(baseCurrencyAmount);
 	const quoteCurrencyAmountBN = toBigNumber(quoteCurrencyAmount);
 
-	let totalTradePrice = baseCurrencyAmountBN.multipliedBy(basePriceRate);
+	let totalTradePrice =
+		baseCurrencyKey === SYNTHS_MAP.sUSD
+			? baseCurrencyAmountBN.multipliedBy(basePriceRate)
+			: quoteCurrencyAmountBN.multipliedBy(quotePriceRate);
 	if (selectPriceCurrencyRate) {
 		totalTradePrice = totalTradePrice.dividedBy(selectPriceCurrencyRate);
 	}
@@ -174,7 +179,7 @@ const useBalancerExchange = ({
 		if (
 			baseAllowance == null ||
 			baseAllowance === '0' ||
-			quoteCurrencyAmountBN.lte(baseAllowance)
+			quoteCurrencyAmountBN.times(1e18).gte(baseAllowance)
 		) {
 			return 'approve-balancer';
 		}
@@ -335,6 +340,7 @@ const useBalancerExchange = ({
 		async ({ value, isBase }: { value: BigNumber; isBase: boolean }) => {
 			if (smartOrderRouter != null && quoteCurrencyAddress != null && baseCurrencyAddress != null) {
 				let swapType = isBase ? 'swapExactIn' : 'swapExactOut';
+				const formattedValue = value.times(1e18);
 				await smartOrderRouter.fetchPools();
 
 				if (!hasSetCostOutputTokenCalled) {
@@ -343,12 +349,20 @@ const useBalancerExchange = ({
 				}
 
 				const [tradeSwaps, resultingAmount] = await smartOrderRouter.getSwaps(
-					baseCurrencyAddress,
 					quoteCurrencyAddress,
+					baseCurrencyAddress,
 					swapType,
-					value
+					formattedValue
 				);
 
+				const [, smallTradeResult] = await smartOrderRouter.getSwaps(
+					quoteCurrencyAddress,
+					baseCurrencyAddress,
+					swapType,
+					new BigNumber(1).times(1e18)
+				);
+
+				setEstimatedSlippage(resultingAmount.div(smallTradeResult));
 				setSwaps(tradeSwaps);
 				isBase
 					? setBaseCurrencyAmount(resultingAmount.toString())
@@ -463,13 +477,14 @@ const useBalancerExchange = ({
 				setIsSubmitting(true);
 
 				const gasPriceWei = gasPriceInWei(gasPrice);
+				const slippageTolerance = new BigNumber(maxSlippageTolerance);
 
 				const tx = await balancerProxyContract.multihopBatchSwapExactIn(
 					swaps,
-					baseCurrencyAddress,
 					quoteCurrencyAddress,
-					baseCurrencyAmountBN.toString(),
+					baseCurrencyAddress,
 					quoteCurrencyAmountBN.toString(),
+					baseCurrencyAmountBN.times(1 - slippageTolerance.toNumber()).toString(),
 					{
 						gasPrice: gasPriceWei.toString(),
 					}
@@ -611,7 +626,7 @@ const useBalancerExchange = ({
 					submissionDisabledReason={submissionDisabledReason}
 					onSubmit={submissionDisabledReason === 'approve-balancer' ? handleApprove : handleSubmit}
 					gasPrices={ethGasPriceQuery.data}
-					estimatedSlippage={0}
+					estimatedSlippage={estimatedSlippage}
 					maxSlippageTolerance={maxSlippageTolerance}
 					setMaxSlippageTolerance={setMaxSlippageTolerance}
 				/>
@@ -650,7 +665,7 @@ const useBalancerExchange = ({
 
 const StyledCurrencyCard = styled(CurrencyCard)`
 	align-items: center;
-	margin-top: 10px;
+	margin-top: 2px;
 `;
 
 export default useBalancerExchange;
