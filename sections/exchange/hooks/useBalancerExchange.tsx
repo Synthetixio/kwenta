@@ -596,7 +596,7 @@ const useBalancerExchange = ({
 			walletBalance={quoteCurrencyBalance}
 			onBalanceClick={handleAmountChangeQuoteMaxClick}
 			onCurrencySelect={undefined}
-			priceRate={quotePriceRate}
+			priceRate={quoteCurrencyKey === SYNTHS_MAP.sUSD ? quotePriceRate : null}
 		/>
 	);
 
@@ -609,7 +609,7 @@ const useBalancerExchange = ({
 			walletBalance={baseCurrencyBalance}
 			onBalanceClick={handleAmountChangeBaseMaxClick}
 			onCurrencySelect={undefined}
-			priceRate={basePriceRate}
+			priceRate={baseCurrencyKey === SYNTHS_MAP.sUSD ? basePriceRate : null}
 		/>
 	);
 
