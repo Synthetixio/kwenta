@@ -50,7 +50,7 @@ const BalancerTradeModal: FC<BalancerTradeModalProps> = ({ onDismiss }) => {
 			{footerCard}
 			<PoweredBySection>
 				<div>{t('modals.afterHours.powered-by-balancer')}</div>
-				<Img
+				<PaddedImg
 					alt={t('common.dex-aggregators.balancer.title')}
 					src={BalancerImage}
 					width="20px"
@@ -101,7 +101,7 @@ const PoweredBySection = styled(FlexDivRowCentered)`
 	width: 150px;
 `;
 
-const BalancerImg = styled.img`
+const PaddedImg = styled(Img)`
 	margin-left: 8px;
 `;
 
