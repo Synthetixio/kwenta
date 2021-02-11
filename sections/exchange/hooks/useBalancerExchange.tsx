@@ -8,7 +8,8 @@ import { SOR } from '@balancer-labs/sor';
 import { BigNumber } from 'bignumber.js';
 import { NetworkId } from '@synthetixio/js';
 
-import { CurrencyKey, SYNTHS_MAP, sUSD_EXCHANGE_RATE } from 'constants/currency';
+import { CurrencyKey, SYNTHS_MAP, sUSD_EXCHANGE_RATE, SYNTH_DECIMALS } from 'constants/currency';
+import useInterval from 'hooks/useInterval';
 
 import Connector from 'containers/Connector';
 import Etherscan from 'containers/Etherscan';
@@ -40,7 +41,7 @@ import synthetix from 'lib/synthetix';
 import useFeeReclaimPeriodQuery from 'queries/synths/useFeeReclaimPeriodQuery';
 import { gasPriceInWei, normalizeGasLimit } from 'utils/network';
 import useCurrencyPair from './useCurrencyPair';
-import { toBigNumber, zeroBN } from 'utils/formatters/number';
+import { toBigNumber, zeroBN, scale } from 'utils/formatters/number';
 
 import balancerExchangeProxyABI from './balancerExchangeProxyABI';
 
@@ -75,7 +76,7 @@ const useBalancerExchange = ({
 	persistSelectedCurrencies = false,
 	showNoSynthsCard = true,
 }: ExchangeCardProps) => {
-	const { notify, provider } = Connector.useContainer();
+	const { notify, provider, signer } = Connector.useContainer();
 	const { etherscanInstance } = Etherscan.useContainer();
 	const network = useRecoilValue(networkState);
 
@@ -85,8 +86,8 @@ const useBalancerExchange = ({
 		defaultQuoteCurrencyKey,
 	});
 	const [hasSetCostOutputTokenCalled, setHasSetCostOutputTokenCalled] = useState<boolean>(false);
-	const [baseCurrencyAmount, setBaseCurrencyAmount] = useState<string>('');
-	const [quoteCurrencyAmount, setQuoteCurrencyAmount] = useState<string>('');
+	const [baseCurrencyAmount, setBaseCurrencyAmount] = useState<string>('0');
+	const [quoteCurrencyAmount, setQuoteCurrencyAmount] = useState<string>('0');
 	const [baseCurrencyAddress, setBaseCurrencyAddress] = useState<string | null>(null);
 	const [quoteCurrencyAddress, setQuoteCurrencyAddress] = useState<string | null>(null);
 	const [smartOrderRouter, setSmartOrderRouter] = useState<SOR | null>(null);
@@ -98,7 +99,6 @@ const useBalancerExchange = ({
 	const [maxSlippageTolerance, setMaxSlippageTolerance] = useState<string>('0');
 	const [estimatedSlippage, setEstimatedSlippage] = useState<BigNumber>(new BigNumber(0));
 
-	// TODO type swaps
 	const [swaps, setSwaps] = useState<Array<any> | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 	const isWalletConnected = useRecoilValue(isWalletConnectedState);
@@ -111,7 +111,7 @@ const useBalancerExchange = ({
 	const gasSpeed = useRecoilValue(gasSpeedState);
 	const customGasPrice = useRecoilValue(customGasPriceState);
 	// TODO get from pool
-	const exchangeFeeRate = 0.003;
+	const exchangeFeeRate = 0.001;
 
 	const { base: baseCurrencyKey, quote: quoteCurrencyKey } = currencyPair;
 
@@ -165,7 +165,7 @@ const useBalancerExchange = ({
 		if (
 			baseAllowance == null ||
 			baseAllowance === '0' ||
-			quoteCurrencyAmountBN.times(1e18).gte(baseAllowance)
+			scale(quoteCurrencyAmountBN, SYNTH_DECIMALS).gte(baseAllowance)
 		) {
 			return 'approve-balancer';
 		}
@@ -257,10 +257,20 @@ const useBalancerExchange = ({
 				network?.id,
 				BALANCER_LINKS[network.id].poolsUrl
 			);
+			sor.fetchPools();
 			setSmartOrderRouter(sor);
 		}
 	}, [provider, gasPrice, network?.id]);
 
+	useInterval(
+		async () => {
+			if (smartOrderRouter != null) {
+				smartOrderRouter.fetchPools();
+			}
+		},
+		60 * 1000,
+		[smartOrderRouter, quoteCurrencyAddress]
+	);
 	const getAllowanceAndInitProxyContract = useCallback(
 		async ({
 			address,
@@ -277,7 +287,7 @@ const useBalancerExchange = ({
 				address != null &&
 				key != null &&
 				synthetix?.js != null &&
-				provider != null &&
+				signer != null &&
 				id != null &&
 				(id === NetworkId.Mainnet || id === NetworkId.Kovan)
 			) {
@@ -285,7 +295,7 @@ const useBalancerExchange = ({
 					const proxyContract = new ethers.Contract(
 						BALANCER_LINKS[id].proxyAddr,
 						balancerExchangeProxyABI,
-						provider
+						signer
 					);
 					setBalancerProxyContract(proxyContract);
 				}
@@ -296,7 +306,7 @@ const useBalancerExchange = ({
 				setBaseAllowance(allowance.toString());
 			}
 		},
-		[provider]
+		[signer]
 	);
 
 	useEffect(() => {
@@ -309,6 +319,25 @@ const useBalancerExchange = ({
 	}, [walletAddress, quoteCurrencyKey, network?.id, getAllowanceAndInitProxyContract]);
 
 	useEffect(() => {
+		async function callSetCostOutputTokenCalled() {
+			if (
+				smartOrderRouter != null &&
+				!hasSetCostOutputTokenCalled &&
+				quoteCurrencyAddress != null
+			) {
+				await smartOrderRouter.setCostOutputToken(quoteCurrencyAddress);
+				setHasSetCostOutputTokenCalled(true);
+			}
+		}
+		callSetCostOutputTokenCalled();
+	}, [
+		smartOrderRouter,
+		hasSetCostOutputTokenCalled,
+		quoteCurrencyAddress,
+		setHasSetCostOutputTokenCalled,
+	]);
+
+	useEffect(() => {
 		if (synthetix?.js && baseCurrencyKey != null && quoteCurrencyKey != null) {
 			setBaseCurrencyAddress(synthetix.js.contracts[`Synth${baseCurrencyKey}`].address);
 			setQuoteCurrencyAddress(synthetix.js.contracts[`Synth${quoteCurrencyKey}`].address);
@@ -318,34 +347,37 @@ const useBalancerExchange = ({
 	const calculateExchangeRate = useCallback(
 		async ({ value, isBase }: { value: BigNumber; isBase: boolean }) => {
 			if (smartOrderRouter != null && quoteCurrencyAddress != null && baseCurrencyAddress != null) {
-				let swapType = isBase ? 'swapExactIn' : 'swapExactOut';
-				const formattedValue = value.times(1e18);
-				await smartOrderRouter.fetchPools();
-
-				if (!hasSetCostOutputTokenCalled) {
-					await smartOrderRouter.setCostOutputToken(quoteCurrencyAddress);
-					setHasSetCostOutputTokenCalled(true);
-				}
-
+				const swapType = isBase ? 'swapExactOut' : 'swapExactIn';
+				const amount = scale(value, SYNTH_DECIMALS);
+				const smallBN = new BigNumber(0.001);
+				const smallAmount = scale(new BigNumber(0.001), SYNTH_DECIMALS);
 				const [tradeSwaps, resultingAmount] = await smartOrderRouter.getSwaps(
 					quoteCurrencyAddress,
 					baseCurrencyAddress,
 					swapType,
-					formattedValue
+					amount
 				);
 
 				const [, smallTradeResult] = await smartOrderRouter.getSwaps(
 					quoteCurrencyAddress,
 					baseCurrencyAddress,
 					swapType,
-					new BigNumber(1).times(1e18)
+					smallAmount
 				);
 
-				setEstimatedSlippage(resultingAmount.div(smallTradeResult));
+				const formattedResult = scale(resultingAmount, SYNTH_DECIMALS, true);
+				const formattedSmallTradeResult = scale(smallTradeResult, SYNTH_DECIMALS, true);
+
+				const slippage = new BigNumber(1)
+					.minus(formattedSmallTradeResult.div(smallBN).div(formattedResult.div(value)))
+					.abs();
+
+				setEstimatedSlippage(slippage.isNaN() ? new BigNumber(0) : slippage);
 				setSwaps(tradeSwaps);
+
 				isBase
-					? setBaseCurrencyAmount(resultingAmount.toString())
-					: setQuoteCurrencyAmount(resultingAmount.toString());
+					? setQuoteCurrencyAmount(formattedResult.toString())
+					: setBaseCurrencyAmount(formattedResult.toString());
 			}
 		},
 		[smartOrderRouter, quoteCurrencyAddress, baseCurrencyAddress, hasSetCostOutputTokenCalled]
@@ -429,9 +461,8 @@ const useBalancerExchange = ({
 					swaps,
 					quoteCurrencyAddress,
 					baseCurrencyAddress,
-					quoteCurrencyAmountBN.times(1e18).toString(),
-					baseCurrencyAmountBN
-						.times(1e18)
+					scale(quoteCurrencyAmountBN, SYNTH_DECIMALS).toString(),
+					scale(baseCurrencyAmountBN, SYNTH_DECIMALS)
 						.times(new BigNumber(1).minus(slippageTolerance))
 						.toString(),
 					{

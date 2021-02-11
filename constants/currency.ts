@@ -65,7 +65,6 @@ export const SYNTHS = [
 	'sCHF',
 	'sCEX',
 	'sDEFI',
-	'sTSLA',
 	'iCEX',
 	'iDEFI',
 	'iAAVE',
@@ -112,3 +111,4 @@ export const FIAT_SYNTHS = new Set([
 ]);
 
 export const sUSD_EXCHANGE_RATE = 1;
+export const SYNTH_DECIMALS = 18;
