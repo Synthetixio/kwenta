@@ -44,7 +44,7 @@ type ChartCardProps = {
 	openAfterHoursModalCallback?: () => void;
 };
 
-const AFTER_HOURS_SYNTHS = [SYNTHS_MAP.sTSLA];
+const AFTER_HOURS_SYNTHS = [SYNTHS_MAP.sTSLA, SYNTHS_MAP.iBNB];
 
 const ChartCard: FC<ChartCardProps> = ({
 	side,
@@ -261,22 +261,21 @@ const ChartCard: FC<ChartCardProps> = ({
 								{t(`exchange.price-chart-card.overlay-messages.${marketClosureReason}.title`)}
 							</OverlayMessageTitle>
 							<OverlayMessageSubtitle>
-								{t(`exchange.price-chart-card.overlay-messages.${marketClosureReason}.subtitle`)}
-							</OverlayMessageSubtitle>
-							{openAfterHoursModalCallback != null &&
-							AFTER_HOURS_SYNTHS.includes(currencyKey ?? '') ? (
-								<OverlayMessageSubtitle>
+								{openAfterHoursModalCallback != null &&
+								AFTER_HOURS_SYNTHS.includes(currencyKey ?? '') ? (
 									<Trans
 										i18nKey="exchange.price-chart-card.overlay-messages.market-closure.after-hours"
 										values={{
 											linkText: t('exchange.price-chart-card.overlay-messages.market-closure.here'),
 										}}
 										components={{
-											linkTag: <div onClick={openAfterHoursModalCallback} />,
+											linkTag: <LinkTag onClick={openAfterHoursModalCallback} />,
 										}}
 									/>
-								</OverlayMessageSubtitle>
-							) : null}
+								) : (
+									t(`exchange.price-chart-card.overlay-messages.${marketClosureReason}.subtitle`)
+								)}
+							</OverlayMessageSubtitle>
 						</OverlayMessage>
 					) : showLoader ? (
 						<Svg src={LoaderIcon} />
@@ -304,6 +303,14 @@ const ChartData = styled.div<{ disabledInteraction: boolean }>`
 			pointer-events: none;
 			opacity: 0.1;
 		`};
+`;
+
+const LinkTag = styled.span`
+	color: ${(props) => props.theme.colors.goldColors.color1};
+	text-decoration: underline;
+	&:hover {
+		cursor: pointer;
+	}
 `;
 
 const ChartHeader = styled(FlexDivRowCentered)`

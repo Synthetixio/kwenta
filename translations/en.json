@@ -197,7 +197,7 @@
 			}
 		},
 		"onboard": {
-			"message": "Your wallet has no Synths. Buy <0>{{currencyKey}}</0> to start trading Synths:"
+			"message": "Your wallet has no Synths. Buy <0>{{currencyKey}}</0> to trade Synths:"
 		},
 		"connect-wallet-card": {
 			"message": "Connect your wallet to start trading"
@@ -335,8 +335,16 @@
 			"title": "Aftermarket {{synth}} Trading Pool",
 			"approve": "Approve {{synth}}",
 			"balancer-pool": "Balancer Pool",
+			"slippage-levels": {
+				"low": "Low",
+				"medium": "Medium",
+				"high": "High"
+			},
+			"powered-by-balancer": "Powered by Balancer",
+			"max-slippage-tolerance": "Max Slippage Tolerance",
+			"estimated-slippage": "Estimated Slippage",
 			"confirm-text": "Confirm your transaction with your web3 provider",
-			"notice-text": "During trading hours we provide exact prices based on Chainlink data. After trading hours you may trade {{synth}} at the going rate on Balancer. Please take note of potential price deviations and slippage on larger orders."
+			"notice-text": "During trading hours we provide exact prices based on Chainlink data. After trading hours you may trade {{synth}} at the going rate on Balancer. Please take note of potential price deviations as well as slippage on larger orders."
 		},
 		"settings": {
 			"title": "settings",

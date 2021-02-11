@@ -19,9 +19,8 @@ import useEthGasPriceQuery from 'queries/network/useEthGasPriceQuery';
 import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
 
 import CurrencyCard from 'sections/exchange/TradeCard/CurrencyCard';
-import TradeSummaryCard, {
-	SubmissionDisabledReason,
-} from 'sections/exchange/FooterCard/TradeSummaryCard';
+import TradeBalancerSummaryCard from 'sections/exchange/FooterCard/TradeBalancerSummaryCard';
+import { SubmissionDisabledReason } from 'sections/exchange/FooterCard/common';
 import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
 import ConnectWalletCard from 'sections/exchange/FooterCard/ConnectWalletCard';
 import TxConfirmationModal from 'sections/shared/modals/TxConfirmationModal';
@@ -100,6 +99,7 @@ const useBalancerExchange = ({
 	const [isApproving, setIsApproving] = useState<boolean>(false);
 	const [baseAllowance, setBaseAllowance] = useState<string | null>(null);
 	const [approveModalOpen, setApproveModalOpen] = useState<boolean>(false);
+	const [maxSlippageTolerance, setMaxSlippageTolerance] = useState<string>('0');
 
 	// TODO type swaps
 	const [swaps, setSwaps] = useState<Array<any> | null>(null);
@@ -128,11 +128,6 @@ const useBalancerExchange = ({
 	const feeReclaimPeriodInSeconds = feeReclaimPeriodQuery.isSuccess
 		? feeReclaimPeriodQuery.data ?? 0
 		: 0;
-
-	const baseCurrency =
-		baseCurrencyKey != null && synthetix.synthsMap != null
-			? synthetix.synthsMap[baseCurrencyKey]
-			: null;
 
 	const exchangeRates = exchangeRatesQuery.isSuccess ? exchangeRatesQuery.data ?? null : null;
 	const baseCurrencyBalance =
@@ -323,11 +318,11 @@ const useBalancerExchange = ({
 	useEffect(() => {
 		getAllowanceAndInitProxyContract({
 			address: walletAddress,
-			key: baseCurrencyKey,
+			key: quoteCurrencyKey,
 			id: network?.id ?? null,
 			contractNeedsInit: true,
 		});
-	}, [walletAddress, baseCurrencyKey, network?.id, getAllowanceAndInitProxyContract]);
+	}, [walletAddress, quoteCurrencyKey, network?.id, getAllowanceAndInitProxyContract]);
 
 	useEffect(() => {
 		if (synthetix?.js && baseCurrencyKey != null && baseCurrencyKey != null) {
@@ -370,12 +365,12 @@ const useBalancerExchange = ({
 				setIsApproving(true);
 				setApproveError(null);
 				setApproveModalOpen(true);
-				const gasLimitEstimate = await contracts[`Synth${baseCurrencyKey}`].estimateGas.approve(
+				const gasLimitEstimate = await contracts[`Synth${quoteCurrencyKey}`].estimateGas.approve(
 					balancerProxyContract.address,
 					ethers.constants.MaxUint256
 				);
 				const allowanceTx: ethers.ContractTransaction = await contracts[
-					`Synth${baseCurrencyKey}`
+					`Synth${quoteCurrencyKey}`
 				].approve(balancerProxyContract.address, ethers.constants.MaxUint256, {
 					// TODO sort out gas price for approval
 					gasPrice: gasPriceInWei(gasPrice),
@@ -415,7 +410,7 @@ const useBalancerExchange = ({
 							);
 							getAllowanceAndInitProxyContract({
 								address: walletAddress,
-								key: baseCurrencyKey,
+								key: quoteCurrencyKey,
 								id: network?.id ?? null,
 								contractNeedsInit: false,
 							});
@@ -612,22 +607,13 @@ const useBalancerExchange = ({
 			) : showNoSynthsCard && noSynths ? (
 				<NoSynthsCard attached={footerCardAttached} />
 			) : (
-				<TradeSummaryCard
-					attached={footerCardAttached}
+				<TradeBalancerSummaryCard
 					submissionDisabledReason={submissionDisabledReason}
 					onSubmit={submissionDisabledReason === 'approve-balancer' ? handleApprove : handleSubmit}
-					totalTradePrice={totalTradePrice.toString()}
-					baseCurrencyAmount={baseCurrencyAmount}
-					basePriceRate={basePriceRate}
-					baseCurrency={baseCurrency}
 					gasPrices={ethGasPriceQuery.data}
-					feeReclaimPeriodInSeconds={feeReclaimPeriodInSeconds}
-					quoteCurrencyKey={quoteCurrencyKey}
-					exchangeFeeRate={exchangeFeeRate}
-					transactionFee={null}
-					feeCost={feeCost}
-					// show fee's only for "synthetix" (provider)
-					showFee={false}
+					estimatedSlippage={0}
+					maxSlippageTolerance={maxSlippageTolerance}
+					setMaxSlippageTolerance={setMaxSlippageTolerance}
 				/>
 			)}
 			{txConfirmationModalOpen && (
@@ -647,7 +633,7 @@ const useBalancerExchange = ({
 			{approveModalOpen && (
 				<BalancerApproveModal
 					onDismiss={() => setApproveModalOpen(false)}
-					synth={baseCurrencyKey!}
+					synth={quoteCurrencyKey!}
 					approveError={approveError}
 				/>
 			)}

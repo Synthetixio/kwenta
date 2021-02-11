@@ -24,6 +24,7 @@ export const BalancerApproveModal: FC<BalancerApproveModalProps> = ({
 			onDismiss={onDismiss}
 			isOpen={true}
 			title={t('modals.afterHours.approve', { synth })}
+			lowercase={true}
 		>
 			<InnerModalWrap>
 				<IconWrap>

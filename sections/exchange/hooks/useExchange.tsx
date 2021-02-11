@@ -21,12 +21,11 @@ import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
 import CurrencyCard from 'sections/exchange/TradeCard/CurrencyCard';
 import PriceChartCard from 'sections/exchange/TradeCard/PriceChartCard';
 import MarketDetailsCard from 'sections/exchange/TradeCard/MarketDetailsCard';
-import TradeSummaryCard, {
-	SubmissionDisabledReason,
-} from 'sections/exchange/FooterCard/TradeSummaryCard';
+import TradeSummaryCard from 'sections/exchange/FooterCard/TradeSummaryCard';
+import { SubmissionDisabledReason } from 'sections/exchange/FooterCard/common';
 import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
 import MarketClosureCard from 'sections/exchange/FooterCard/MarketClosureCard';
-import TradeBalancerCard from 'sections/exchange/FooterCard/TradeBalancerCard';
+import TradeBalancerFooterCard from 'sections/exchange/FooterCard/TradeBalancerFooterCard';
 import ConnectWalletCard from 'sections/exchange/FooterCard/ConnectWalletCard';
 import TxConfirmationModal from 'sections/shared/modals/TxConfirmationModal';
 import SelectBaseCurrencyModal from 'sections/shared/modals/SelectBaseCurrencyModal';
@@ -515,7 +514,12 @@ const useExchange = ({
 	);
 
 	const basePriceChartCard = showPriceCard ? (
-		<PriceChartCard side="base" currencyKey={baseCurrencyKey} priceRate={basePriceRate} />
+		<PriceChartCard
+			side="base"
+			currencyKey={baseCurrencyKey}
+			priceRate={basePriceRate}
+			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
+		/>
 	) : null;
 
 	const baseMarketDetailsCard = showMarketDetailsCard ? (
@@ -531,7 +535,7 @@ const useExchange = ({
 				<ConnectWalletCard attached={footerCardAttached} />
 			) : (baseCurrencyMarketClosed.isMarketClosed && baseCurrencyKey === SYNTHS_MAP.iBNB) ||
 			  (quoteCurrencyMarketClosed.isMarketClosed && quoteCurrencyKey === SYNTHS_MAP.iBNB) ? (
-				<TradeBalancerCard
+				<TradeBalancerFooterCard
 					synth={SYNTHS_MAP.sTSLA}
 					attached={footerCardAttached}
 					onClick={() => setSelectBalancerTradeModal(true)}
