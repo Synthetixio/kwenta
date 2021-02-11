@@ -267,6 +267,9 @@ export const CurrencyIcon: FC<CurrencyIconProps> = ({ currencyKey, type = 'synth
 		case SYNTHS_MAP.sDEFI: {
 			return <Img src={sDEFIIcon} {...props} />;
 		}
+		case SYNTHS_MAP.sTSLA: {
+			return <Img src={sTSLAIcon} {...props} />;
+		}
 		case SYNTHS_MAP.iCEX: {
 			return <Img src={iCEXIcon} {...props} />;
 		}

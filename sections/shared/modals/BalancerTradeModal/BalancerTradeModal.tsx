@@ -1,9 +1,9 @@
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import { Svg } from 'react-optimized-image';
+import Img, { Svg } from 'react-optimized-image';
 
-import BalancerIcon from 'assets/svg/app/market-closure/balancer.svg';
+import BalancerImage from 'assets/svg/providers/balancer.svg';
 import ArrowsIcon from 'assets/svg/app/arrows.svg';
 import useBalancerExchange from 'sections/exchange/hooks/useBalancerExchange';
 import { SwapCurrenciesButton, FlexDivRowCentered } from 'styles/common';
@@ -50,7 +50,12 @@ const BalancerTradeModal: FC<BalancerTradeModalProps> = ({ onDismiss }) => {
 			{footerCard}
 			<PoweredBySection>
 				<div>{t('modals.afterHours.powered-by-balancer')}</div>
-				<BalancerImg alt="" src={BalancerIcon.src} width="20px" height="25px" />
+				<Img
+					alt={t('common.dex-aggregators.balancer.title')}
+					src={BalancerImage}
+					width="20px"
+					height="25px"
+				/>
 			</PoweredBySection>
 		</StyledCenteredModal>
 	);

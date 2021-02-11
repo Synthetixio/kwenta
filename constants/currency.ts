@@ -74,7 +74,6 @@ export const SYNTHS = [
 	'iDOT',
 	'iREN',
 	'iCOMP',
-	'iTSLA',
 ];
 
 export const SYNTHS_MAP = keyBy(SYNTHS);

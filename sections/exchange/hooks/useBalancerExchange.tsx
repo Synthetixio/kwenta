@@ -8,15 +8,13 @@ import { SOR } from '@balancer-labs/sor';
 import { BigNumber } from 'bignumber.js';
 import { NetworkId } from '@synthetixio/js';
 
-import { CRYPTO_CURRENCY_MAP, CurrencyKey } from 'constants/currency';
+import { CurrencyKey, SYNTHS_MAP, sUSD_EXCHANGE_RATE } from 'constants/currency';
 
 import Connector from 'containers/Connector';
 import Etherscan from 'containers/Etherscan';
 
 import useSynthsBalancesQuery from 'queries/walletBalances/useSynthsBalancesQuery';
-import useETHBalanceQuery from 'queries/walletBalances/useETHBalanceQuery';
 import useEthGasPriceQuery from 'queries/network/useEthGasPriceQuery';
-import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
 
 import CurrencyCard from 'sections/exchange/TradeCard/CurrencyCard';
 import TradeBalancerSummaryCard from 'sections/exchange/FooterCard/TradeBalancerSummaryCard';
@@ -35,19 +33,16 @@ import {
 	networkState,
 } from 'store/wallet';
 import { ordersState } from 'store/orders';
-
-import { getExchangeRatesForCurrencies } from 'utils/currencies';
+import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 
 import synthetix from 'lib/synthetix';
 
 import useFeeReclaimPeriodQuery from 'queries/synths/useFeeReclaimPeriodQuery';
 import { gasPriceInWei, normalizeGasLimit } from 'utils/network';
-import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useCurrencyPair from './useCurrencyPair';
 import { toBigNumber, zeroBN } from 'utils/formatters/number';
 
 import balancerExchangeProxyABI from './balancerExchangeProxyABI';
-import { SYNTHS_MAP } from '../../../constants/currency';
 
 type ExchangeCardProps = {
 	defaultBaseCurrencyKey?: CurrencyKey | null;
@@ -115,23 +110,20 @@ const useBalancerExchange = ({
 	const setHasOrdersNotification = useSetRecoilState(hasOrdersNotificationState);
 	const gasSpeed = useRecoilValue(gasSpeedState);
 	const customGasPrice = useRecoilValue(customGasPriceState);
-	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
+	// TODO get from pool
 	const exchangeFeeRate = 0.003;
 
 	const { base: baseCurrencyKey, quote: quoteCurrencyKey } = currencyPair;
 
-	const isQuoteCurrencyETH = quoteCurrencyKey === CRYPTO_CURRENCY_MAP.ETH;
-	const ETHBalanceQuery = useETHBalanceQuery();
 	const synthsWalletBalancesQuery = useSynthsBalancesQuery();
 	const ethGasPriceQuery = useEthGasPriceQuery();
-	const exchangeRatesQuery = useExchangeRatesQuery();
 	const feeReclaimPeriodQuery = useFeeReclaimPeriodQuery(quoteCurrencyKey);
+	const { selectPriceCurrencyRate } = useSelectedPriceCurrency();
 
 	const feeReclaimPeriodInSeconds = feeReclaimPeriodQuery.isSuccess
 		? feeReclaimPeriodQuery.data ?? 0
 		: 0;
 
-	const exchangeRates = exchangeRatesQuery.isSuccess ? exchangeRatesQuery.data ?? null : null;
 	const baseCurrencyBalance =
 		baseCurrencyKey != null && synthsWalletBalancesQuery.isSuccess
 			? get(synthsWalletBalancesQuery.data, ['balancesMap', baseCurrencyKey, 'balance'], zeroBN)
@@ -139,28 +131,24 @@ const useBalancerExchange = ({
 
 	let quoteCurrencyBalance: BigNumber | null = null;
 	if (quoteCurrencyKey != null) {
-		if (isQuoteCurrencyETH) {
-			quoteCurrencyBalance = ETHBalanceQuery.isSuccess ? ETHBalanceQuery.data ?? zeroBN : null;
-		} else {
-			quoteCurrencyBalance = synthsWalletBalancesQuery.isSuccess
-				? get(synthsWalletBalancesQuery.data, ['balancesMap', quoteCurrencyKey, 'balance'], zeroBN)
-				: null;
-		}
+		quoteCurrencyBalance = synthsWalletBalancesQuery.isSuccess
+			? get(synthsWalletBalancesQuery.data, ['balancesMap', quoteCurrencyKey, 'balance'], zeroBN)
+			: null;
 	}
 
-	const basePriceRate = getExchangeRatesForCurrencies(
-		exchangeRates,
-		baseCurrencyKey,
-		selectedPriceCurrency.name
-	);
-	const quotePriceRate = getExchangeRatesForCurrencies(
-		exchangeRates,
-		quoteCurrencyKey,
-		selectedPriceCurrency.name
-	);
+	const baseCurrencyAmountBN = toBigNumber(baseCurrencyAmount !== '' ? baseCurrencyAmount : 0);
+	const quoteCurrencyAmountBN = toBigNumber(quoteCurrencyAmount !== '' ? quoteCurrencyAmount : 0);
 
-	const baseCurrencyAmountBN = toBigNumber(baseCurrencyAmount);
-	const quoteCurrencyAmountBN = toBigNumber(quoteCurrencyAmount);
+	const selectedBothSides = baseCurrencyKey != null && quoteCurrencyKey != null;
+
+	const basePriceRate =
+		baseCurrencyKey === SYNTHS_MAP.sUSD
+			? sUSD_EXCHANGE_RATE
+			: baseCurrencyAmountBN.div(quoteCurrencyAmountBN).toNumber();
+	const quotePriceRate =
+		quoteCurrencyKey === SYNTHS_MAP.sUSD
+			? sUSD_EXCHANGE_RATE
+			: quoteCurrencyAmountBN.div(baseCurrencyAmountBN).toNumber();
 
 	let totalTradePrice =
 		baseCurrencyKey === SYNTHS_MAP.sUSD
@@ -169,8 +157,6 @@ const useBalancerExchange = ({
 	if (selectPriceCurrencyRate) {
 		totalTradePrice = totalTradePrice.dividedBy(selectPriceCurrencyRate);
 	}
-
-	const selectedBothSides = baseCurrencyKey != null && quoteCurrencyKey != null;
 
 	const submissionDisabledReason: SubmissionDisabledReason | null = useMemo(() => {
 		const insufficientBalance =
@@ -255,13 +241,6 @@ const useBalancerExchange = ({
 		return null;
 	}, [baseCurrencyAmount, exchangeFeeRate]);
 
-	const feeCost = useMemo(() => {
-		if (feeAmountInBaseCurrency != null) {
-			return feeAmountInBaseCurrency.multipliedBy(basePriceRate);
-		}
-		return null;
-	}, [feeAmountInBaseCurrency, basePriceRate]);
-
 	useEffect(() => {
 		if (
 			synthetix?.js != null &&
@@ -330,7 +309,7 @@ const useBalancerExchange = ({
 	}, [walletAddress, quoteCurrencyKey, network?.id, getAllowanceAndInitProxyContract]);
 
 	useEffect(() => {
-		if (synthetix?.js && baseCurrencyKey != null && baseCurrencyKey != null) {
+		if (synthetix?.js && baseCurrencyKey != null && quoteCurrencyKey != null) {
 			setBaseCurrencyAddress(synthetix.js.contracts[`Synth${baseCurrencyKey}`].address);
 			setQuoteCurrencyAddress(synthetix.js.contracts[`Synth${quoteCurrencyKey}`].address);
 		}
@@ -354,6 +333,8 @@ const useBalancerExchange = ({
 					swapType,
 					formattedValue
 				);
+				console.log('tradeSwaps', tradeSwaps);
+				console.log('resultingAmount', resultingAmount);
 
 				const [, smallTradeResult] = await smartOrderRouter.getSwaps(
 					quoteCurrencyAddress,
@@ -386,60 +367,32 @@ const useBalancerExchange = ({
 				const allowanceTx: ethers.ContractTransaction = await contracts[
 					`Synth${quoteCurrencyKey}`
 				].approve(balancerProxyContract.address, ethers.constants.MaxUint256, {
-					// TODO sort out gas price for approval
 					gasPrice: gasPriceInWei(gasPrice),
 					gasLimit: normalizeGasLimit(gasLimitEstimate.toNumber()),
 				});
-				if (allowanceTx) {
-					setOrders((orders) =>
-						produce(orders, (draftState) => {
-							draftState.push({
-								timestamp: Date.now(),
-								hash: allowanceTx.hash,
-								baseCurrencyKey: baseCurrencyKey!,
-								baseCurrencyAmount,
-								quoteCurrencyKey: quoteCurrencyKey!,
-								quoteCurrencyAmount,
-								orderType: 'market',
-								status: 'pending',
-								transaction: allowanceTx,
-							});
-						})
-					);
-					setHasOrdersNotification(true);
+				if (allowanceTx && notify) {
+					const { emitter } = notify.hash(allowanceTx.hash);
+					const link =
+						etherscanInstance != null ? etherscanInstance.txLink(allowanceTx.hash) : undefined;
 
-					if (notify) {
-						const { emitter } = notify.hash(allowanceTx.hash);
-						const link =
-							etherscanInstance != null ? etherscanInstance.txLink(allowanceTx.hash) : undefined;
-
-						emitter.on('txConfirmed', () => {
-							setOrders((orders) =>
-								produce(orders, (draftState) => {
-									const orderIndex = orders.findIndex((order) => order.hash === allowanceTx.hash);
-									if (draftState[orderIndex]) {
-										draftState[orderIndex].status = 'confirmed';
-									}
-								})
-							);
-							getAllowanceAndInitProxyContract({
-								address: walletAddress,
-								key: quoteCurrencyKey,
-								id: network?.id ?? null,
-								contractNeedsInit: false,
-							});
-							return {
-								autoDismiss: 0,
-								link,
-							};
+					emitter.on('txConfirmed', () => {
+						getAllowanceAndInitProxyContract({
+							address: walletAddress,
+							key: quoteCurrencyKey,
+							id: network?.id ?? null,
+							contractNeedsInit: false,
 						});
+						return {
+							autoDismiss: 0,
+							link,
+						};
+					});
 
-						emitter.on('all', () => {
-							return {
-								link,
-							};
-						});
-					}
+					emitter.on('all', () => {
+						return {
+							link,
+						};
+					});
 				}
 			} catch (e) {
 				console.log(e);
@@ -459,8 +412,6 @@ const useBalancerExchange = ({
 		notify,
 		quoteCurrencyAmount,
 		quoteCurrencyKey,
-		setHasOrdersNotification,
-		setOrders,
 	]);
 
 	const handleSubmit = useCallback(async () => {
@@ -483,8 +434,11 @@ const useBalancerExchange = ({
 					swaps,
 					quoteCurrencyAddress,
 					baseCurrencyAddress,
-					quoteCurrencyAmountBN.toString(),
-					baseCurrencyAmountBN.times(1 - slippageTolerance.toNumber()).toString(),
+					quoteCurrencyAmountBN.times(1e18).toString(),
+					baseCurrencyAmountBN
+						.times(1e18)
+						.times(new BigNumber(1).minus(slippageTolerance))
+						.toString(),
 					{
 						gasPrice: gasPriceWei.toString(),
 					}
@@ -579,14 +533,31 @@ const useBalancerExchange = ({
 			} else if (isBase) {
 				const baseAmount = isMaxClick ? (baseCurrencyBalance ?? 0).toString() : value;
 				setBaseCurrencyAmount(baseAmount);
-				calculateExchangeRate({ value: new BigNumber(baseAmount), isBase: true });
+				calculateExchangeRate({ value: new BigNumber(baseAmount), isBase });
 			} else {
 				const quoteAmount = isMaxClick ? (quoteCurrencyBalance ?? 0).toString() : value;
 				setQuoteCurrencyAmount(quoteAmount);
-				calculateExchangeRate({ value: new BigNumber(quoteAmount), isBase: true });
+				calculateExchangeRate({ value: new BigNumber(quoteAmount), isBase });
 			}
 		},
 		[baseCurrencyBalance, quoteCurrencyBalance, calculateExchangeRate]
+	);
+
+	const handleAmountChangeBase = useCallback(
+		(value) => handleAmountChange({ value, isBase: true }),
+		[handleAmountChange]
+	);
+	const handleAmountChangeQuote = useCallback(
+		(value) => handleAmountChange({ value, isBase: false }),
+		[handleAmountChange]
+	);
+	const handleAmountChangeBaseMaxClick = useCallback(
+		() => handleAmountChange({ value: '', isBase: true, isMaxClick: true }),
+		[handleAmountChange]
+	);
+	const handleAmountChangeQuoteMaxClick = useCallback(
+		() => handleAmountChange({ value: '', isBase: false, isMaxClick: true }),
+		[handleAmountChange]
 	);
 
 	const quoteCurrencyCard = (
@@ -594,9 +565,9 @@ const useBalancerExchange = ({
 			side="quote"
 			currencyKey={quoteCurrencyKey}
 			amount={quoteCurrencyAmount}
-			onAmountChange={(value) => handleAmountChange({ value, isBase: false })}
+			onAmountChange={handleAmountChangeQuote}
 			walletBalance={quoteCurrencyBalance}
-			onBalanceClick={() => handleAmountChange({ value: '', isBase: false, isMaxClick: true })}
+			onBalanceClick={handleAmountChangeQuoteMaxClick}
 			onCurrencySelect={undefined}
 			priceRate={quotePriceRate}
 		/>
@@ -607,9 +578,9 @@ const useBalancerExchange = ({
 			side="base"
 			currencyKey={baseCurrencyKey}
 			amount={baseCurrencyAmount}
-			onAmountChange={(value) => handleAmountChange({ value, isBase: true })}
+			onAmountChange={handleAmountChangeBase}
 			walletBalance={baseCurrencyBalance}
-			onBalanceClick={() => handleAmountChange({ value: '', isBase: true, isMaxClick: true })}
+			onBalanceClick={handleAmountChangeBaseMaxClick}
 			onCurrencySelect={undefined}
 			priceRate={basePriceRate}
 		/>

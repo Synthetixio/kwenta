@@ -2,8 +2,9 @@ import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import { CurrencyKey } from 'constants/currency';
+import Img from 'react-optimized-image';
 
-import BalancerIcon from 'assets/svg/app/market-closure/balancer.svg';
+import BalancerImage from 'assets/svg/providers/balancer.svg';
 
 import { CenteredModal } from '../common';
 
@@ -28,7 +29,12 @@ export const BalancerApproveModal: FC<BalancerApproveModalProps> = ({
 		>
 			<InnerModalWrap>
 				<IconWrap>
-					<img alt="" src={BalancerIcon.src} width="48px" height="48px" />
+					<Img
+						alt={t('common.dex-aggregators.balancer.title')}
+						src={BalancerImage}
+						width="48px"
+						height="48px"
+					/>
 				</IconWrap>
 				<SubText>{t('modals.afterHours.balancer-pool')}</SubText>
 				<ConfirmText>{t('modals.afterHours.confirm-text')}</ConfirmText>

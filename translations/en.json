@@ -451,6 +451,9 @@
 		"dex-aggregators": {
 			"1inch": {
 				"title": "DEX Aggregator - 1inch.exchange"
+			},
+			"balancer": {
+				"title": "Balancer"
 			}
 		},
 		"totals": {

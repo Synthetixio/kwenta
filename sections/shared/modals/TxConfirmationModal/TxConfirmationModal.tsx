@@ -19,6 +19,7 @@ import Currency from 'components/Currency';
 import ArrowsIcon from 'assets/svg/app/circle-arrows.svg';
 
 import OneInchImage from 'assets/svg/providers/1inch.svg';
+import BalancerImage from 'assets/svg/providers/balancer.svg';
 
 import {
 	formatCurrency,
@@ -154,6 +155,17 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 						width="40"
 						height="40"
 						alt={t('common.dex-aggregators.1inch.title')}
+					/>
+				</TxProvider>
+			)}
+			{txProvider === 'balancer' && (
+				<TxProvider>
+					<span>{t('common.powered-by')}</span>
+					<Img
+						src={BalancerImage}
+						width="40"
+						height="40"
+						alt={t('common.dex-aggregators.balancer.title')}
 					/>
 				</TxProvider>
 			)}
