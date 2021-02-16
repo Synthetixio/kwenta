@@ -16,9 +16,7 @@ import useEthGasPriceQuery from 'queries/network/useEthGasPriceQuery';
 
 import useCollateralShortDataQuery from 'queries/collateral/useCollateralShortDataQuery';
 import useSynthsBalancesQuery from 'queries/walletBalances/useSynthsBalancesQuery';
-import TradeSummaryCard, {
-	SubmissionDisabledReason,
-} from 'sections/exchange/FooterCard/TradeSummaryCard';
+import TradeSummaryCard from 'sections/exchange/FooterCard/TradeSummaryCard';
 import { Short } from 'queries/short/types';
 import Connector from 'containers/Connector';
 import Notify from 'containers/Notify';
@@ -36,6 +34,7 @@ import {
 import { NoTextTransform } from 'styles/common';
 
 import { ShortingTab } from './ManageShort';
+import { SubmissionDisabledReason } from 'sections/exchange/FooterCard/common';
 
 interface ManageShortActionProps {
 	short: Short;
@@ -80,43 +79,49 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 
 	const inputAmountBN = useMemo(() => toBigNumber(inputAmount ?? 0), [inputAmount]);
 
-	const getMethodAndParams = (
-		isEstimate: boolean = false
-	): { tx: ethers.ContractFunction; params: Array<ethers.BigNumber | string> } => {
-		const idParam = ethers.utils.parseUnits(String(short.id), DEFAULT_TOKEN_DECIMALS);
-		const amountParam = ethers.utils.parseUnits(inputAmountBN.toString(), DEFAULT_TOKEN_DECIMALS);
-		let params;
-		let tx;
-		switch (tab) {
-			case ShortingTab.AddCollateral:
-				params = [walletAddress as string, idParam, amountParam];
-				tx = isEstimate
-					? synthetix.js!.contracts.CollateralShort.estimateGas.deposit
-					: synthetix.js!.contracts.CollateralShort.deposit;
-				break;
-			case ShortingTab.RemoveCollateral:
-				params = [idParam, amountParam];
-				tx = isEstimate
-					? synthetix.js!.contracts.CollateralShort.estimateGas.withdraw
-					: synthetix.js!.contracts.CollateralShort.withdraw;
-				break;
-			case ShortingTab.DecreasePosition:
-				params = [walletAddress as string, idParam, amountParam];
-				tx = isEstimate
-					? synthetix.js!.contracts.CollateralShort.estimateGas.repay
-					: synthetix.js!.contracts.CollateralShort.repay;
-				break;
-			case ShortingTab.IncreasePosition:
-				params = [idParam, amountParam];
-				tx = isEstimate
-					? synthetix.js!.contracts.CollateralShort.estimateGas.draw
-					: synthetix.js!.contracts.CollateralShort.draw;
-				break;
-			default:
-				throw new Error('unrecognized tab');
-		}
-		return { tx, params };
-	};
+	const getMethodAndParams = useCallback(
+		(
+			isEstimate: boolean = false
+		): {
+			tx: ethers.ContractFunction;
+			params: Array<ethers.BigNumber | string>;
+		} => {
+			const idParam = ethers.utils.parseUnits(String(short.id), DEFAULT_TOKEN_DECIMALS);
+			const amountParam = ethers.utils.parseUnits(inputAmountBN.toString(), DEFAULT_TOKEN_DECIMALS);
+			let params;
+			let tx;
+			switch (tab) {
+				case ShortingTab.AddCollateral:
+					params = [walletAddress as string, idParam, amountParam];
+					tx = isEstimate
+						? synthetix.js!.contracts.CollateralShort.estimateGas.deposit
+						: synthetix.js!.contracts.CollateralShort.deposit;
+					break;
+				case ShortingTab.RemoveCollateral:
+					params = [idParam, amountParam];
+					tx = isEstimate
+						? synthetix.js!.contracts.CollateralShort.estimateGas.withdraw
+						: synthetix.js!.contracts.CollateralShort.withdraw;
+					break;
+				case ShortingTab.DecreasePosition:
+					params = [walletAddress as string, idParam, amountParam];
+					tx = isEstimate
+						? synthetix.js!.contracts.CollateralShort.estimateGas.repay
+						: synthetix.js!.contracts.CollateralShort.repay;
+					break;
+				case ShortingTab.IncreasePosition:
+					params = [idParam, amountParam];
+					tx = isEstimate
+						? synthetix.js!.contracts.CollateralShort.estimateGas.draw
+						: synthetix.js!.contracts.CollateralShort.draw;
+					break;
+				default:
+					throw new Error('unrecognized tab');
+			}
+			return { tx, params };
+		},
+		[inputAmountBN, short.id, tab, walletAddress]
+	);
 
 	const gasPrice = useMemo(
 		() =>
@@ -176,7 +181,7 @@ const ManageShortAction: FC<ManageShortActionProps> = ({ short, tab, isActive })
 		} catch (e) {
 			return null;
 		}
-	}, [getMethodAndParams, normalizeGasLimit]);
+	}, [getMethodAndParams]);
 
 	useEffect(() => {
 		async function updateGasLimit() {

@@ -18,9 +18,7 @@ import useEthGasPriceQuery from 'queries/network/useEthGasPriceQuery';
 import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
 
 import CurrencyCard from 'sections/exchange/TradeCard/CurrencyCard';
-import TradeSummaryCard, {
-	SubmissionDisabledReason,
-} from 'sections/exchange/FooterCard/TradeSummaryCard';
+import TradeSummaryCard from 'sections/exchange/FooterCard/TradeSummaryCard';
 import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
 import MarketClosureCard from 'sections/exchange/FooterCard/MarketClosureCard';
 import ConnectWalletCard from 'sections/exchange/FooterCard/ConnectWalletCard';
@@ -52,6 +50,7 @@ import Notify from 'containers/Notify';
 import { NoTextTransform } from 'styles/common';
 import useCurrencyPair from 'sections/exchange/hooks/useCurrencyPair';
 import { appReadyState } from 'store/app';
+import { SubmissionDisabledReason } from 'sections/exchange/FooterCard/common';
 
 type ShortCardProps = {
 	defaultBaseCurrencyKey?: CurrencyKey | null;

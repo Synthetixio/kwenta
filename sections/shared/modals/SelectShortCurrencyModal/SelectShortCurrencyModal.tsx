@@ -41,7 +41,7 @@ export const SelectShortCurrencyModal: FC<SelectShortCurrencyModalProps> = ({
 	} = useSelectedPriceCurrency();
 
 	const collateralKeyUSDBalance =
-		synthsWalletBalancesQuery.data?.balancesMap[collateralCurrencyKey].usdBalance ?? null;
+		synthsWalletBalancesQuery.data?.balancesMap[collateralCurrencyKey]?.usdBalance ?? null;
 
 	const exchangeRates = exchangeRatesQuery.isSuccess ? exchangeRatesQuery.data ?? null : null;
 

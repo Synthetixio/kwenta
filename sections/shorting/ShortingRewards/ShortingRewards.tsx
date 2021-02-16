@@ -45,8 +45,8 @@ import {
 	CustomGasPriceContainer,
 	MobileCard,
 	StyledGasEditButton,
-	SubmissionDisabledReason,
 } from 'sections/exchange/FooterCard/TradeSummaryCard';
+import { SubmissionDisabledReason } from 'sections/exchange/FooterCard/common';
 
 interface ShortingRewardsProps {
 	synth: CurrencyKey;
@@ -100,7 +100,7 @@ const ShortingRewards: FC<ShortingRewardsProps> = ({ synth }) => {
 			}
 		}
 		return null;
-	}, [walletAddress]);
+	}, [walletAddress, synth]);
 
 	useEffect(() => {
 		async function getGasEstimateCall() {
@@ -108,7 +108,7 @@ const ShortingRewards: FC<ShortingRewardsProps> = ({ synth }) => {
 			setGasLimit(newGasLimit);
 		}
 		getGasEstimateCall();
-	}, []);
+	}, [getGasEstimate]);
 
 	const gasPrices = useMemo(() => ethGasPriceQuery?.data ?? null, [ethGasPriceQuery.data]);
 
