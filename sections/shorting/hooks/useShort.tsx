@@ -46,23 +46,23 @@ import { getTransactionPrice, normalizeGasLimit, gasPriceInWei } from 'utils/net
 
 import { toBigNumber, zeroBN } from 'utils/formatters/number';
 
-import useCollateralShortIssuanceFee from 'queries/collateral/useCollateralShortIssuanceFee';
+import useCollateralShortDataQuery from 'queries/collateral/useCollateralShortDataQuery';
 import Notify from 'containers/Notify';
 
 import { NoTextTransform } from 'styles/common';
 import useCurrencyPair from 'sections/exchange/hooks/useCurrencyPair';
 import { appReadyState } from 'store/app';
 
-const MIN_SAFE_SHORT_RATIO = 2;
-
 type ShortCardProps = {
 	defaultBaseCurrencyKey?: CurrencyKey | null;
 	defaultQuoteCurrencyKey?: CurrencyKey | null;
+	shortRatio: number;
 };
 
 const useShort = ({
 	defaultBaseCurrencyKey = null,
 	defaultQuoteCurrencyKey = null,
+	shortRatio,
 }: ShortCardProps) => {
 	const { t } = useTranslation();
 	const { notify } = Connector.useContainer();
@@ -98,9 +98,12 @@ const useShort = ({
 	const synthsWalletBalancesQuery = useSynthsBalancesQuery();
 	const ethGasPriceQuery = useEthGasPriceQuery();
 	const exchangeRatesQuery = useExchangeRatesQuery();
-	const collateralShortFeeRateQuery = useCollateralShortIssuanceFee();
-	const collateralShortFeeRate = collateralShortFeeRateQuery.isSuccess
-		? collateralShortFeeRateQuery.data ?? null
+	const collateralShortDataQuery = useCollateralShortDataQuery(quoteCurrencyKey);
+	const issueFeeRate = collateralShortDataQuery.isSuccess
+		? collateralShortDataQuery?.data?.issueFeeRate ?? null
+		: null;
+	const shortRate = collateralShortDataQuery.isSuccess
+		? collateralShortDataQuery?.data?.shortRate ?? null
 		: null;
 
 	const baseCurrency =
@@ -242,11 +245,11 @@ const useShort = ({
 	]);
 
 	const feeAmountInBaseCurrency = useMemo(() => {
-		if (collateralShortFeeRate != null && baseCurrencyAmount) {
-			return toBigNumber(baseCurrencyAmount).multipliedBy(collateralShortFeeRate);
+		if (issueFeeRate != null && baseCurrencyAmount) {
+			return toBigNumber(baseCurrencyAmount).multipliedBy(issueFeeRate);
 		}
 		return null;
-	}, [baseCurrencyAmount, collateralShortFeeRate]);
+	}, [baseCurrencyAmount, issueFeeRate]);
 
 	const feeCost = useMemo(() => {
 		if (feeAmountInBaseCurrency != null) {
@@ -412,7 +415,7 @@ const useShort = ({
 					setQuoteCurrencyAmount(value);
 					if (isLockedSafeRatio) {
 						setBaseCurrencyAmount(
-							toBigNumber(value).multipliedBy(rate).dividedBy(MIN_SAFE_SHORT_RATIO).toString()
+							toBigNumber(value).multipliedBy(rate).dividedBy(shortRatio).toString()
 						);
 					}
 				}
@@ -442,10 +445,7 @@ const useShort = ({
 					setBaseCurrencyAmount(value);
 					if (isLockedSafeRatio) {
 						setQuoteCurrencyAmount(
-							toBigNumber(value)
-								.multipliedBy(inverseRate)
-								.multipliedBy(MIN_SAFE_SHORT_RATIO)
-								.toString()
+							toBigNumber(value).multipliedBy(inverseRate).multipliedBy(shortRatio).toString()
 						);
 					}
 				}
@@ -489,11 +489,13 @@ const useShort = ({
 					gasPrices={ethGasPriceQuery.data}
 					feeReclaimPeriodInSeconds={0}
 					quoteCurrencyKey={quoteCurrencyKey}
-					feeRate={collateralShortFeeRate}
+					feeRate={issueFeeRate}
 					transactionFee={transactionFee}
 					feeCost={feeCost}
 					showFee={true}
 					isApproved={isApproved}
+					isCreateShort={true}
+					shortInterestRate={shortRate}
 				/>
 			)}
 			{txConfirmationModalOpen && (
