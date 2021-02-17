@@ -1,4 +1,10 @@
-import { Short, ShortContract, ShortLiquidation } from './types';
+import {
+	Short,
+	ShortContract,
+	ShortLiquidation,
+	ShortCollateralChange,
+	ShortLoanChange,
+} from './types';
 import { hexToAscii } from 'utils/formatters/string';
 
 export const SHORT_GRAPH_ENDPOINT = 'https://api.thegraph.com//subgraphs/name/dvd-schwrtz/test';
@@ -13,6 +19,8 @@ export const formatShort = (response: any): Partial<Short> => ({
 	synthBorrowed: hexToAscii(response.synthBorrowed),
 	synthBorrowedAmount: response.synthBorrowedAmount / 1e18,
 	createdAt: Number(response.createdAt) * 1000,
+	createdAtBlock: Number(response.createdAtBlock),
+	accruedInterestLastUpdateTimestamp: Number(response.accruedInterestLastUpdateTimestamp),
 	closedAt: response.closedAt != null ? Number(response.closedAt) * 1000 : null,
 	isOpen: Boolean(response.isOpen),
 	contractData: formatShortContractData(response.contractData),
@@ -39,20 +47,23 @@ export const formatShortLiquidations = (response: any): ShortLiquidation => ({
 	liquidatedCollateral: response.liquidatedCollateral / 1e18,
 	liquidator: response.liquidator,
 	timestamp: Number(response.timestamp) * 1000,
+	blockNumber: Number(response.blockNumber),
 });
 
-export const formatShortCollateralChanges = (response: any) => ({
+export const formatShortCollateralChanges = (response: any): ShortCollateralChange => ({
 	amount: response.amount / 1e18,
 	collateralAfter: response.collateralAfter,
 	id: response.id,
 	isDeposit: Boolean(response.isDeposit),
 	timestamp: Number(response.timestamp) * 1000,
+	blockNumber: Number(response.blockNumber),
 });
 
-export const formatShortLoanChanges = (response: any) => ({
+export const formatShortLoanChanges = (response: any): ShortLoanChange => ({
 	amount: response.amount / 1e18,
 	id: response.id,
 	isRepayment: Boolean(response.isRepayment),
 	loanAfter: response.loanAfter / 1e18,
 	timestamp: Number(response.timestamp) * 1000,
+	blockNumber: Number(response.blockNumber),
 });

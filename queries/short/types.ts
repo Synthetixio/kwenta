@@ -10,6 +10,8 @@ export type Short = {
 	synthBorrowed: CurrencyKey;
 	synthBorrowedAmount: number;
 	synthBorrowedPrice: number;
+	accruedInterestLastUpdateTimestamp: number;
+	createdAtBlock: number;
 	createdAt: number;
 	closedAt: number | null;
 	isOpen: boolean;
@@ -27,6 +29,7 @@ export type ShortCollateralChange = {
 	collateralAfter: number;
 	short?: Short;
 	timestamp: number;
+	blockNumber: number;
 };
 
 export type ShortLoanChange = {
@@ -36,6 +39,7 @@ export type ShortLoanChange = {
 	loanAfter: number;
 	short?: Short;
 	timestamp: number;
+	blockNumber: number;
 };
 
 export type ShortLiquidation = {
@@ -46,6 +50,7 @@ export type ShortLiquidation = {
 	liquidatedCollateral: number;
 	short?: Short;
 	timestamp: number;
+	blockNumber: number;
 };
 
 export type ShortContract = {
@@ -67,4 +72,5 @@ export type ShortContractUpdate = {
 	value: string;
 	contractData?: ShortContract;
 	timestamp: number;
+	blockNumber: number;
 };

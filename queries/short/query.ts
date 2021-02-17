@@ -19,6 +19,7 @@ export const shortsQuery = gql`
 			collateralLockedAmount
 			synthBorrowed
 			synthBorrowedAmount
+			accruedInterestLastUpdateTimestamp
 			isOpen
 			createdAt
 			closedAt
@@ -29,6 +30,7 @@ export const shortsQuery = gql`
 				liquidatedAmount
 				liquidatedCollateral
 				timestamp
+				blockNumber
 			}
 			collateralChanges {
 				id
@@ -36,6 +38,7 @@ export const shortsQuery = gql`
 				amount
 				collateralAfter
 				timestamp
+				blockNumber
 			}
 			loanChanges {
 				id
@@ -43,6 +46,7 @@ export const shortsQuery = gql`
 				isRepayment
 				loanAfter
 				timestamp
+				blockNumber
 			}
 		}
 	}
