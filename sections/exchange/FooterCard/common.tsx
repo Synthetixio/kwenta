@@ -55,4 +55,5 @@ export type SubmissionDisabledReason =
 	| 'approve-balancer'
 	| 'approving'
 	| 'claim'
-	| 'submitting';
+	| 'submitting'
+	| 'c-ratio-too-low';
