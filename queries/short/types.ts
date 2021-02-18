@@ -1,14 +1,15 @@
 import { CurrencyKey } from 'constants/currency';
+import BigNumber from 'bignumber.js';
 
 export type Short = {
 	id: number;
 	txHash: string;
 	account: string;
 	collateralLocked: CurrencyKey;
-	collateralLockedAmount: number;
+	collateralLockedAmount: BigNumber;
 	collateralLockedPrice: number;
 	synthBorrowed: CurrencyKey;
-	synthBorrowedAmount: number;
+	synthBorrowedAmount: BigNumber;
 	synthBorrowedPrice: number;
 	accruedInterestLastUpdateTimestamp: number;
 	createdAtBlock: number;
@@ -25,8 +26,8 @@ export type Short = {
 export type ShortCollateralChange = {
 	id: string;
 	isDeposit: boolean;
-	amount: number;
-	collateralAfter: number;
+	amount: BigNumber;
+	collateralAfter: BigNumber;
 	short?: Short;
 	timestamp: number;
 	blockNumber: number;
@@ -35,8 +36,8 @@ export type ShortCollateralChange = {
 export type ShortLoanChange = {
 	id: string;
 	isRepayment: boolean;
-	amount: number;
-	loanAfter: number;
+	amount: BigNumber;
+	loanAfter: BigNumber;
 	short?: Short;
 	timestamp: number;
 	blockNumber: number;
@@ -46,8 +47,8 @@ export type ShortLiquidation = {
 	id: string;
 	liquidator: string;
 	isClosed: boolean;
-	liquidatedAmount: number;
-	liquidatedCollateral: number;
+	liquidatedAmount: BigNumber;
+	liquidatedCollateral: BigNumber;
 	short?: Short;
 	timestamp: number;
 	blockNumber: number;
@@ -59,10 +60,10 @@ export type ShortContract = {
 	contractUpdates?: ShortContractUpdate[];
 	canOpenLoans: boolean;
 	interactionDelay: number;
-	issueFeeRate: number;
+	issueFeeRate: BigNumber;
 	maxLoansPerAccount: number;
-	minCollateral: number;
-	minCratio: number;
+	minCollateral: BigNumber;
+	minCratio: BigNumber;
 	manager: string;
 };
 

@@ -11,6 +11,12 @@ export const QUERY_KEYS = {
 			currencyKey,
 			period,
 		],
+		RatesAtBlock: (currencyKey: CurrencyKey, blockNumber: number) => [
+			'rates',
+			'atBlock',
+			currencyKey,
+			blockNumber,
+		],
 		MarketCap: (currencyKey: CurrencyKey) => ['marketCap', currencyKey],
 		ExchangeRates: ['rates', 'exchangeRates'],
 		SynthExchanges: (period: Period) => ['rates', 'synthExchanges', period],

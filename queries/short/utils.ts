@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import {
 	Short,
 	ShortContract,
@@ -5,9 +6,12 @@ import {
 	ShortCollateralChange,
 	ShortLoanChange,
 } from './types';
-import { hexToAscii } from 'utils/formatters/string';
 
-export const SHORT_GRAPH_ENDPOINT = 'https://api.thegraph.com//subgraphs/name/dvd-schwrtz/test';
+import { hexToAscii } from 'utils/formatters/string';
+import { DEFAULT_CRYPTO_UNIT } from 'constants/defaults';
+
+export const SHORT_GRAPH_ENDPOINT =
+	'https://api.thegraph.com//subgraphs/name/synthetixio-team/synthetix-shorts';
 
 // TODO use big number anywhere - don't think these are related to input fields so not yet?
 export const formatShort = (response: any): Partial<Short> => ({
@@ -15,12 +19,12 @@ export const formatShort = (response: any): Partial<Short> => ({
 	txHash: response.txHash,
 	account: response.account,
 	collateralLocked: hexToAscii(response.collateralLocked),
-	collateralLockedAmount: response.collateralLockedAmount / 1e18,
+	collateralLockedAmount: new BigNumber(response.collateralLockedAmount).div(DEFAULT_CRYPTO_UNIT),
 	synthBorrowed: hexToAscii(response.synthBorrowed),
-	synthBorrowedAmount: response.synthBorrowedAmount / 1e18,
+	synthBorrowedAmount: new BigNumber(response.synthBorrowedAmount).div(DEFAULT_CRYPTO_UNIT),
 	createdAt: Number(response.createdAt) * 1000,
 	createdAtBlock: Number(response.createdAtBlock),
-	accruedInterestLastUpdateTimestamp: Number(response.accruedInterestLastUpdateTimestamp),
+	accruedInterestLastUpdateTimestamp: Number(response.accruedInterestLastUpdateTimestamp) * 1000,
 	closedAt: response.closedAt != null ? Number(response.closedAt) * 1000 : null,
 	isOpen: Boolean(response.isOpen),
 	contractData: formatShortContractData(response.contractData),
@@ -33,26 +37,26 @@ export const formatShortContractData = (response: any): ShortContract => ({
 	id: response.id,
 	canOpenLoans: Boolean(response.canOpenLoans),
 	interactionDelay: Number(response.interactionDelay),
-	issueFeeRate: response.issueFeeRate / 1e18,
+	issueFeeRate: new BigNumber(response.issueFeeRate).div(DEFAULT_CRYPTO_UNIT),
 	manager: response.manager,
 	maxLoansPerAccount: response.maxLoansPerAccount,
-	minCollateral: response.minCollateral / 1e18,
-	minCratio: response.minCratio / 1e18,
+	minCollateral: new BigNumber(response.minCollateral).div(DEFAULT_CRYPTO_UNIT),
+	minCratio: new BigNumber(response.minCratio).div(DEFAULT_CRYPTO_UNIT),
 });
 
 export const formatShortLiquidations = (response: any): ShortLiquidation => ({
 	id: response.id,
 	isClosed: Boolean(response.isClosed),
-	liquidatedAmount: response.liquidatedAmount / 1e18,
-	liquidatedCollateral: response.liquidatedCollateral / 1e18,
+	liquidatedAmount: new BigNumber(response.liquidatedAmount).div(DEFAULT_CRYPTO_UNIT),
+	liquidatedCollateral: new BigNumber(response.liquidatedCollateral).div(DEFAULT_CRYPTO_UNIT),
 	liquidator: response.liquidator,
 	timestamp: Number(response.timestamp) * 1000,
 	blockNumber: Number(response.blockNumber),
 });
 
 export const formatShortCollateralChanges = (response: any): ShortCollateralChange => ({
-	amount: response.amount / 1e18,
-	collateralAfter: response.collateralAfter,
+	amount: new BigNumber(response.amount).div(DEFAULT_CRYPTO_UNIT),
+	collateralAfter: new BigNumber(response.collateralAfter),
 	id: response.id,
 	isDeposit: Boolean(response.isDeposit),
 	timestamp: Number(response.timestamp) * 1000,
@@ -60,10 +64,10 @@ export const formatShortCollateralChanges = (response: any): ShortCollateralChan
 });
 
 export const formatShortLoanChanges = (response: any): ShortLoanChange => ({
-	amount: response.amount / 1e18,
+	amount: new BigNumber(response.amount).div(DEFAULT_CRYPTO_UNIT),
 	id: response.id,
 	isRepayment: Boolean(response.isRepayment),
-	loanAfter: response.loanAfter / 1e18,
+	loanAfter: new BigNumber(response.loanAfter).div(DEFAULT_CRYPTO_UNIT),
 	timestamp: Number(response.timestamp) * 1000,
 	blockNumber: Number(response.blockNumber),
 });
