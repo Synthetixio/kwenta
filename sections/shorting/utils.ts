@@ -12,7 +12,7 @@ export const calculateAccuredInterest = ({
 	accruedInterestAsOfLastUpdate: BigNumber;
 	shortRate: BigNumber;
 	accruedInterestLastUpdateTimestamp: number;
-}) => {
+}): BigNumber => {
 	const timeDifferenceMS = Date.now() - accruedInterestLastUpdateTimestamp;
 	const numYears = new BigNumber(timeDifferenceMS).div(MS_IN_YEAR);
 	const additionalInterest = numYears.times(shortRate).times(currentBorrowSize);
@@ -25,16 +25,16 @@ type SynthBorrowedHistoryItem = {
 	isRepayment: boolean;
 };
 
-export const calculateProfitAndLoss = async ({
+export const calculateProfitAndLoss = ({
 	currentSynthPrice,
 	synthBorrowedAmount,
-	syntheBorrowedHistory,
+	synthBorrowedHistory,
 }: {
 	currentSynthPrice: BigNumber;
 	synthBorrowedAmount: BigNumber;
-	syntheBorrowedHistory: SynthBorrowedHistoryItem[];
-}): Promise<BigNumber> => {
-	const [totalBorrowedAmount, totalRepaidAmount] = syntheBorrowedHistory.reduce(
+	synthBorrowedHistory: SynthBorrowedHistoryItem[];
+}): BigNumber => {
+	const [totalBorrowedAmount, totalRepaidAmount] = synthBorrowedHistory.reduce(
 		([borrowed, repaid], { rate, amount, isRepayment }) => {
 			return isRepayment
 				? [borrowed, repaid.plus(rate.times(amount))]

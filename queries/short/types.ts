@@ -17,10 +17,10 @@ export type Short = {
 	closedAt: number | null;
 	isOpen: boolean;
 	contractData?: ShortContract;
-	interestAccrued: number;
+	interestAccrued: BigNumber;
 	collateralChanges?: ShortCollateralChange[];
 	liquidations?: ShortLiquidation[];
-	loanChanges?: ShortLoanChange[];
+	loanChanges: ShortLoanChange[];
 };
 
 export type ShortCollateralChange = {

@@ -66,3 +66,12 @@ export const shortContractQuery = gql`
 		}
 	}
 `;
+
+export const ratesAtBlockQuery = gql`
+	query latestRates($synth: String!, blockNumber: Number!) {
+		latestRates(first: 1, block: { number: $blockNumber } where: { id: $synth }) {
+			id
+			rate
+		}
+	}
+`;
