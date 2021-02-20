@@ -18,6 +18,7 @@ export type Short = {
 	isOpen: boolean;
 	contractData?: ShortContract;
 	interestAccrued: BigNumber;
+	profitLoss: BigNumber;
 	collateralChanges?: ShortCollateralChange[];
 	liquidations?: ShortLiquidation[];
 	loanChanges: ShortLoanChange[];
@@ -57,7 +58,7 @@ export type ShortLiquidation = {
 export type ShortContract = {
 	id: string;
 	shorts?: Short[];
-	contractUpdates?: ShortContractUpdate[];
+	contractUpdates: ShortContractUpdate[];
 	canOpenLoans: boolean;
 	interactionDelay: number;
 	issueFeeRate: BigNumber;
@@ -74,4 +75,17 @@ export type ShortContractUpdate = {
 	contractData?: ShortContract;
 	timestamp: number;
 	blockNumber: number;
+};
+
+export type InterestRateHistory = {
+	rate: string;
+	timestamp: number;
+};
+
+export type SynthBorrowedHistoryItem = {
+	rate: BigNumber;
+	amount: BigNumber;
+	isRepayment: boolean;
+	loanAfter: BigNumber;
+	timestamp: number;
 };

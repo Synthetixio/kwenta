@@ -63,6 +63,13 @@ export const shortContractQuery = gql`
 			maxLoansPerAccount
 			interactionDelay
 			manager
+			contractUpdates {
+				id
+				field
+				value
+				timestamp
+				blockNumber
+			}
 		}
 	}
 `;

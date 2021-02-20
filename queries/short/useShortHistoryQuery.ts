@@ -12,13 +12,14 @@ import QUERY_KEYS from 'constants/queryKeys';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
 import { getExchangeRatesForCurrencies } from 'utils/currencies';
-import { calculateAccuredInterest, calculateProfitAndLoss } from 'sections/shorting/utils';
+import { calculateInterestAndProfitLoss } from 'sections/shorting/utils';
 import synthetix from 'lib/synthetix';
 
-import { Short } from './types';
+import { Short, InterestRateHistory } from './types';
 import { shortsQuery, ratesAtBlockQuery } from './query';
 import { mockShorts } from './mockShorts';
 import { formatShort, SHORT_GRAPH_ENDPOINT } from './utils';
+import useShortContractDataQuery from './useShortContractDataQuery';
 
 const useShortHistoryQuery = (options?: QueryConfig<Short[]>) => {
 	const isAppReady = useRecoilValue(appReadyState);
@@ -26,7 +27,15 @@ const useShortHistoryQuery = (options?: QueryConfig<Short[]>) => {
 	const walletAddress = useRecoilValue(walletAddressState);
 	const { selectedPriceCurrency } = useSelectedPriceCurrency();
 	const exchangeRatesQuery = useExchangeRatesQuery();
+	const shortContractDataQuery = useShortContractDataQuery();
 	const exchangeRates = exchangeRatesQuery.isSuccess ? exchangeRatesQuery.data ?? null : null;
+	const shortContractData = shortContractDataQuery.isSuccess
+		? shortContractDataQuery.data ?? null
+		: null;
+
+	const interestRateHistory: InterestRateHistory[] = (shortContractData?.contractUpdates ?? [])
+		.filter(({ field }) => field === 'issueFeeRate')
+		.map(({ timestamp, value }) => ({ rate: value, timestamp }));
 
 	return useQuery<Short[]>(
 		QUERY_KEYS.Collateral.ShortHistory(walletAddress ?? ''),
@@ -52,7 +61,7 @@ const useShortHistoryQuery = (options?: QueryConfig<Short[]>) => {
 
 								const synthBorrowedHistory = await Promise.all(
 									(formattedShort.loanChanges ?? []).map(
-										async ({ amount, isRepayment, blockNumber }) => {
+										async ({ loanAfter, timestamp, amount, isRepayment, blockNumber }) => {
 											const rateAtBlockResponse = await request(
 												snxData.graphAPIEndpoints.rates,
 												ratesAtBlockQuery,
@@ -67,6 +76,8 @@ const useShortHistoryQuery = (options?: QueryConfig<Short[]>) => {
 													? new BigNumber(0)
 													: new BigNumber(rateAtBlockResponse.latestRates[0].rate);
 											return {
+												loanAfter,
+												timestamp,
 												amount,
 												isRepayment,
 												rate,
@@ -75,22 +86,21 @@ const useShortHistoryQuery = (options?: QueryConfig<Short[]>) => {
 									)
 								);
 
-								const profitLoss = calculateProfitAndLoss({
+								const { interestAccrued, profitLoss } = calculateInterestAndProfitLoss({
+									accruedInterestAsOfLastUpdate: toBigNumber(
+										ethers.utils.formatEther(loan.accruedInterest)
+									),
+									accruedInterestLastUpdateTimestamp: (formattedShort as Short)
+										.accruedInterestLastUpdateTimestamp,
+									interestRateHistory,
 									currentSynthPrice: new BigNumber(synthBorrowedPrice),
 									synthBorrowedAmount: (formattedShort as Short).synthBorrowedAmount,
 									synthBorrowedHistory,
 								});
+
 								return {
 									...formattedShort,
-									interestAccrued: calculateAccuredInterest({
-										currentBorrowSize: (formattedShort as Short).synthBorrowedAmount,
-										accruedInterestAsOfLastUpdate: toBigNumber(
-											ethers.utils.formatEther(loan.accruedInterest)
-										),
-										shortRate: new BigNumber(0),
-										accruedInterestLastUpdateTimestamp: (formattedShort as Short)
-											.accruedInterestLastUpdateTimestamp,
-									}),
+									interestAccrued,
 									profitLoss,
 									synthBorrowedPrice,
 									collateralLockedPrice: getExchangeRatesForCurrencies(

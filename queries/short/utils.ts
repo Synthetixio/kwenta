@@ -5,6 +5,7 @@ import {
 	ShortLiquidation,
 	ShortCollateralChange,
 	ShortLoanChange,
+	ShortContractUpdate,
 } from './types';
 
 import { hexToAscii } from 'utils/formatters/string';
@@ -42,6 +43,15 @@ export const formatShortContractData = (response: any): ShortContract => ({
 	maxLoansPerAccount: response.maxLoansPerAccount,
 	minCollateral: new BigNumber(response.minCollateral).div(DEFAULT_CRYPTO_UNIT),
 	minCratio: new BigNumber(response.minCratio).div(DEFAULT_CRYPTO_UNIT),
+	contractUpdates: (response?.contractUpdates ?? []).map(formatContractUpdates),
+});
+
+export const formatContractUpdates = (response: any): ShortContractUpdate => ({
+	id: response.id,
+	value: String(response.value),
+	field: String(response.field),
+	timestamp: Number(response.timestamp) * 1000,
+	blockNumber: Number(response.blockNumber),
 });
 
 export const formatShortLiquidations = (response: any): ShortLiquidation => ({

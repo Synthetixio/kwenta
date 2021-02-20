@@ -96,10 +96,13 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 							<StyledCurrencyKey>{cellProps.row.original.synthBorrowed}</StyledCurrencyKey>
 							<StyledPrice>
 								{formatNumber(
-									(cellProps.row.original.collateralLockedAmount *
-										cellProps.row.original.collateralLockedPrice) /
-										(cellProps.row.original.synthBorrowedAmount *
-											(cellProps.row.original.contractData?.minCratio ?? 0))
+									cellProps.row.original.collateralLockedAmount
+										.times(cellProps.row.original.collateralLockedPrice)
+										.div(
+											cellProps.row.original.synthBorrowedAmount.times(
+												cellProps.row.original.contractData?.minCratio ?? 0
+											)
+										)
 								)}
 							</StyledPrice>
 						</span>
@@ -127,10 +130,13 @@ const ShortingHistoryTable: FC<ShortingHistoryTableProps> = ({
 					Cell: (cellProps: CellProps<Short>) => (
 						<PriceChangeText isPositive={true}>
 							{formatPercent(
-								(cellProps.row.original.collateralLockedAmount *
-									cellProps.row.original.collateralLockedPrice) /
-									(cellProps.row.original.synthBorrowedAmount *
-										cellProps.row.original.synthBorrowedPrice)
+								cellProps.row.original.collateralLockedAmount
+									.times(cellProps.row.original.collateralLockedPrice)
+									.div(
+										cellProps.row.original.synthBorrowedAmount.times(
+											cellProps.row.original.synthBorrowedPrice
+										)
+									)
 							)}
 						</PriceChangeText>
 					),

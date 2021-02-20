@@ -95,15 +95,15 @@ const ShortingHistory: FC = () => {
 		(shortSize: string) => (short: Short) => {
 			switch (shortSize) {
 				case shortSizeFilterList[1].key:
-					return short.synthBorrowedAmount <= 1000;
+					return short.synthBorrowedAmount.lte(1000);
 				case shortSizeFilterList[2].key:
-					return 1000 < short.synthBorrowedAmount && short.synthBorrowedAmount <= 10000;
+					return short.synthBorrowedAmount.gt(1000) && short.synthBorrowedAmount.lte(10000);
 				case shortSizeFilterList[3].key:
-					return 10000 < short.synthBorrowedAmount && short.synthBorrowedAmount <= 100000;
+					return short.synthBorrowedAmount.gt(10000) && short.synthBorrowedAmount.lte(100000);
 				case shortSizeFilterList[4].key:
-					return 100000 < short.synthBorrowedAmount && short.synthBorrowedAmount <= 1000000;
+					return short.synthBorrowedAmount.gt(100000) && short.synthBorrowedAmount.lte(1000000);
 				case shortSizeFilterList[5].key:
-					return short.synthBorrowedAmount >= 1000000;
+					return short.synthBorrowedAmount.gt(1000000);
 				default:
 					return true;
 			}

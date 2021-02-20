@@ -33,29 +33,26 @@ const YourPositionCard: FC<YourPositionCardProps> = ({ short }) => {
 	const { etherscanInstance } = Etherscan.useContainer();
 
 	const collateralValue = useMemo(
-		() => short.collateralLockedAmount * short.collateralLockedPrice,
+		() => short.collateralLockedAmount.times(short.collateralLockedPrice),
 		[short.collateralLockedAmount, short.collateralLockedPrice]
 	);
 
 	const collateralCRatio = useMemo(
-		() => collateralValue / (short.synthBorrowedAmount * short.synthBorrowedPrice),
+		() => collateralValue.div(short.synthBorrowedAmount.times(short.synthBorrowedPrice)),
 		[collateralValue, short.synthBorrowedAmount, short.synthBorrowedPrice]
 	);
 
 	const liquidationPrice = useMemo(
-		() => collateralValue / (short.synthBorrowedAmount * (short.contractData?.minCratio ?? 0)),
+		() => collateralValue.div(short.synthBorrowedAmount.times(short.contractData?.minCratio ?? 0)),
 		[collateralValue, short.synthBorrowedAmount, short.contractData?.minCratio]
 	);
 
 	// TOOD: confirm when this should be positive/negative
-	const positiveCollateralCRatio = useMemo(() => collateralCRatio > SHORT_C_RATIO.highRisk, [
+	const positiveCollateralCRatio = useMemo(() => collateralCRatio.div(SHORT_C_RATIO.highRisk), [
 		collateralCRatio,
 	]);
 
-	// TODO: implement
-	const PnL = 1;
-
-	const isPositivePnL = useMemo(() => PnL > 0, [PnL]);
+	const isPositivePnL = useMemo(() => short.profitLoss.gt(0), [short.profitLoss]);
 
 	return (
 		<StyledCard>
@@ -103,12 +100,11 @@ const YourPositionCard: FC<YourPositionCardProps> = ({ short }) => {
 								asset: short.collateralLocked,
 							})}
 						</LightFieldText>
-						{/* 
-				      need to put profit loss here. this is just a placeholder for now
-				    */}
 						<DataField positive={isPositivePnL}>
 							{isPositivePnL ? '+' : '-'}
-							{formatCurrency(SYNTHS_MAP.sUSD, 1, { sign: synthetix.synthsMap?.sUSD.sign })}
+							{formatCurrency(SYNTHS_MAP.sUSD, short.profitLoss, {
+								sign: synthetix.synthsMap?.sUSD.sign,
+							})}
 						</DataField>
 					</Row>
 				</LeftCol>
@@ -125,7 +121,7 @@ const YourPositionCard: FC<YourPositionCardProps> = ({ short }) => {
 						<LightFieldText>
 							{t('shorting.history.manageShort.fields.collateralRatio')}
 						</LightFieldText>
-						<DataField positive={positiveCollateralCRatio}>
+						<DataField positive={!!positiveCollateralCRatio}>
 							{formatPercent(collateralCRatio)}
 						</DataField>
 					</Row>

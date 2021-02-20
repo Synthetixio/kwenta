@@ -6,6 +6,15 @@ export const mockShortContract = {
 	maxLoansPerAccount: '50',
 	minCollateral: '1000000000000000000000',
 	minCratio: '1200000000000000000',
+	contractUpdates: [
+		{
+			value: '5000000000000000',
+			field: 'issueFeeRate',
+			id: '0xf695e5c2e8d4af92ecd553e7da3164eeggcb96f3d0bc5d82a9e92332f4cc06c9-129',
+			timestamp: '1610963050',
+			blockNumber: '11876753',
+		},
+	],
 };
 
 export const mockShorts = [
