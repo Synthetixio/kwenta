@@ -1,4 +1,6 @@
 import BigNumber from 'bignumber.js';
+import { orderBy } from 'lodash';
+
 import { InterestRateHistory, SynthBorrowedHistoryItem } from 'queries/short/types';
 
 const MS_IN_YEAR = 31557600000;
@@ -17,81 +19,100 @@ export const calculateInterestAndProfitLoss = ({
 	synthBorrowedAmount: BigNumber;
 	interestRateHistory: InterestRateHistory[];
 	synthBorrowedHistory: SynthBorrowedHistoryItem[];
-}) => ({
-	interestAccrued: calculateAccuredInterest({
+}) => {
+	const interestAccrued = calculateAccuredInterest({
 		accruedInterestAsOfLastUpdate,
 		accruedInterestLastUpdateTimestamp,
-		synthBorrowedHistory,
-		interestRateHistory,
-	}),
-	profitLoss: calculateProfitAndLoss({
-		currentSynthPrice,
 		synthBorrowedAmount,
-		synthBorrowedHistory,
 		interestRateHistory,
-	}),
-});
+	});
+	return {
+		interestAccrued,
+		profitLoss: calculateProfitAndLoss({
+			currentSynthPrice,
+			synthBorrowedAmount,
+			synthBorrowedHistory,
+			interestAccrued,
+		}),
+	};
+};
 
 export const calculateAccuredInterest = ({
 	accruedInterestAsOfLastUpdate,
 	accruedInterestLastUpdateTimestamp,
-	synthBorrowedHistory,
+	synthBorrowedAmount,
 	interestRateHistory,
 }: {
 	accruedInterestAsOfLastUpdate: BigNumber;
 	accruedInterestLastUpdateTimestamp: number;
-	synthBorrowedHistory: SynthBorrowedHistoryItem[];
+	synthBorrowedAmount: BigNumber;
 	interestRateHistory: InterestRateHistory[];
 }): BigNumber => {
 	let interestAccruedSinceLastUpdate = new BigNumber(0);
 
-	const relevantRates = interestRateHistory.filter(
-		({ timestamp }) => timestamp > accruedInterestLastUpdateTimestamp
-	);
-	const relevantBorrowHistory = synthBorrowedHistory.filter(
-		({ timestamp }) => timestamp > accruedInterestLastUpdateTimestamp
-	);
+	const recentRateUpdates = orderBy(interestRateHistory, 'timestamp', 'desc')
+		.reduce(
+			(
+				acc: { singlePreviousEnrtyObtained: boolean; relevantEntries: InterestRateHistory[] },
+				curr: InterestRateHistory
+			) => {
+				if (curr.timestamp > accruedInterestLastUpdateTimestamp) {
+					acc.relevantEntries.push(curr);
+				} else if (!acc.singlePreviousEnrtyObtained) {
+					acc.relevantEntries.push(curr);
+					acc.singlePreviousEnrtyObtained = true;
+				}
+				return acc;
+			},
+			{ singlePreviousEnrtyObtained: false, relevantEntries: [] }
+		)
+		.relevantEntries.reverse();
 
-	const formattedBorrowHistory =
-		relevantBorrowHistory.length !== synthBorrowedHistory.length
-			? [synthBorrowedHistory[relevantBorrowHistory.length - synthBorrowedHistory.length]].concat(
-					relevantBorrowHistory
-			  )
-			: relevantBorrowHistory;
-
-	const formattedRateHistory =
-		relevantRates.length !== interestRateHistory.length
-			? [interestRateHistory[relevantRates.length - interestRateHistory.length]].concat(
-					relevantRates
-			  )
-			: relevantRates;
-
-	let lastRateTimestamp = null;
-	for (let i = 0; i < formattedRateHistory.length; i++) {
-		const timeDifferenceMS =
-			lastRateTimestamp == null
-				? formattedRateHistory[i].timestamp - accruedInterestLastUpdateTimestamp
-				: formattedRateHistory[i].timestamp - lastRateTimestamp;
-		lastRateTimestamp = formattedRateHistory[i].timestamp;
-		const numFractionalYears = new BigNumber(timeDifferenceMS).div(MS_IN_YEAR);
-		for (let j = 0; j < formattedBorrowHistory.length; j++) {}
-		interestAccruedSinceLastUpdate.plus(
-			numFractionalYears.times(formattedRateHistory[i].rate).times(0)
-		);
+	for (let i = 0; i < recentRateUpdates.length; i++) {
+		const timeDifferenceMS = calculateTimeDiff({
+			startTime: recentRateUpdates[i].timestamp,
+			endTime: recentRateUpdates[i + 1]?.timestamp ?? undefined,
+			lastUpdateTime: accruedInterestLastUpdateTimestamp,
+		});
+		const newAccruedInterest = new BigNumber(timeDifferenceMS)
+			.div(MS_IN_YEAR)
+			.times(synthBorrowedAmount)
+			.times(recentRateUpdates[i].rate);
+		interestAccruedSinceLastUpdate.plus(newAccruedInterest);
 	}
 	return accruedInterestAsOfLastUpdate.plus(interestAccruedSinceLastUpdate);
+};
+
+const calculateTimeDiff = ({
+	startTime,
+	endTime,
+	lastUpdateTime,
+}: {
+	startTime: number;
+	endTime: number | undefined;
+	lastUpdateTime: number;
+}) => {
+	if (startTime < lastUpdateTime && endTime == null) {
+		return Date.now() - lastUpdateTime;
+	} else if (startTime < lastUpdateTime && endTime) {
+		return endTime - lastUpdateTime;
+	} else if (endTime == null) {
+		return Date.now() - startTime;
+	} else {
+		return endTime - startTime;
+	}
 };
 
 export const calculateProfitAndLoss = ({
 	currentSynthPrice,
 	synthBorrowedAmount,
 	synthBorrowedHistory,
-	interestRateHistory,
+	interestAccrued,
 }: {
 	currentSynthPrice: BigNumber;
 	synthBorrowedAmount: BigNumber;
 	synthBorrowedHistory: SynthBorrowedHistoryItem[];
-	interestRateHistory: InterestRateHistory[];
+	interestAccrued: BigNumber;
 }): BigNumber => {
 	const [totalBorrowedAmount, totalRepaidAmount] = synthBorrowedHistory.reduce(
 		([borrowed, repaid], { rate, amount, isRepayment }) => {
@@ -103,6 +124,7 @@ export const calculateProfitAndLoss = ({
 	);
 
 	return totalBorrowedAmount
+		.minus(interestAccrued)
 		.minus(totalRepaidAmount)
 		.minus(currentSynthPrice.times(synthBorrowedAmount));
 };
