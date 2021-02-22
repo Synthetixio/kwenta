@@ -6,7 +6,6 @@ import { useTranslation, Trans } from 'react-i18next';
 import { SYNTHS_MAP } from 'constants/currency';
 
 import useShortContractDataQuery from 'queries/short/useShortContractDataQuery';
-import 'queries/short/';
 
 import media from 'styles/media';
 import { GridDivCentered, NoTextTransform } from 'styles/common';
@@ -18,7 +17,7 @@ import ROUTES from 'constants/routes';
 
 const { sUSD } = SYNTHS_MAP;
 
-type ShortPositionsProps = Omit<ShortPositionsRowProps, 'loanIndex'>;
+type ShortPositionsProps = Omit<ShortPositionsRowProps, 'shortInfo'>;
 
 const ShortPositions: FC<ShortPositionsProps> = ({ exchangeRates }) => {
 	const { t } = useTranslation();

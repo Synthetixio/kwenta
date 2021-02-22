@@ -30,7 +30,6 @@ import GasPriceSummaryItem from './GasPriceSummaryItem';
 
 type TradeSummaryCardProps = {
 	submissionDisabledReason: SubmissionDisabledReason | null;
-	isNotApproved: boolean | null;
 	baseCurrencyAmount: string;
 	onSubmit: () => void;
 	totalTradePrice: string;

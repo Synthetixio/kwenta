@@ -620,7 +620,7 @@ const useExchange = ({
 				<TradeSummaryCard
 					attached={footerCardAttached}
 					submissionDisabledReason={submissionDisabledReason}
-					isNotApproved={isNotApproved}
+					isApproved={!isNotApproved}
 					onSubmit={handleSubmit}
 					totalTradePrice={totalTradePrice.toString()}
 					baseCurrencyAmount={baseCurrencyAmount}
