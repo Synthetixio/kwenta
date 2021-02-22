@@ -53,8 +53,8 @@ export const shortsQuery = gql`
 `;
 
 export const shortContractQuery = gql`
-	query shortContracts($account: String!) {
-		shortContracts(first: 1, where: { id: $account }) {
+	query shortContracts($id: String!) {
+		shortContracts(first: 1, where: { id: $id }) {
 			id
 			issueFeeRate
 			canOpenLoans

@@ -13,11 +13,11 @@ import { formatShortContractData, SHORT_GRAPH_ENDPOINT } from './utils';
 
 const useShortContractDataQuery = (options?: QueryConfig<ShortContract>) => {
 	const isAppReady = useRecoilValue(appReadyState);
-	const contractAddress = synthetix.js!.contracts.ShortCollateral.address;
 
 	return useQuery<ShortContract>(
-		QUERY_KEYS.Collateral.ShortContract(contractAddress ?? ''),
+		QUERY_KEYS.Collateral.ShortContractUSD,
 		async () => {
+			const contractAddress = synthetix.js!.contracts.CollateralShort.address;
 			const response = await request(SHORT_GRAPH_ENDPOINT, shortContractQuery, {
 				id: contractAddress,
 			});
