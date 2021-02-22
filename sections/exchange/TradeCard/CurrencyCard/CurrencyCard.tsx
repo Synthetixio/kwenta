@@ -28,6 +28,7 @@ type CurrencyCardProps = {
 	onBalanceClick: () => void;
 	onCurrencySelect?: () => void;
 	priceRate: number | null;
+	tabIndex?: number;
 	className?: string;
 	label: ReactNode;
 };
@@ -42,6 +43,7 @@ const CurrencyCard: FC<CurrencyCardProps> = ({
 	onCurrencySelect,
 	priceRate,
 	label,
+	tabIndex = -1,
 	...rest
 }) => {
 	const { t } = useTranslation();
@@ -72,7 +74,9 @@ const CurrencyCard: FC<CurrencyCardProps> = ({
 	return (
 		<Card className={`currency-card currency-card-${side}`} {...rest}>
 			<StyledCardBody className="currency-card-body">
-				<LabelContainer data-testid="destination">{label}</LabelContainer>
+				<LabelContainer data-testid="destination">
+					{isBase ? t('exchange.common.into') : t('exchange.common.from')}
+				</LabelContainer>
 				<CurrencyWalletBalanceContainer className="currency-wallet-container">
 					<CurrencyContainer className="currency-container">
 						<CurrencySelector

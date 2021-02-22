@@ -8,6 +8,7 @@ type NumericInputProps = {
 	placeholder?: string;
 	onChange: (e: ChangeEvent<HTMLInputElement>, value: string) => void;
 	className?: string;
+	tabIndex?: number;
 };
 
 const INVALID_CHARS = ['-', '+', 'e'];
@@ -17,6 +18,7 @@ const NumericInput: FC<NumericInputProps> = ({
 	onChange,
 	placeholder,
 	className,
+	tabIndex = -1,
 	...rest
 }) => {
 	const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -33,6 +35,7 @@ const NumericInput: FC<NumericInputProps> = ({
 			onChange={handleOnChange}
 			placeholder={placeholder}
 			className={className}
+			tabIndex={tabIndex}
 			onKeyDown={(e) => {
 				if (INVALID_CHARS.includes(e.key)) {
 					e.preventDefault();

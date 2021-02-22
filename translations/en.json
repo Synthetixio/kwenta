@@ -186,12 +186,14 @@
 			"gas-price-gwei": "gas price (GWEI)",
 			"fee": "fee",
 			"fee-cost": "fee cost",
+			"collateralization-ratio": "collat. ratio",
 			"button": {
 				"approve": "approve",
 				"approving": "approving",
 				"c-ratio-too-low": "C-Ratio is too low",
 				"fee-reclaim-period": "fee reclaim period",
 				"insufficient-balance": "insufficient balance",
+				"is-not-approved": "not yet approved",
 				"enter-amount": "enter amount",
 				"select-synth": "select synth",
 				"submit-order": "submit order",
@@ -238,7 +240,13 @@
 		},
 		"common": {
 			"from": "from",
-			"into": "into"
+			"into": "into",
+			"using": "using",
+			"on": "on",
+			"mode": {
+				"short": "short",
+				"trade": "trade"
+			}
 		},
 		"errors": {
 			"fee-reclamation": "There is a waiting period after completing a trade. Please wait approximately {{waitingPeriod}} minutes before attempting to exchange {{currencyKey}}"
@@ -254,6 +262,7 @@
 			"nav": {
 				"synth-balances": "Synth Balances",
 				"convert": "Convert",
+				"short-positions": "Short Positions",
 				"crypto-balances": "Crypto Balances",
 				"transactions": "Transactions"
 			}
@@ -505,6 +514,10 @@
 			"buy-currency": "Buy <0>{{currencyKey}}</0>",
 			"currency-exchange": "<0>{{orderType}}</0> <1>{{quoteCurrencyAmount}}</1> <2>{{quoteCurrencyKey}}</2> for <3>{{baseCurrencyAmount}}</3> <4>{{baseCurrencyKey}}</4>",
 			"swap-currency": "Swap for <0>{{currencyKey}}</0>"
+		},
+		"loans": {
+			"adjust-collateral": "Adjust Collateral",
+			"close": "Close"
 		},
 		"total-assets": "{{total}} assets",
 		"total-results": "{{total}} results",

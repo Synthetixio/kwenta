@@ -39,6 +39,12 @@ export const QUERY_KEYS = {
 		],
 	},
 	Synths: {
+		Allowance: (currencyKey: CurrencyKey, spender: string) => [
+			'synths',
+			'allowance',
+			currencyKey,
+			spender,
+		],
 		FrozenSynths: ['synths', 'frozenSynths'],
 		Suspension: (currencyKey: CurrencyKey) => ['synths', 'suspension', currencyKey],
 		FeeReclaimPeriod: (currencyKey: CurrencyKey) => ['synths', 'feeReclaimPeriod', currencyKey],

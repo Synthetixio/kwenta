@@ -14,6 +14,7 @@ import useSynthsBalancesQuery from 'queries/walletBalances/useSynthsBalancesQuer
 import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
 
 import SynthBalances from 'sections/dashboard/SynthBalances';
+import ShortPositions from 'sections/dashboard/ShortPositions';
 import Transactions from 'sections/dashboard/Transactions';
 import CurrencyConvertCard from 'sections/dashboard/CurrencyConvertCard';
 
@@ -27,6 +28,7 @@ import { zeroBN } from 'utils/formatters/number';
 enum Tab {
 	SynthBalances = 'synth-balances',
 	Convert = 'convert',
+	ShortPositions = 'shorts',
 	Transactions = 'transactions',
 }
 
@@ -74,6 +76,12 @@ const DashboardCard: FC = () => {
 				onClick: () => router.push(ROUTES.Dashboard.Convert),
 			},
 			{
+				name: Tab.ShortPositions,
+				label: t('dashboard.tabs.nav.short-positions'),
+				active: activeTab === Tab.ShortPositions,
+				onClick: () => router.push(ROUTES.Dashboard.ShortPositions),
+			},
+			{
 				name: Tab.Transactions,
 				label: t('dashboard.tabs.nav.transactions'),
 				active: activeTab === Tab.Transactions,
@@ -119,6 +127,9 @@ const DashboardCard: FC = () => {
 				<ConvertContainer>
 					<CurrencyConvertCard />
 				</ConvertContainer>
+			</TabPanel>
+			<TabPanel name={Tab.ShortPositions} activeTab={activeTab}>
+				<ShortPositions exchangeRates={exchangeRates} />
 			</TabPanel>
 			<TabPanel name={Tab.Transactions} activeTab={activeTab}>
 				<Transactions />

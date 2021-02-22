@@ -18,15 +18,23 @@ import {
 	PageContent,
 	MobileContainerMixin,
 	SwapCurrenciesButton,
+	FlexDivCentered,
 } from 'styles/common';
 
 import { DesktopOnlyView, MobileOrTabletView } from 'components/Media';
 import useExchange from 'sections/exchange/hooks/useExchange';
+import { TabButton } from 'components/Tab';
+import { ExchangeMode } from 'constants/ui';
+import Button from 'components/Button';
+
+export const MODES = [ExchangeMode.TRADE, ExchangeMode.SHORT];
 
 const ExchangePage = () => {
 	const { t } = useTranslation();
 
 	const {
+		currentMode,
+		setMode,
 		baseCurrencyKey,
 		quoteCurrencyKey,
 		inverseRate,
@@ -64,6 +72,22 @@ const ExchangePage = () => {
 			</Head>
 			<AppLayout>
 				<StyledPageContent>
+					<ModeButtons>
+						{MODES.map((mode) => {
+							const isActive = currentMode === mode;
+
+							return (
+								<ModeButton
+									variant="secondary"
+									isActive={isActive}
+									onClick={() => setMode(mode)}
+									key={mode}
+								>
+									{t(`exchange.common.mode.${mode.toLowerCase()}`)}
+								</ModeButton>
+							);
+						})}
+					</ModeButtons>
 					<DesktopOnlyView>
 						<DesktopCardsContainer>
 							<LeftCardContainer data-testid="left-side">
@@ -138,6 +162,18 @@ const StyledPageContent = styled(PageContent)`
 		max-width: unset;
 	`}
 	}
+`;
+
+const ModeButtons = styled.div`
+	display: grid;
+	grid-auto-flow: column;
+	justify-content: center;
+	padding: 0 16px;
+	margin-bottom: 18px;
+`;
+
+const ModeButton = styled(Button)`
+	text-transform: uppercase;
 `;
 
 const DesktopCardsContainer = styled(FlexDiv)`

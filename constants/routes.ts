@@ -14,6 +14,7 @@ export const ROUTES = {
 		Home: '/dashboard',
 		Convert: normalizeRoute('/dashboard', 'convert', 'tab'),
 		SynthBalances: normalizeRoute('/dashboard', 'synth-balances', 'tab'),
+		ShortPositions: normalizeRoute('/dashboard', 'shorts', 'tab'),
 		Transactions: normalizeRoute('/dashboard', 'transactions', 'tab'),
 	},
 	Exchange: {
@@ -21,6 +22,10 @@ export const ROUTES = {
 		MarketPair: (baseCurrencyKey: CurrencyKey, quoteCurrencyKey: CurrencyKey) =>
 			normalizeRoute('/exchange', `${baseCurrencyKey}-${quoteCurrencyKey}`, 'market'),
 		Into: (currencyKey: CurrencyKey) => normalizeRoute(`/exchange`, currencyKey, 'market'),
+		Short: '/exchange/short',
+		ShortMarketPair: (baseCurrencyKey: CurrencyKey, quoteCurrencyKey: CurrencyKey) =>
+			normalizeRoute('/exchange/short', `${baseCurrencyKey}-${quoteCurrencyKey}`, 'market'),
+		ShortOn: (currencyKey: CurrencyKey) => normalizeRoute(`/exchange/short`, currencyKey, 'market'),
 	},
 	Shorting: {
 		Home: '/shorting',

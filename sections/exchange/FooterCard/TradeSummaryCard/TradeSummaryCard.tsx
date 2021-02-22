@@ -30,6 +30,7 @@ import GasPriceSummaryItem from './GasPriceSummaryItem';
 
 type TradeSummaryCardProps = {
 	submissionDisabledReason: SubmissionDisabledReason | null;
+	isNotApproved: boolean | null;
 	baseCurrencyAmount: string;
 	onSubmit: () => void;
 	totalTradePrice: string;
@@ -38,6 +39,7 @@ type TradeSummaryCardProps = {
 	gasPrices: GasPrices | undefined;
 	feeReclaimPeriodInSeconds: number;
 	quoteCurrencyKey: CurrencyKey | null;
+	collateralizationRatio?: number | null;
 	showFee?: boolean;
 	attached?: boolean;
 	className?: string;
@@ -59,6 +61,7 @@ const TradeSummaryCard: FC<TradeSummaryCardProps> = ({
 	gasPrices,
 	feeReclaimPeriodInSeconds,
 	quoteCurrencyKey,
+	collateralizationRatio,
 	showFee = true,
 	attached,
 	feeRate,
@@ -106,6 +109,18 @@ const TradeSummaryCard: FC<TradeSummaryCardProps> = ({
 					</>
 				)}
 			</SummaryItem>
+			{collateralizationRatio != undefined && (
+				<>
+					<SummaryItem>
+						<SummaryItemLabel>
+							{t('exchange.summary-info.collateralization-ratio')}
+						</SummaryItemLabel>
+						<SummaryItemValue data-testid="collateral-margin">
+							{collateralizationRatio != null ? formatPercent(collateralizationRatio) : NO_VALUE}
+						</SummaryItemValue>
+					</SummaryItem>
+				</>
+			)}
 			{showFee && (
 				<>
 					<SummaryItem>
@@ -184,6 +199,10 @@ export const ErrorTooltip = styled(Tippy)`
 
 export const MobileCard = styled(Card)`
 	margin: 0 auto 86px auto;
+`;
+
+const ActionButtons = styled.span`
+	display: flex;
 `;
 
 export default TradeSummaryCard;
