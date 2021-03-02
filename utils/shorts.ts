@@ -18,7 +18,7 @@ export const calculateProfitAndLoss = ({
 	synthBorrowedAmount: BigNumber;
 	synthBorrowedHistory: SynthBorrowedHistoryItem[];
 	interestAccrued: BigNumber;
-}): BigNumber => {
+}): string => {
 	const [totalBorrowedAmount, totalRepaidAmount] = synthBorrowedHistory.reduce(
 		([borrowed, repaid], { rate, amount, isRepayment }) => {
 			return isRepayment
@@ -29,7 +29,8 @@ export const calculateProfitAndLoss = ({
 	);
 
 	return totalBorrowedAmount
-		.minus(interestAccrued)
+		.minus(currentSynthPrice.times(interestAccrued))
 		.minus(totalRepaidAmount)
-		.minus(currentSynthPrice.times(synthBorrowedAmount));
+		.minus(currentSynthPrice.times(synthBorrowedAmount))
+		.toString();
 };
