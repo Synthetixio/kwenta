@@ -21,7 +21,7 @@ export type HistoricalShortPosition = {
 export type ShortCollateralChange = {
 	id: string;
 	isDeposit: boolean;
-	amount: number;
+	amount: BigNumber;
 	collateralAfter: number;
 	short?: HistoricalShortPosition;
 	timestamp: number;
@@ -30,7 +30,7 @@ export type ShortCollateralChange = {
 export type ShortLoanChange = {
 	id: string;
 	isRepayment: boolean;
-	amount: number;
+	amount: BigNumber;
 	loanAfter: number;
 	short?: HistoricalShortPosition;
 	timestamp: number;
@@ -40,8 +40,8 @@ export type ShortLiquidation = {
 	id: string;
 	liquidator: string;
 	isClosed: boolean;
-	liquidatedAmount: number;
-	liquidatedCollateral: number;
+	liquidatedAmount: BigNumber;
+	liquidatedCollateral: BigNumber;
 	short?: HistoricalShortPosition;
 	timestamp: number;
 };
