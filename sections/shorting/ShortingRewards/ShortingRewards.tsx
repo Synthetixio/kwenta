@@ -96,7 +96,7 @@ const ShortingRewards: FC<ShortingRewardsProps> = ({ currencyKey }) => {
 		}
 		getGasEstimateCall();
 	}, [getGasEstimate]);
-
+	//
 	const gasPrices = useMemo(() => ethGasPriceQuery?.data ?? undefined, [ethGasPriceQuery.data]);
 
 	const gasPrice = ethGasPriceQuery?.data != null ? ethGasPriceQuery.data[gasSpeed] : null;
