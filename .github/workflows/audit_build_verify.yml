@@ -60,7 +60,7 @@ jobs:
     - name: Lint
       # run only on master/dev branch and pull requests
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.event_name == 'pull_request'
-      run: npm run lint:sarif
+      run: node tests/lint.js . --ext ts,.tsx && tsc
 
     - name: Upload lint results
       # run if lint failed and only on master/dev branch and pull requests
