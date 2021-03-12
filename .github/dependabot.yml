@@ -15,7 +15,6 @@ updates:
       - dependency-name: "synthetix-*"
         dependency-type: "production"
       - dependency-name: "@synthetixio/*"
-        dependency-type: "production"
     labels:
       - "npm"
       - "dependencies"
