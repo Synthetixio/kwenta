@@ -60,7 +60,7 @@ jobs:
     - name: Lint
       # run only on master/dev branch and pull requests
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.event_name == 'pull_request'
-      run: node tests/lint.js . --ext ts,.tsx && tsc
+      run: npm run ci:lint:sarif
 
     - name: Upload lint results
       # run if lint failed and only on master/dev branch and pull requests
@@ -152,7 +152,7 @@ jobs:
         run: tar -xf build.tar.gz
 
       - name: Run e2e tests
-        run: npm run test:e2e:ci
+        run: npm run ci:test:e2e
         env:
             SECRET_WORDS: ${{ secrets.SECRET_WORDS }}
             PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
