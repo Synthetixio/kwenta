@@ -39,7 +39,7 @@ const OVM_NETWORKS: Map<number, MetamaskAddNetworkConfig> = new Map([
 ]);
 
 const NetworksSwitcher: FC<NetworksSwitcherProps> = () => {
-	const [networkError, setNetworkError] = useState<string | null>(null);
+	const [, setNetworkError] = useState<string | null>(null);
 
 	const { t } = useTranslation();
 	const isMainnetNetwork = useRecoilValue(isMainnetNetworkState);
