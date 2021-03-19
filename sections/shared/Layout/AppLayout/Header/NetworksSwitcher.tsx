@@ -30,6 +30,10 @@ const NetworksSwitcher: FC<NetworksSwitcherProps> = () => {
 
 	const switchToL1 = async () => {
 		try {
+			if (!window.ethereum || !window.ethereum.isMetaMask) {
+				return setNetworkError(t('user-menu.error.please-install-metamask'));
+			}
+			setNetworkError(null);
 			// await window.ethereum.request({
 			// 	method: 'wallet_switchEthereumChain',
 			// 	params: [

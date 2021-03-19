@@ -89,23 +89,20 @@ const GasPriceSummaryItem: FC<GasPriceSummaryItemProps> = ({
 												placeholder={t('common.custom')}
 											/>
 										</CustomGasPriceContainer>
-										{GAS_SPEEDS.map((speed) => {
-											const gasPrice = gasPrices![speed];
-											return !gasPrice ? null : (
-												<StyledGasButton
-													key={speed}
-													variant="select"
-													onClick={() => {
-														setCustomGasPrice('');
-														setGasSpeed(speed);
-													}}
-													isActive={hasCustomGasPrice ? false : gasSpeed === speed}
-												>
-													<span>{t(`common.gas-prices.${speed}`)}</span>
-													<NumericValue>{gasPrice}</NumericValue>
-												</StyledGasButton>
-											);
-										})}
+										{GAS_SPEEDS.map((speed) => (
+											<StyledGasButton
+												key={speed}
+												variant="select"
+												onClick={() => {
+													setCustomGasPrice('');
+													setGasSpeed(speed);
+												}}
+												isActive={hasCustomGasPrice ? false : gasSpeed === speed}
+											>
+												<span>{t(`common.gas-prices.${speed}`)}</span>
+												<NumericValue>{gasPrices![speed]}</NumericValue>
+											</StyledGasButton>
+										))}
 									</GasSelectContainer>
 								}
 								interactive={true}
