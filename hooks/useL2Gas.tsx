@@ -43,21 +43,40 @@ export const L2GasProvider: FC<L2GasProviderProps> = ({ children }) => {
 	};
 
 	useEffect(() => {
+		if (!(wETHContract && address)) return;
+
 		let isMounted = true;
-		const unsubs = [() => (isMounted = false)];
+		const unsubs = [
+			() => {
+				isMounted = false;
+			},
+		];
 
 		const loadBalance = async () => {
-			if (wETHContract && address) {
-				try {
-					const balance = await wETHContract.balanceOf(address);
-					if (isMounted) setBalance(toBigNumber(balance.div(1e18).toString()));
-				} catch (e) {
-					console.error(e);
-				}
+			try {
+				const balance = await wETHContract.balanceOf(address);
+				if (isMounted) setBalance(toBigNumber(balance.div(1e18).toString()));
+			} catch (e) {
+				console.error(e);
 			}
 		};
 
+		const subscribe = () => {
+			const transferEvent = wETHContract.filters.Transfer();
+			const onBalanceChange = async (from: string, to: string) => {
+				if (from === address || to === address) {
+					if (isMounted) setBalance(await wETHContract.balanceOf(address));
+				}
+			};
+
+			wETHContract.on(transferEvent, onBalanceChange);
+			unsubs.push(() => {
+				wETHContract.off(transferEvent, onBalanceChange);
+			});
+		};
+
 		loadBalance();
+		subscribe();
 		return () => {
 			unsubs.forEach((unsub) => unsub());
 		};
