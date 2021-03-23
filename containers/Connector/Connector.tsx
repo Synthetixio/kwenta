@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createContainer } from 'unstated-next';
 import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { NetworkId, Network as NetworkName } from '@synthetixio/contracts-interface';
+import { NetworkId } from '@synthetixio/contracts-interface';
 import { loadProvider } from '@synthetixio/providers';
 import { ethers } from 'ethers';
 
@@ -92,7 +92,6 @@ const useConnector = () => {
 						notify.config({ networkId });
 						setProvider(provider);
 						setSigner(signer);
-
 						setNetwork({
 							id: networkId,
 							// @ts-ignore
@@ -104,25 +103,32 @@ const useConnector = () => {
 				wallet: async (wallet: OnboardWallet) => {
 					if (wallet.provider) {
 						const provider = loadProvider({ provider: wallet.provider });
-						const signer = provider.getSigner();
 						const network = await provider.getNetwork();
 						const networkId = network.chainId as NetworkId;
-						const useOvm = getIsOVM(networkId);
+						const networkName =
+							synthetix.chainIdToNetwork != null &&
+							synthetix.chainIdToNetwork[networkId as NetworkId];
 
-						synthetix.setContractSettings({
-							networkId,
-							provider,
-							signer,
-							useOvm,
-						});
-						setProvider(provider);
-						setSigner(provider.getSigner());
-						setNetwork({
-							id: networkId,
-							name: network.name as NetworkName,
-							useOvm,
-						});
-						setSelectedWallet(wallet.name);
+						if (!!networkName) {
+							const signer = provider.getSigner();
+							const useOvm = getIsOVM(networkId);
+
+							synthetix.setContractSettings({
+								networkId,
+								provider,
+								signer,
+								useOvm,
+							});
+							setProvider(provider);
+							setSigner(provider.getSigner());
+							setSelectedWallet(wallet.name);
+
+							setNetwork({
+								id: networkId,
+								name: networkName,
+								useOvm,
+							});
+						}
 					} else {
 						// TODO: setting provider to null might cause issues, perhaps use a default provider?
 						// setProvider(null);

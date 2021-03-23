@@ -58,6 +58,8 @@ import useCurrencyPair from './useCurrencyPair';
 import { toBigNumber, zeroBN } from 'utils/formatters/number';
 import Notify from 'containers/Notify';
 
+import { useL2Gas } from 'hooks/useL2Gas';
+
 type ExchangeCardProps = {
 	defaultBaseCurrencyKey?: CurrencyKey | null;
 	defaultQuoteCurrencyKey?: CurrencyKey | null;
@@ -124,6 +126,7 @@ const useExchange = ({
 	const exchangeRatesQuery = useExchangeRatesQuery();
 	const feeReclaimPeriodQuery = useFeeReclaimPeriodQuery(quoteCurrencyKey);
 	const exchangeFeeRateQuery = useExchangeFeeRate(quoteCurrencyKey, baseCurrencyKey);
+	const { showGetL2WETHPromptIfNone } = useL2Gas();
 
 	const exchangeFeeRate = exchangeFeeRateQuery.isSuccess ? exchangeFeeRateQuery.data ?? null : null;
 
@@ -359,6 +362,11 @@ const useExchange = ({
 	const handleSubmit = async () => {
 		if (synthetix.js != null && gasPrice != null) {
 			setTxError(null);
+
+			if (showGetL2WETHPromptIfNone()) {
+				return;
+			}
+
 			setTxConfirmationModalOpen(true);
 			const exchangeParams = getExchangeParams();
 

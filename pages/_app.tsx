@@ -14,6 +14,7 @@ import WithAppContainers from 'containers';
 import theme from 'styles/theme';
 
 import { ReactQueryDevtools } from 'react-query-devtools';
+import { L2GasProvider } from 'hooks/useL2Gas';
 
 import SystemStatus from 'sections/shared/SystemStatus';
 
@@ -69,11 +70,13 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
 					<WithAppContainers>
 						<MediaContextProvider>
 							<ReactQueryCacheProvider queryCache={queryCache}>
-								<Layout>
-									<SystemStatus>
-										<Component {...pageProps} />
-									</SystemStatus>
-								</Layout>
+								<L2GasProvider>
+									<Layout>
+										<SystemStatus>
+											<Component {...pageProps} />
+										</SystemStatus>
+									</Layout>
+								</L2GasProvider>
 								<ReactQueryDevtools />
 							</ReactQueryCacheProvider>
 						</MediaContextProvider>

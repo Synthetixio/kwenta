@@ -529,6 +529,11 @@
 				"no-results": "None"
 			},
 			"view-all": "view all"
+		},
+		"get-l2-weth": {
+			"title": "Get ETH",
+			"message": "You don't have any ETH to pay for transaction fees.",
+			"get-eth": "Get ETH"
 		}
 	},
 	"common": {
