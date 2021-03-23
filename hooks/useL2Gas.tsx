@@ -55,7 +55,7 @@ export const L2GasProvider: FC<L2GasProviderProps> = ({ children }) => {
 		const loadBalance = async () => {
 			try {
 				const balance = await wETHContract.balanceOf(address);
-				if (isMounted) setBalance(toBigNumber(balance.div(1e18).toString()));
+				if (isMounted) setBalance(toBigNumber(balance).div(1e18));
 			} catch (e) {
 				console.error(e);
 			}
