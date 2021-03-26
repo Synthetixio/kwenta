@@ -22,7 +22,6 @@ import {
 
 import { DesktopOnlyView, MobileOrTabletView } from 'components/Media';
 import useExchange from 'sections/exchange/hooks/useExchange';
-import GetL2WETHModal from 'sections/shared/modals/GetL2WETH/GetL2WETH';
 
 const ExchangePage = () => {
 	const { t } = useTranslation();
@@ -111,7 +110,6 @@ const ExchangePage = () => {
 					</MobileOrTabletView>
 					{footerCard}
 				</StyledPageContent>
-				<GetL2WETHModal />
 			</AppLayout>
 		</>
 	);

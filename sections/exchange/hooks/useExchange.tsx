@@ -26,6 +26,7 @@ import PriceChartCard from 'sections/exchange/TradeCard/PriceChartCard';
 import MarketDetailsCard from 'sections/exchange/TradeCard/MarketDetailsCard';
 import TradeSummaryCard from 'sections/exchange/FooterCard/TradeSummaryCard';
 import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
+import GetL2GasCard from 'sections/exchange/FooterCard/GetL2GasCard';
 import MarketClosureCard from 'sections/exchange/FooterCard/MarketClosureCard';
 import TradeBalancerFooterCard from 'sections/exchange/FooterCard/TradeBalancerFooterCard';
 import ConnectWalletCard from 'sections/exchange/FooterCard/ConnectWalletCard';
@@ -57,8 +58,7 @@ import OneInch from 'containers/OneInch';
 import useCurrencyPair from './useCurrencyPair';
 import { toBigNumber, zeroBN } from 'utils/formatters/number';
 import Notify from 'containers/Notify';
-
-import { useL2Gas } from 'hooks/useL2Gas';
+import L2Gas from 'containers/L2Gas';
 
 type ExchangeCardProps = {
 	defaultBaseCurrencyKey?: CurrencyKey | null;
@@ -86,6 +86,8 @@ const useExchange = ({
 	const { t } = useTranslation();
 	const { monitorHash } = Notify.useContainer();
 	const { swap } = OneInch.useContainer();
+	const { hasNone: hasNoL2Gas } = L2Gas.useContainer();
+
 	const router = useRouter();
 
 	const marketQuery = useMemo(
@@ -126,7 +128,6 @@ const useExchange = ({
 	const exchangeRatesQuery = useExchangeRatesQuery();
 	const feeReclaimPeriodQuery = useFeeReclaimPeriodQuery(quoteCurrencyKey);
 	const exchangeFeeRateQuery = useExchangeFeeRate(quoteCurrencyKey, baseCurrencyKey);
-	const { showGetL2WETHPromptIfNone } = useL2Gas();
 
 	const exchangeFeeRate = exchangeFeeRateQuery.isSuccess ? exchangeFeeRateQuery.data ?? null : null;
 
@@ -362,11 +363,6 @@ const useExchange = ({
 	const handleSubmit = async () => {
 		if (synthetix.js != null && gasPrice != null) {
 			setTxError(null);
-
-			if (showGetL2WETHPromptIfNone()) {
-				return;
-			}
-
 			setTxConfirmationModalOpen(true);
 			const exchangeParams = getExchangeParams();
 
@@ -565,6 +561,8 @@ const useExchange = ({
 		<>
 			{!isWalletConnected ? (
 				<ConnectWalletCard attached={footerCardAttached} />
+			) : hasNoL2Gas ? (
+				<GetL2GasCard attached={footerCardAttached} />
 			) : (baseCurrencyMarketClosed.isMarketClosed && baseCurrencyKey === SYNTHS_MAP.sTSLA) ||
 			  (quoteCurrencyMarketClosed.isMarketClosed && quoteCurrencyKey === SYNTHS_MAP.sTSLA) ? (
 				<TradeBalancerFooterCard

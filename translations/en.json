@@ -239,6 +239,9 @@
 						"button-label": "Open Balancer Pool"
 					}
 				}
+			},
+			"get-l2-gas": {
+				"message": "Not enough ETH for transaction fees. Get some via Optimism:"
 			}
 		},
 		"common": {
@@ -529,11 +532,6 @@
 				"no-results": "None"
 			},
 			"view-all": "view all"
-		},
-		"get-l2-weth": {
-			"title": "Get ETH",
-			"message": "You don't have any ETH to pay for transaction fees.",
-			"get-eth": "Get ETH"
 		}
 	},
 	"common": {
