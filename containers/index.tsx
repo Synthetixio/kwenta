@@ -2,8 +2,9 @@ import React, { FC } from 'react';
 
 import Connector from './Connector';
 import Etherscan from './Etherscan';
-import Notify from './Notify';
 import OneInch from './OneInch';
+import BlockExplorer from './BlockExplorer';
+import TransactionNotifier from './TransactionNotifier';
 import L2Gas from './L2Gas';
 
 type WithAppContainersProps = {
@@ -14,9 +15,11 @@ export const WithAppContainers: FC<WithAppContainersProps> = ({ children }) => (
 	<Connector.Provider>
 		<Etherscan.Provider>
 			<OneInch.Provider>
-				<Notify.Provider>
-					<L2Gas.Provider>{children}</L2Gas.Provider>
-				</Notify.Provider>
+				<BlockExplorer.Provider>
+					<TransactionNotifier.Provider>
+						<L2Gas.Provider>{children}</L2Gas.Provider>
+					</TransactionNotifier.Provider>
+				</BlockExplorer.Provider>
 			</OneInch.Provider>
 		</Etherscan.Provider>
 	</Connector.Provider>

@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { createContainer } from 'unstated-next';
-import { useSetRecoilState, useRecoilState, useRecoilValue } from 'recoil';
-import { NetworkId } from '@synthetixio/contracts-interface';
+import { useSetRecoilState, useRecoilState } from 'recoil';
+import { NetworkId, Network as NetworkName } from '@synthetixio/contracts-interface';
+import {
+	TransactionNotifier,
+	TransactionNotifierInterface,
+} from '@synthetixio/transaction-notifier';
 import { loadProvider } from '@synthetixio/providers';
 import { ethers } from 'ethers';
 
@@ -11,23 +15,21 @@ import { getDefaultNetworkId, getIsOVM } from 'utils/network';
 
 import { ordersState } from 'store/orders';
 import { hasOrdersNotificationState } from 'store/ui';
-import { appReadyState, languageState } from 'store/app';
+import { appReadyState } from 'store/app';
 import { walletAddressState, networkState } from 'store/wallet';
 
 import { Wallet as OnboardWallet } from 'bnc-onboard/dist/src/interfaces';
 
 import useLocalStorage from 'hooks/useLocalStorage';
 
-import { initOnboard, initNotify } from './config';
+import { initOnboard } from './config';
 import { LOCAL_STORAGE_KEYS } from 'constants/storage';
 
 const useConnector = () => {
 	const [network, setNetwork] = useRecoilState(networkState);
-	const language = useRecoilValue(languageState);
 	const [provider, setProvider] = useState<ethers.providers.Provider | null>(null);
 	const [signer, setSigner] = useState<ethers.Signer | null>(null);
 	const [onboard, setOnboard] = useState<ReturnType<typeof initOnboard> | null>(null);
-	const [notify, setNotify] = useState<ReturnType<typeof initNotify> | null>(null);
 	const [isAppReady, setAppReady] = useRecoilState(appReadyState);
 	const setWalletAddress = useSetRecoilState(walletAddressState);
 	const setOrders = useSetRecoilState(ordersState);
@@ -36,6 +38,10 @@ const useConnector = () => {
 		LOCAL_STORAGE_KEYS.SELECTED_WALLET,
 		''
 	);
+	const [
+		transactionNotifier,
+		setTransactionNotifier,
+	] = useState<TransactionNotifierInterface | null>(null);
 
 	useEffect(() => {
 		const init = async () => {
@@ -89,7 +95,11 @@ const useConnector = () => {
 							useOvm,
 						});
 						onboard.config({ networkId });
-						notify.config({ networkId });
+						if (transactionNotifier) {
+							transactionNotifier.setProvider(provider);
+						} else {
+							setTransactionNotifier(new TransactionNotifier(provider));
+						}
 						setProvider(provider);
 						setSigner(signer);
 						setNetwork({
@@ -105,30 +115,24 @@ const useConnector = () => {
 						const provider = loadProvider({ provider: wallet.provider });
 						const network = await provider.getNetwork();
 						const networkId = network.chainId as NetworkId;
-						const networkName =
-							synthetix.chainIdToNetwork != null &&
-							synthetix.chainIdToNetwork[networkId as NetworkId];
+						const useOvm = getIsOVM(networkId);
 
-						if (!!networkName) {
-							const signer = provider.getSigner();
-							const useOvm = getIsOVM(networkId);
-
-							synthetix.setContractSettings({
-								networkId,
-								provider,
-								signer,
-								useOvm,
-							});
-							setProvider(provider);
-							setSigner(provider.getSigner());
-							setSelectedWallet(wallet.name);
-
-							setNetwork({
-								id: networkId,
-								name: networkName,
-								useOvm,
-							});
-						}
+						synthetix.setContractSettings({
+							networkId,
+							provider,
+							signer: provider.getSigner(),
+							useOvm,
+						});
+						setProvider(provider);
+						setSigner(provider.getSigner());
+						setNetwork({
+							id: networkId,
+							name: network.name as NetworkName,
+							useOvm,
+						});
+						setSelectedWallet(wallet.name);
+						setTransactionNotifier(new TransactionNotifier(provider));
+						setTransactionNotifier(new TransactionNotifier(provider));
 					} else {
 						// TODO: setting provider to null might cause issues, perhaps use a default provider?
 						// setProvider(null);
@@ -138,12 +142,8 @@ const useConnector = () => {
 					}
 				},
 			});
-			const notify = initNotify(network, {
-				clientLocale: language,
-			});
 
 			setOnboard(onboard);
-			setNotify(notify);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAppReady]);
@@ -154,14 +154,6 @@ const useConnector = () => {
 			onboard.walletSelect(selectedWallet);
 		}
 	}, [onboard, selectedWallet]);
-
-	useEffect(() => {
-		if (notify) {
-			notify.config({
-				clientLocale: language,
-			});
-		}
-	}, [language, notify]);
 
 	const resetCachedUI = () => {
 		// TODO: since orders are not persisted, we need to reset them.
@@ -219,11 +211,11 @@ const useConnector = () => {
 		provider,
 		signer,
 		onboard,
-		notify,
 		connectWallet,
 		disconnectWallet,
 		switchAccounts,
 		isHardwareWallet,
+		transactionNotifier,
 	};
 };
 

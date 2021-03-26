@@ -17,9 +17,7 @@
 			"shorting": "shorting"
 		},
 		"networks-switcher": {
-			"l1": "L1",
-			"l2": "L2",
-			"tip": "To switch back to mainnet, please use the MetaMask networks menu."
+			"l2": "Switch to L2"
 		}
 	},
 	"homepage": {
@@ -571,7 +569,10 @@
 		"transaction": {
 			"revert-reason": "Error: {{reason}}",
 			"error": "An unexpected error occurred.",
-			"reattempt": "Try again"
+			"reattempt": "Try again",
+			"transaction-sent": "Your transaction has been sent to the network.",
+			"transaction-failed": "Your transaction has failed",
+			"transaction-confirmed": "Your transaction has succeeded!"
 		},
 		"price": "price",
 		"asset": "asset",
