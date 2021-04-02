@@ -16,7 +16,7 @@ import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import { CRYPTO_CURRENCY_MAP } from 'constants/currency';
 import { NO_VALUE } from 'constants/placeholder';
 
-import { formatCurrency, formatPercent, toBigNumber, zeroBN } from 'utils/formatters/number';
+import { formatCurrency, formatPercent, zeroBN } from 'utils/formatters/number';
 import { WEEKS_IN_YEAR } from 'utils/formatters/date';
 
 import { SYNTHS_TO_SHORT } from '../constants';

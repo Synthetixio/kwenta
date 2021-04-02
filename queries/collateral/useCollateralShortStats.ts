@@ -2,7 +2,6 @@ import { useQuery, QueryConfig } from 'react-query';
 import { useRecoilValue } from 'recoil';
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-import zipObject from 'lodash/zipObject';
 
 import { CurrencyKey } from 'constants/currency';
 import { appReadyState } from 'store/app';
