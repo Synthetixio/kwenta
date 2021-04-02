@@ -23,8 +23,6 @@ import { SYNTHS_TO_SHORT } from '../constants';
 
 import { Title } from '../common';
 
-const WEEKLY_SNX_REWARDS = toBigNumber(8000);
-
 const ShortingStats = () => {
 	const { t } = useTranslation();
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
@@ -40,15 +38,15 @@ const ShortingStats = () => {
 		() => (collateralShortStatsQuery.isSuccess ? collateralShortStatsQuery.data ?? null : null),
 		[collateralShortStatsQuery.isSuccess, collateralShortStatsQuery.data]
 	);
-
 	const shortStatsMap = useMemo(() => {
 		if (shortStats != null && exchangeRates != null && selectPriceCurrencyRate != null) {
-			return mapValues(shortStats, (shortStat, currencyKey) => {
-				const openInterest = shortStat
+			return mapValues(shortStats, ({ shorts, weeklySNXRewards }, currencyKey) => {
+				const openInterest = shorts
 					.multipliedBy(exchangeRates[currencyKey])
 					.dividedBy(selectPriceCurrencyRate);
 
-				const apr = WEEKLY_SNX_REWARDS.multipliedBy(exchangeRates[CRYPTO_CURRENCY_MAP.SNX])
+				const apr = weeklySNXRewards
+					.multipliedBy(exchangeRates[CRYPTO_CURRENCY_MAP.SNX])
 					.multipliedBy(WEEKS_IN_YEAR)
 					.dividedBy(openInterest);
 

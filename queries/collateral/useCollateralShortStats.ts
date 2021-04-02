@@ -12,27 +12,44 @@ import QUERY_KEYS from 'constants/queryKeys';
 import synthetix from 'lib/synthetix';
 import { toBigNumber } from 'utils/formatters/number';
 
+type ReturnValueType = Record<
+	CurrencyKey,
+	{
+		shorts: BigNumber;
+		weeklySNXRewards: BigNumber;
+	}
+>;
+
 const useCollateralShortStats = (
 	currencyKeys: CurrencyKey[],
-	options?: QueryConfig<Record<CurrencyKey, BigNumber>>
+	options?: QueryConfig<ReturnValueType>
 ) => {
 	const isAppReady = useRecoilValue(appReadyState);
 
-	return useQuery<Record<CurrencyKey, BigNumber>>(
+	return useQuery<ReturnValueType>(
 		QUERY_KEYS.Collateral.ShortStats(currencyKeys.join('|')),
 		async () => {
-			const shorts = (await Promise.all(
-				currencyKeys.map((currencyKey) =>
+			const stats = (await Promise.all([
+				...currencyKeys.map((currencyKey) =>
 					synthetix.js!.contracts.CollateralManager.short(
 						ethers.utils.formatBytes32String(currencyKey)
 					)
-				)
-			)) as ethers.BigNumber[];
+				),
+				...currencyKeys.map((currencyKey) =>
+					synthetix.js!.contracts[`ShortingRewards${currencyKey}`].getRewardForDuration()
+				),
+			])) as ethers.BigNumber[];
 
-			return zipObject(
-				currencyKeys,
-				shorts.map((short) => toBigNumber(ethers.utils.formatEther(short)))
-			);
+			const weeklySNXRewards = stats;
+			const shorts = stats.splice(0, stats.length / 2);
+
+			return currencyKeys.reduce((ret, key, i) => {
+				ret[key] = {
+					shorts: toBigNumber(ethers.utils.formatEther(shorts[i])),
+					weeklySNXRewards: toBigNumber(weeklySNXRewards[i].toString()).dividedBy(1e18),
+				};
+				return ret;
+			}, {} as ReturnValueType);
 		},
 		{
 			enabled: isAppReady,
