@@ -15,7 +15,8 @@ type ReturnValueType = Record<
 	CurrencyKey,
 	{
 		shorts: BigNumber;
-		weeklySNXRewards: BigNumber;
+		rewardsRate: BigNumber;
+		rewardsTotalSupply: BigNumber;
 	}
 >;
 
@@ -35,17 +36,22 @@ const useCollateralShortStats = (
 					)
 				),
 				...currencyKeys.map((currencyKey) =>
-					synthetix.js!.contracts[`ShortingRewards${currencyKey}`].getRewardForDuration()
+					synthetix.js!.contracts[`ShortingRewards${currencyKey}`].rewardRate()
+				),
+				...currencyKeys.map((currencyKey) =>
+					synthetix.js!.contracts[`ShortingRewards${currencyKey}`].totalSupply()
 				),
 			])) as ethers.BigNumber[];
 
-			const weeklySNXRewards = stats;
-			const shorts = stats.splice(0, stats.length / 2);
+			const rewardsTotalSupplies = stats;
+			const shorts = stats.splice(0, stats.length / 3);
+			const rewardsRates = stats.splice(0, stats.length / 2);
 
 			return currencyKeys.reduce((ret, key, i) => {
 				ret[key] = {
 					shorts: toBigNumber(ethers.utils.formatEther(shorts[i])),
-					weeklySNXRewards: toBigNumber(weeklySNXRewards[i].toString()).dividedBy(1e18),
+					rewardsRate: toBigNumber(rewardsRates[i].toString()),
+					rewardsTotalSupply: toBigNumber(rewardsTotalSupplies[i].toString()),
 				};
 				return ret;
 			}, {} as ReturnValueType);

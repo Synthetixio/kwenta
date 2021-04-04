@@ -23,6 +23,8 @@ import { SYNTHS_TO_SHORT } from '../constants';
 
 import { Title } from '../common';
 
+const SECONDS_IN_A_YR = 365 * 24 * 60 * 60;
+
 const ShortingStats = () => {
 	const { t } = useTranslation();
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
@@ -40,15 +42,17 @@ const ShortingStats = () => {
 	);
 	const shortStatsMap = useMemo(() => {
 		if (shortStats != null && exchangeRates != null && selectPriceCurrencyRate != null) {
-			return mapValues(shortStats, ({ shorts, weeklySNXRewards }, currencyKey) => {
-				const openInterest = shorts
-					.multipliedBy(exchangeRates[currencyKey])
-					.dividedBy(selectPriceCurrencyRate);
+			return mapValues(shortStats, ({ shorts, rewardsRate, rewardsTotalSupply }, currencyKey) => {
+				const snxUSDPrice = exchangeRates[CRYPTO_CURRENCY_MAP.SNX];
+				const assetUSDPrice = exchangeRates[currencyKey];
 
-				const apr = weeklySNXRewards
-					.multipliedBy(exchangeRates[CRYPTO_CURRENCY_MAP.SNX])
-					.multipliedBy(WEEKS_IN_YEAR)
-					.dividedBy(openInterest);
+				const openInterest = shorts.multipliedBy(assetUSDPrice).dividedBy(selectPriceCurrencyRate);
+
+				const apr = rewardsRate
+					.times(SECONDS_IN_A_YR)
+					.times(snxUSDPrice)
+					.div(rewardsTotalSupply)
+					.div(assetUSDPrice);
 
 				return {
 					openInterest,
