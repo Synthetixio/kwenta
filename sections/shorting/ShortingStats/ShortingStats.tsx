@@ -17,10 +17,8 @@ import { CRYPTO_CURRENCY_MAP } from 'constants/currency';
 import { NO_VALUE } from 'constants/placeholder';
 
 import { formatCurrency, formatPercent, zeroBN } from 'utils/formatters/number';
-import { WEEKS_IN_YEAR } from 'utils/formatters/date';
 
 import { SYNTHS_TO_SHORT } from '../constants';
-
 import { Title } from '../common';
 
 const SECONDS_IN_A_YR = 365 * 24 * 60 * 60;
