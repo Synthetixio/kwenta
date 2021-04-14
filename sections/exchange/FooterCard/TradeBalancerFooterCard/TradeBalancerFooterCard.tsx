@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { DesktopOnlyView, MobileOrTabletView } from 'components/Media';
 
 import { MessageContainer, Message, MessageButton, FixedMessageContainerSpacer } from '../common';
-import { CurrencyKey } from 'constants/currency';
 
 type TradeBalancerFooterCardProps = {
 	attached?: boolean;

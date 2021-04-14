@@ -59,6 +59,7 @@ export const SYNTHS = [
 	'sAAPL',
 	'sNTFLX',
 	'sGOOG',
+	'sCOIN',
 	'sXAU',
 	'sXAG',
 	'sOIL',
@@ -125,6 +126,7 @@ export const AFTER_HOURS_SYNTHS = new Set([
 	SYNTHS_MAP.sAAPL,
 	SYNTHS_MAP.sNTFLX,
 	SYNTHS_MAP.sGOOG,
+	SYNTHS_MAP.sCOIN,
 ]);
 
 export const sUSD_EXCHANGE_RATE = 1;
