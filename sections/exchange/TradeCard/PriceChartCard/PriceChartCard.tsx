@@ -13,7 +13,7 @@ import LoaderIcon from 'assets/svg/app/loader.svg';
 import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
 import MarketClosureIcon from 'components/MarketClosureIcon';
 
-import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
+import { AFTER_HOURS_SYNTHS, CurrencyKey, SYNTHS_MAP } from 'constants/currency';
 import { PeriodLabel, PERIOD_LABELS_MAP, PERIOD_LABELS, PERIOD_IN_HOURS } from 'constants/period';
 
 import ChangePercent from 'components/ChangePercent';
@@ -43,8 +43,6 @@ type ChartCardProps = {
 	className?: string;
 	openAfterHoursModalCallback?: () => void;
 };
-
-const AFTER_HOURS_SYNTHS = [SYNTHS_MAP.sTSLA];
 
 const ChartCard: FC<ChartCardProps> = ({
 	side,
@@ -262,7 +260,7 @@ const ChartCard: FC<ChartCardProps> = ({
 							</OverlayMessageTitle>
 							<OverlayMessageSubtitle>
 								{openAfterHoursModalCallback != null &&
-								AFTER_HOURS_SYNTHS.includes(currencyKey ?? '') ? (
+								AFTER_HOURS_SYNTHS.has(currencyKey ?? '') ? (
 									<Trans
 										i18nKey="exchange.price-chart-card.overlay-messages.market-closure.after-hours"
 										values={{
