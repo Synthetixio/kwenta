@@ -150,7 +150,6 @@ const useExchange = ({
 
 	const isBaseCurrencyETH = baseCurrencyKey === CRYPTO_CURRENCY_MAP.ETH;
 	const isQuoteCurrencyETH = quoteCurrencyKey === CRYPTO_CURRENCY_MAP.ETH;
-	console.log(isQuoteCurrencyETH, quoteCurrencyKey);
 
 	const needsApproval = txProvider === '1inch' && !isQuoteCurrencyETH;
 
@@ -181,8 +180,6 @@ const useExchange = ({
 				: null,
 		[tokensMap, quoteCurrencyKey, isQuoteCurrencyETH]
 	);
-
-	console.log(quoteCurrencyTokenAddress);
 
 	const baseCurrencyTokenAddress = useMemo(
 		() =>
