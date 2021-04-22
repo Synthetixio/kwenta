@@ -1,4 +1,4 @@
-import { NetworkId } from '@synthetixio/js';
+import { NetworkId } from '@synthetixio/contracts-interface';
 
 import { CurrencyKey } from './currency';
 import { Period } from './period';
@@ -77,7 +77,7 @@ export const QUERY_KEYS = {
 	},
 	TokenLists: {
 		Synthetix: ['tokenLists', 'synthetix'],
-		OneInch: ['tokenLists', '1inch'],
+		Zapper: ['tokenLists', 'zapper'],
 	},
 	CMC: {
 		Quotes: (currencyKeys: CurrencyKey[]) => ['cmc', 'quotes', currencyKeys.join('|')],
