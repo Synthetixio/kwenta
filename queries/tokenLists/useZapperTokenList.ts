@@ -8,6 +8,7 @@ import { CRYPTO_CURRENCY_MAP, ETH_ADDRESS } from 'constants/currency';
 import ETHIcon from 'assets/svg/currencies/crypto/ETH.svg';
 
 import { TokenListQueryResponse, TokenListResponse } from './types';
+import { EXTERNAL_LINKS } from 'constants/links';
 
 const ether = {
 	address: ETH_ADDRESS,
@@ -19,11 +20,11 @@ const ether = {
 	tags: [],
 };
 
-const use1InchTokenList = (options?: QueryConfig<TokenListQueryResponse>) => {
+const useZapperTokenList = (options?: QueryConfig<TokenListQueryResponse>) => {
 	return useQuery<TokenListQueryResponse>(
-		QUERY_KEYS.TokenLists.OneInch,
+		QUERY_KEYS.TokenLists.Zapper,
 		async () => {
-			const response = await axios.get<TokenListResponse>('https://tokens.1inch.eth.link');
+			const response = await axios.get<TokenListResponse>(EXTERNAL_LINKS.TokenLists.Zapper);
 
 			const tokens = [ether, ...response.data.tokens];
 
@@ -42,4 +43,4 @@ const use1InchTokenList = (options?: QueryConfig<TokenListQueryResponse>) => {
 	);
 };
 
-export default use1InchTokenList;
+export default useZapperTokenList;
