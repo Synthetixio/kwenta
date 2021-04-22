@@ -252,7 +252,7 @@ const useBalancerExchange = ({
 			network?.id != null &&
 			(network.id === NetworkId.Mainnet || network.id === NetworkId.Kovan)
 		) {
-			const maxNoPools = 1;
+			const maxNoPools = 2;
 			const sor = new SOR(
 				provider as ethers.providers.BaseProvider,
 				new BigNumber(gasPrice),
