@@ -57,7 +57,7 @@ export const SYNTHS = [
 	'sFB',
 	'sAMZN',
 	'sAAPL',
-	'sNTFLX',
+	'sNFLX',
 	'sGOOG',
 	'sCOIN',
 	'sXAU',
@@ -124,7 +124,7 @@ export const AFTER_HOURS_SYNTHS = new Set([
 	SYNTHS_MAP.sFB,
 	SYNTHS_MAP.sAMZN,
 	SYNTHS_MAP.sAAPL,
-	SYNTHS_MAP.sNTFLX,
+	SYNTHS_MAP.sNFLX,
 	SYNTHS_MAP.sGOOG,
 	SYNTHS_MAP.sCOIN,
 ]);
