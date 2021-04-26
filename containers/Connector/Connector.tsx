@@ -7,6 +7,7 @@ import { ethers } from 'ethers';
 import synthetix from 'lib/synthetix';
 
 import { getDefaultNetworkId } from 'utils/network';
+import { getBisonTrailsRpcURL } from 'utils/bisontrails';
 
 import { ordersState } from 'store/orders';
 import { hasOrdersNotificationState } from 'store/ui';
@@ -42,12 +43,10 @@ const useConnector = () => {
 		const init = async () => {
 			// TODO: need to verify we support the network
 			const networkId = await getDefaultNetworkId();
+			const bisonTrailsRpc = getBisonTrailsRpcURL(networkId);
 
 			// @ts-ignore
-			const provider = new ethers.providers.InfuraProvider(
-				networkId,
-				process.env.NEXT_PUBLIC_INFURA_PROJECT_ID
-			);
+			const provider = new ethers.providers.JsonRpcProvider(bisonTrailsRpc, networkId);
 
 			synthetix.setContractSettings({
 				networkId,
