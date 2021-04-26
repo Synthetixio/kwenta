@@ -2,14 +2,16 @@ import onboard from 'bnc-onboard';
 import notify, { InitOptions } from 'bnc-notify';
 
 import { Subscriptions } from 'bnc-onboard/dist/src/interfaces';
-import { getInfuraRpcURL } from 'utils/infura';
+// import { getInfuraRpcURL } from 'utils/infura';
+import { getBisonTrailsRpcURL } from 'utils/bisontrails';
 
 import { Network } from 'store/wallet';
 
 import notifyMessages from 'translations/bnc-notify/notifyMessages';
 
 export const initOnboard = (network: Network, subscriptions: Subscriptions) => {
-	const infuraRpc = getInfuraRpcURL(network);
+	// const infuraRpc = getInfuraRpcURL(network);
+	const bisonTrailsRpc = getBisonTrailsRpcURL(network);
 
 	return onboard({
 		dappId: process.env.NEXT_PUBLIC_BN_ONBOARD_API_KEY,
@@ -22,23 +24,23 @@ export const initOnboard = (network: Network, subscriptions: Subscriptions) => {
 				{ walletName: 'metamask', preferred: true },
 				{
 					walletName: 'ledger',
-					rpcUrl: infuraRpc,
+					rpcUrl: bisonTrailsRpc,
 					preferred: true,
 				},
 				{
 					walletName: 'lattice',
 					appName: 'Kwenta',
-					rpcUrl: infuraRpc,
+					rpcUrl: bisonTrailsRpc,
 				},
 				{
 					walletName: 'trezor',
 					appUrl: 'https://www.synthetix.io',
 					email: 'info@synthetix.io',
-					rpcUrl: infuraRpc,
+					rpcUrl: bisonTrailsRpc,
 				},
 				{
 					walletName: 'walletConnect',
-					rpc: { [network.id]: infuraRpc },
+					rpc: { [network.id]: bisonTrailsRpc },
 					preferred: true,
 				},
 				{ walletName: 'coinbase', preferred: true },
@@ -47,9 +49,9 @@ export const initOnboard = (network: Network, subscriptions: Subscriptions) => {
 					apiKey: process.env.NEXT_PUBLIC_PORTIS_APP_ID,
 					preferred: true,
 				},
-				{ walletName: 'trust', rpcUrl: infuraRpc },
+				{ walletName: 'trust', rpcUrl: bisonTrailsRpc },
 				{ walletName: 'dapper' },
-				{ walletName: 'walletLink', rpcUrl: infuraRpc },
+				{ walletName: 'walletLink', rpcUrl: bisonTrailsRpc },
 				{ walletName: 'torus' },
 				{ walletName: 'status' },
 				// { walletName: 'unilogin' },
