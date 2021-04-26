@@ -11,7 +11,7 @@ import notifyMessages from 'translations/bnc-notify/notifyMessages';
 
 export const initOnboard = (network: Network, subscriptions: Subscriptions) => {
 	// const infuraRpc = getInfuraRpcURL(network);
-	const bisonTrailsRpc = getBisonTrailsRpcURL(network);
+	const bisonTrailsRpc = getBisonTrailsRpcURL();
 
 	return onboard({
 		dappId: process.env.NEXT_PUBLIC_BN_ONBOARD_API_KEY,

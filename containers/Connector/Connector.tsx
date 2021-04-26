@@ -43,7 +43,7 @@ const useConnector = () => {
 		const init = async () => {
 			// TODO: need to verify we support the network
 			const networkId = await getDefaultNetworkId();
-			const bisonTrailsRpc = getBisonTrailsRpcURL(networkId);
+			const bisonTrailsRpc = getBisonTrailsRpcURL();
 
 			// @ts-ignore
 			const provider = new ethers.providers.JsonRpcProvider(bisonTrailsRpc, networkId);
