@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
@@ -5,6 +6,8 @@ import Slider from 'react-slick';
 import { Svg } from 'react-optimized-image';
 
 import ArrowsIcon from 'assets/svg/app/arrows.svg';
+import SingleChartIcon from 'assets/svg/app/single-chart.svg';
+import DoubleChartIcon from 'assets/svg/app/double-chart.svg';
 
 import AppLayout from 'sections/shared/Layout/AppLayout';
 
@@ -18,6 +21,7 @@ import {
 	PageContent,
 	MobileContainerMixin,
 	SwapCurrenciesButton,
+	FlexDivCol,
 } from 'styles/common';
 
 import { DesktopOnlyView, MobileOrTabletView } from 'components/Media';
@@ -38,6 +42,7 @@ const ExchangePage = () => {
 		basePriceChartCard,
 		handleCurrencySwap,
 		footerCard,
+		combinedPriceChartCard,
 	} = useExchange({
 		showPriceCard: true,
 		showMarketDetailsCard: true,
@@ -46,6 +51,9 @@ const ExchangePage = () => {
 		persistSelectedCurrencies: true,
 		showNoSynthsCard: true,
 	});
+
+	const [isShowingSingleChart, setIsShowingSingleChart] = useState(true);
+	const toggleIsShowingSingleChart = () => setIsShowingSingleChart((bool) => !bool);
 
 	return (
 		<>
@@ -65,23 +73,59 @@ const ExchangePage = () => {
 			<AppLayout>
 				<StyledPageContent>
 					<DesktopOnlyView>
-						<DesktopCardsContainer>
-							<LeftCardContainer data-testid="left-side">
-								{quoteCurrencyCard}
-								{quotePriceChartCard}
-								{quoteMarketDetailsCard}
-							</LeftCardContainer>
-							<Spacer>
-								<SwapCurrenciesButton onClick={handleCurrencySwap} data-testid="swap-btn">
-									<Svg src={ArrowsIcon} />
-								</SwapCurrenciesButton>
-							</Spacer>
-							<RightCardContainer data-testid="right-side">
-								{baseCurrencyCard}
-								{basePriceChartCard}
-								{baseMarketDetailsCard}
-							</RightCardContainer>
-						</DesktopCardsContainer>
+						<DesktopContainer>
+							<DesktopCardsContainer>
+								<LeftCardContainer data-testid="left-side">{quoteCurrencyCard}</LeftCardContainer>
+								<Spacer>
+									<SwapCurrenciesButton onClick={handleCurrencySwap} data-testid="swap-btn">
+										<Svg src={ArrowsIcon} />
+									</SwapCurrenciesButton>
+								</Spacer>
+								<RightCardContainer data-testid="right-side">{baseCurrencyCard}</RightCardContainer>
+							</DesktopCardsContainer>
+
+							{footerCard}
+
+							<ChartsTogglerContainer>
+								<ChartsToggler onClick={toggleIsShowingSingleChart}>
+									<ChartsTogglerText active={isShowingSingleChart}>
+										{t('exchange.charts.single')}
+									</ChartsTogglerText>
+									{isShowingSingleChart ? (
+										<Svg src={SingleChartIcon} />
+									) : (
+										<Svg src={DoubleChartIcon} />
+									)}
+									<ChartsTogglerText active={!isShowingSingleChart}>
+										{t('exchange.charts.double')}
+									</ChartsTogglerText>
+								</ChartsToggler>
+							</ChartsTogglerContainer>
+
+							{isShowingSingleChart ? (
+								combinedPriceChartCard
+							) : (
+								<DesktopCardsContainer>
+									<LeftCardContainer data-testid="left-side">
+										{quotePriceChartCard}
+									</LeftCardContainer>
+									<Spacer></Spacer>
+									<RightCardContainer data-testid="right-side">
+										{basePriceChartCard}
+									</RightCardContainer>
+								</DesktopCardsContainer>
+							)}
+
+							<DesktopCardsContainer>
+								<LeftCardContainer data-testid="left-side">
+									{quoteMarketDetailsCard}
+								</LeftCardContainer>
+								<Spacer></Spacer>
+								<RightCardContainer data-testid="right-side">
+									{baseMarketDetailsCard}
+								</RightCardContainer>
+							</DesktopCardsContainer>
+						</DesktopContainer>
 					</DesktopOnlyView>
 					<MobileOrTabletView>
 						<MobileContainer>
@@ -108,7 +152,6 @@ const ExchangePage = () => {
 							</SliderContainer>
 						</MobileContainer>
 					</MobileOrTabletView>
-					{footerCard}
 				</StyledPageContent>
 			</AppLayout>
 		</>
@@ -139,6 +182,8 @@ const StyledPageContent = styled(PageContent)`
 	`}
 	}
 `;
+
+const DesktopContainer = styled(FlexDivCol)``;
 
 const DesktopCardsContainer = styled(FlexDiv)`
 	align-items: flex-start;
@@ -194,6 +239,29 @@ const SliderContent = styled.div``;
 
 const SliderContentSpacer = styled.div`
 	height: 16px;
+`;
+
+const ChartsTogglerContainer = styled.div`
+	position: relative;
+	z-index: 1000;
+`;
+
+const ChartsToggler = styled.div`
+	position: absolute;
+	left: calc(50% - 50px);
+	width: 135px;
+	height: 20px;
+	border-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background: ${(props) => props.theme.colors.black};
+`;
+
+const ChartsTogglerText = styled.div<{ active: boolean }>`
+	text-transform: uppercase;
+	color: ${(props) => (props.active ? props.theme.colors.white : props.theme.colors.silver)};
 `;
 
 export default ExchangePage;

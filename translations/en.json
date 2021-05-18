@@ -244,6 +244,10 @@
 		},
 		"errors": {
 			"fee-reclamation": "There is a waiting period after completing a trade. Please wait approximately {{waitingPeriod}} minutes before attempting to exchange {{currencyKey}}"
+		},
+		"charts": {
+			"single": "single",
+			"double": "double"
 		}
 	},
 	"dashboard": {
