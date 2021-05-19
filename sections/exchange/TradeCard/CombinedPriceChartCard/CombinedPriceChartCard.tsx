@@ -84,10 +84,7 @@ const ChartCard: FC<ChartCardProps> = ({
 
 	// console.log(baseRates[baseRates.length - 1], quoteRates[quoteRates.length - 1]);
 
-	const change = useMemo(() => (!(baseChange && quoteChange) ? 0 : baseChange - quoteChange), [
-		quoteChange,
-		baseChange,
-	]); // TODO: (mitchel) change != null
+	const change = useMemo(() => (baseChange! ?? 1) - (quoteChange! ?? 1), [quoteChange, baseChange]); // TODO: (mitchel) change != null
 
 	const isChangePositive = change != null && change >= 0;
 	const chartColor = isChangePositive ? theme.colors.green : theme.colors.red;
