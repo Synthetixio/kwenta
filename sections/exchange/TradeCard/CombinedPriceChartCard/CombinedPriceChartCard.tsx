@@ -2,6 +2,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { useContext, FC, useState, useMemo } from 'react';
 import { AreaChart, XAxis, YAxis, Area, Tooltip } from 'recharts';
 import isNumber from 'lodash/isNumber';
+import intersection from 'lodash/intersection';
 import get from 'lodash/get';
 import styled, { css, ThemeContext } from 'styled-components';
 import format from 'date-fns/format';
@@ -127,16 +128,31 @@ const ChartCard: FC<ChartCardProps> = ({
 		// }
 		// return rates;
 
-		return quoteRates
-			.map((a, i) => {
-				const b = baseRates[i];
-				if (!(a && b)) return null;
-				return {
-					rate: b.rate / a.rate,
-					timestamp: a.timestamp,
-				};
-			})
-			.filter((x) => x!);
+		// return quoteRates
+		// 	.map((a, i) => {
+		// 		const b = baseRates[i];
+		// 		if (!(a && b)) return null;
+		// 		return {
+		// 			rate: b.rate / a.rate,
+		// 			timestamp: a.timestamp,
+		// 		};
+		// 	})
+		// 	.filter((x) => x!);
+
+		const baseBlocks = new Map(baseRates.map((r) => [r.block, r]));
+		const quoteBlocks = new Map(quoteRates.map((r) => [r.block, r]));
+		const commonBlocks = intersection(
+			Array.from(baseBlocks.keys()),
+			Array.from(quoteBlocks.keys())
+		);
+		return commonBlocks.map((block) => {
+			const { timestamp, rate: baseRate } = baseBlocks.get(block)!;
+			const { rate: quoteRate } = quoteBlocks.get(block)!;
+			return {
+				timestamp,
+				rate: baseRate / quoteRate,
+			};
+		});
 	}, [baseRates, quoteRates]);
 
 	const CustomTooltip = ({
