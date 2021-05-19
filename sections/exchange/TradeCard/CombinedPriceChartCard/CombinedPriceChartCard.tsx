@@ -2,7 +2,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { useContext, FC, useState, useMemo } from 'react';
 import { AreaChart, XAxis, YAxis, Area, Tooltip } from 'recharts';
 import isNumber from 'lodash/isNumber';
-import intersection from 'lodash/intersection';
+import orderBy from 'lodash/orderBy';
 import get from 'lodash/get';
 import styled, { css, ThemeContext } from 'styled-components';
 import format from 'date-fns/format';
@@ -119,7 +119,7 @@ const ChartCard: FC<ChartCardProps> = ({
 	};
 
 	// TODO(mitchel):
-	const computedRates = useMemo(() => {
+	const changes = useMemo(() => {
 		// if (selectPriceCurrencyRate != null) {
 		// 	return rates.map((rateData) => ({
 		// 		...rateData,
@@ -128,34 +128,39 @@ const ChartCard: FC<ChartCardProps> = ({
 		// }
 		// return rates;
 
-		const baseBlocks = new Map(baseRates.map((r) => [r.block, r]));
-		const quoteBlocks = new Map(quoteRates.map((r) => [r.block, r]));
-		const commonBlocks = intersection(
-			Array.from(baseBlocks.keys()),
-			Array.from(quoteBlocks.keys())
+		if (!(baseRates.length && quoteRates.length)) return [];
+
+		const allRates: {
+			isBaseRate?: boolean;
+			timestamp: number;
+			rate: number;
+		}[] = orderBy(
+			[...baseRates.map((r) => ({ ...r, isBaseRate: true })), ...quoteRates],
+			'timestamp'
 		);
 
-		if (commonBlocks.length !== 0) {
-			return commonBlocks.map((block) => {
-				const { timestamp, rate: baseRate } = baseBlocks.get(block)!;
-				const { rate: quoteRate } = quoteBlocks.get(block)!;
-				return {
-					timestamp,
-					rate: baseRate / quoteRate,
-				};
-			});
-		} else {
-			return quoteRates
-				.map((a, i) => {
-					const b = baseRates[i];
-					if (!(a && b)) return null;
-					return {
-						rate: b.rate / a.rate,
-						timestamp: a.timestamp,
-					};
-				})
-				.filter((x) => x!);
-		}
+		let prevBaseRate = baseRates[0].rate;
+		let prevQuoteRate = quoteRates[0].rate;
+		const initalChange = {
+			timestamp: baseRates[0].timestamp,
+			change: prevBaseRate / prevQuoteRate,
+		};
+
+		return allRates.reduce(
+			(changes, { isBaseRate, rate, timestamp }) => {
+				let change: number = 0;
+				if (isBaseRate) {
+					change = rate / prevQuoteRate;
+					prevBaseRate = rate;
+				} else {
+					change = prevBaseRate / rate;
+					prevQuoteRate = rate;
+				}
+
+				return changes.concat({ timestamp, change });
+			},
+			[initalChange]
+		);
 	}, [baseRates, quoteRates]);
 
 	const CustomTooltip = ({
@@ -233,10 +238,10 @@ const ChartCard: FC<ChartCardProps> = ({
 						id={`rechartsResponsiveContainer-${side}-${baseCurrencyKey}/${quoteCurrencyKey}`}
 					>
 						<AreaChart
-							data={computedRates}
+							data={changes}
 							margin={{ right: 0, bottom: 0, left: 0, top: 0 }}
 							onMouseMove={(e: any) => {
-								const currentRate = get(e, 'activePayload[0].payload.rate', null);
+								const currentRate = get(e, 'activePayload[0].payload.change', null);
 								if (currentRate) {
 									setCurrentPrice(currentRate);
 								} else {
@@ -285,7 +290,7 @@ const ChartCard: FC<ChartCardProps> = ({
 								tickFormatter={(val) => formatNumber(val, {})}
 							/>
 							<Area
-								dataKey="rate"
+								dataKey="change"
 								stroke={chartColor}
 								dot={false}
 								strokeWidth={2}
