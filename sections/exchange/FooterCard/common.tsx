@@ -57,9 +57,7 @@ export const MessageContainer = styled(GridDivCentered)<{ attached?: boolean }>`
 	grid-template-columns: 1fr auto;
 	background-color: ${(props) => props.theme.colors.elderberry};
 	padding: 16px 32px;
-	max-width: 800px;
-	margin: 0px auto;
-	margin-bottom: 40px;
+	margin: 0 0 20px;
 
 	/*
 	width: 100%;

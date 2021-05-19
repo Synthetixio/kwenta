@@ -74,11 +74,11 @@ const ExchangePage = () => {
 				<StyledPageContent>
 					<DesktopOnlyView>
 						<DesktopContainer>
-							<Spacer>
+							<SwapCurrenciesButtonContainer>
 								<SwapCurrenciesButton onClick={handleCurrencySwap} data-testid="swap-btn">
 									<Svg src={ArrowsIcon} />
 								</SwapCurrenciesButton>
-							</Spacer>
+							</SwapCurrenciesButtonContainer>
 
 							<DesktopCardsContainer>
 								<LeftCardContainer data-testid="left-side">{quoteCurrencyCard}</LeftCardContainer>
@@ -111,7 +111,6 @@ const ExchangePage = () => {
 										<LeftCardContainer data-testid="left-side">
 											{quotePriceChartCard}
 										</LeftCardContainer>
-										<Spacer></Spacer>
 										<RightCardContainer data-testid="right-side">
 											{basePriceChartCard}
 										</RightCardContainer>
@@ -123,7 +122,6 @@ const ExchangePage = () => {
 								<LeftCardContainer data-testid="left-side">
 									{quoteMarketDetailsCard}
 								</LeftCardContainer>
-								<Spacer></Spacer>
 								<RightCardContainer data-testid="right-side">
 									{baseMarketDetailsCard}
 								</RightCardContainer>
@@ -166,8 +164,7 @@ const StyledPageContent = styled(PageContent)`
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
-		padding-bottom: 40px;
-		padding-top: 55px;
+		padding: 55px 100px 40px;
 	`}
 
 	.currency-card {
@@ -195,13 +192,11 @@ const DesktopCardsContainer = styled.div`
 	display: grid;
 	padding-bottom: 2px;
 	gap: 2px;
-	width: 800px;
-	margin: 0px auto;
 	grid-template-columns: 1fr 1fr;
 	flex: 1;
 `;
 
-const Spacer = styled.div`
+const SwapCurrenciesButtonContainer = styled.div`
 	align-self: flex-start;
 	margin-top: 43px;
 	position: absolute;

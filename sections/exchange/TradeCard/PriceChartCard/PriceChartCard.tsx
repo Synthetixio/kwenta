@@ -42,6 +42,7 @@ type ChartCardProps = {
 	priceRate: number | null;
 	className?: string;
 	openAfterHoursModalCallback?: () => void;
+	alignRight?: boolean;
 };
 
 const ChartCard: FC<ChartCardProps> = ({
@@ -49,6 +50,7 @@ const ChartCard: FC<ChartCardProps> = ({
 	currencyKey,
 	priceRate,
 	openAfterHoursModalCallback,
+	alignRight,
 	...rest
 }) => {
 	const { t } = useTranslation();
@@ -128,7 +130,11 @@ const ChartCard: FC<ChartCardProps> = ({
 	return (
 		<Container {...rest}>
 			<ChartHeader>
-				<FlexDivRowCentered>
+				<ChartHeaderTop
+					{...{
+						alignRight,
+					}}
+				>
 					{currencyKey != null ? (
 						<>
 							<CurrencyLabel>
@@ -153,9 +159,9 @@ const ChartCard: FC<ChartCardProps> = ({
 					) : (
 						<CurrencyLabel>{t('common.price')}</CurrencyLabel>
 					)}
-				</FlexDivRowCentered>
+				</ChartHeaderTop>
 				{!isMarketClosed && (
-					<Actions>
+					<Actions {...{ alignRight }}>
 						{PERIOD_LABELS.map((period) => (
 							<StyledTextButton
 								key={period.value}
@@ -314,9 +320,16 @@ const LinkTag = styled.span`
 	}
 `;
 
-const ChartHeader = styled(FlexDivRowCentered)`
-	border-bottom: 1px solid #171a1d;
+const ChartHeader = styled.div`
+	display: block;
 	padding-bottom: 5px;
+	position: relative;
+	top: 6px;
+`;
+
+const ChartHeaderTop = styled(FlexDivRowCentered)<{ alignRight?: boolean }>`
+	border-bottom: 1px solid #171a1d;
+	justify-content: ${(props) => (props.alignRight ? 'flex-end' : 'flex-start')};
 `;
 
 const CurrencyLabel = styled.span`
@@ -333,8 +346,10 @@ const CurrencyPrice = styled.span`
 	padding-right: 20px;
 `;
 
-const Actions = styled(GridDivCenteredCol)`
+const Actions = styled(GridDivCenteredCol)<{ alignRight?: boolean }>`
 	grid-gap: 8px;
+	justify-content: ${(props) => (props.alignRight ? 'flex-end' : 'flex-start')};
+
 	${media.lessThan('sm')`
 		overflow: auto;
 		width: 70px;

@@ -893,6 +893,7 @@ const useExchange = ({
 			currencyKey={baseCurrencyKey}
 			priceRate={basePriceRate}
 			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
+			alignRight
 		/>
 	) : null;
 

@@ -344,8 +344,6 @@ const ChartCard: FC<ChartCardProps> = ({
 };
 
 const Container = styled.div`
-	width: 800px;
-	margin: 0 auto;
 	position: relative;
 `;
 
