@@ -128,31 +128,34 @@ const ChartCard: FC<ChartCardProps> = ({
 		// }
 		// return rates;
 
-		// return quoteRates
-		// 	.map((a, i) => {
-		// 		const b = baseRates[i];
-		// 		if (!(a && b)) return null;
-		// 		return {
-		// 			rate: b.rate / a.rate,
-		// 			timestamp: a.timestamp,
-		// 		};
-		// 	})
-		// 	.filter((x) => x!);
-
 		const baseBlocks = new Map(baseRates.map((r) => [r.block, r]));
 		const quoteBlocks = new Map(quoteRates.map((r) => [r.block, r]));
 		const commonBlocks = intersection(
 			Array.from(baseBlocks.keys()),
 			Array.from(quoteBlocks.keys())
 		);
-		return commonBlocks.map((block) => {
-			const { timestamp, rate: baseRate } = baseBlocks.get(block)!;
-			const { rate: quoteRate } = quoteBlocks.get(block)!;
-			return {
-				timestamp,
-				rate: baseRate / quoteRate,
-			};
-		});
+
+		if (commonBlocks.length !== 0) {
+			return commonBlocks.map((block) => {
+				const { timestamp, rate: baseRate } = baseBlocks.get(block)!;
+				const { rate: quoteRate } = quoteBlocks.get(block)!;
+				return {
+					timestamp,
+					rate: baseRate / quoteRate,
+				};
+			});
+		} else {
+			return quoteRates
+				.map((a, i) => {
+					const b = baseRates[i];
+					if (!(a && b)) return null;
+					return {
+						rate: b.rate / a.rate,
+						timestamp: a.timestamp,
+					};
+				})
+				.filter((x) => x!);
+		}
 	}, [baseRates, quoteRates]);
 
 	const CustomTooltip = ({
