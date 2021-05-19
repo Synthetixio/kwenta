@@ -8,7 +8,7 @@ import { Svg } from 'react-optimized-image';
 import ArrowsIcon from 'assets/svg/app/arrows.svg';
 import SingleChartIcon from 'assets/svg/app/single-chart.svg';
 import DoubleChartIcon from 'assets/svg/app/double-chart.svg';
-
+import { zIndex } from 'constants/ui';
 import AppLayout from 'sections/shared/Layout/AppLayout';
 
 import { formatCurrency } from 'utils/formatters/number';
@@ -74,13 +74,14 @@ const ExchangePage = () => {
 				<StyledPageContent>
 					<DesktopOnlyView>
 						<DesktopContainer>
+							<Spacer>
+								<SwapCurrenciesButton onClick={handleCurrencySwap} data-testid="swap-btn">
+									<Svg src={ArrowsIcon} />
+								</SwapCurrenciesButton>
+							</Spacer>
+
 							<DesktopCardsContainer>
 								<LeftCardContainer data-testid="left-side">{quoteCurrencyCard}</LeftCardContainer>
-								<Spacer>
-									<SwapCurrenciesButton onClick={handleCurrencySwap} data-testid="swap-btn">
-										<Svg src={ArrowsIcon} />
-									</SwapCurrenciesButton>
-								</Spacer>
 								<RightCardContainer data-testid="right-side">{baseCurrencyCard}</RightCardContainer>
 							</DesktopCardsContainer>
 
@@ -102,19 +103,21 @@ const ExchangePage = () => {
 								</ChartsToggler>
 							</ChartsTogglerContainer>
 
-							{isShowingSingleChart ? (
-								combinedPriceChartCard
-							) : (
-								<DesktopCardsContainer>
-									<LeftCardContainer data-testid="left-side">
-										{quotePriceChartCard}
-									</LeftCardContainer>
-									<Spacer></Spacer>
-									<RightCardContainer data-testid="right-side">
-										{basePriceChartCard}
-									</RightCardContainer>
-								</DesktopCardsContainer>
-							)}
+							<ChartsContainer>
+								{isShowingSingleChart ? (
+									combinedPriceChartCard
+								) : (
+									<DesktopCardsContainer>
+										<LeftCardContainer data-testid="left-side">
+											{quotePriceChartCard}
+										</LeftCardContainer>
+										<Spacer></Spacer>
+										<RightCardContainer data-testid="right-side">
+											{basePriceChartCard}
+										</RightCardContainer>
+									</DesktopCardsContainer>
+								)}
+							</ChartsContainer>
 
 							<DesktopCardsContainer>
 								<LeftCardContainer data-testid="left-side">
@@ -168,7 +171,6 @@ const StyledPageContent = styled(PageContent)`
 	`}
 
 	.currency-card {
-		width: 312px;
 		${media.lessThan('md')`
 		width: 100%;
 	`}
@@ -183,34 +185,40 @@ const StyledPageContent = styled(PageContent)`
 	}
 `;
 
+const ChartsContainer = styled.div`
+	margin-bottom: 20px;
+`;
+
 const DesktopContainer = styled(FlexDivCol)``;
 
-const DesktopCardsContainer = styled(FlexDiv)`
-	align-items: flex-start;
-	justify-content: center;
-	padding-bottom: 24px;
+const DesktopCardsContainer = styled.div`
+	display: grid;
+	padding-bottom: 2px;
+	gap: 2px;
+	width: 800px;
+	margin: 0px auto;
+	grid-template-columns: 1fr 1fr;
+	flex: 1;
 `;
 
 const Spacer = styled.div`
-	padding: 0 16px;
 	align-self: flex-start;
 	margin-top: 43px;
+	position: absolute;
+	left: calc(50% - 16px);
+	z-index: ${zIndex.BASE + 10};
 `;
 
 const CardContainerMixin = `
 	display: grid;
-	grid-gap: 24px;
-	width: 100%;
 `;
 
 const LeftCardContainer = styled.div`
 	${CardContainerMixin};
-	justify-items: right;
 `;
 
 const RightCardContainer = styled.div`
 	${CardContainerMixin};
-	justify-items: left;
 `;
 
 const MobileContainer = styled(FlexDivColCentered)`
