@@ -1,8 +1,8 @@
+import { useContext, FC, useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { useContext, FC, useState, useMemo } from 'react';
 import { AreaChart, XAxis, YAxis, Area, Tooltip } from 'recharts';
 import isNumber from 'lodash/isNumber';
-import orderBy from 'lodash/orderBy';
+
 import get from 'lodash/get';
 import styled, { css, ThemeContext } from 'styled-components';
 import format from 'date-fns/format';
@@ -30,14 +30,12 @@ import {
 
 import { formatNumber } from 'utils/formatters/number';
 
-import useHistoricalRatesQuery from 'queries/rates/useHistoricalRatesQuery';
 import media from 'styles/media';
 
-import { Side } from '../types';
 import useMarketClosed from 'hooks/useMarketClosed';
+import useCombinedRates from 'sections/exchange/hooks/useCombinedRates';
 
 type ChartCardProps = {
-	side: Side;
 	baseCurrencyKey: CurrencyKey | null;
 	quoteCurrencyKey: CurrencyKey | null;
 	basePriceRate: number | null;
@@ -47,7 +45,6 @@ type ChartCardProps = {
 };
 
 const ChartCard: FC<ChartCardProps> = ({
-	side,
 	baseCurrencyKey,
 	quoteCurrencyKey,
 	basePriceRate,
@@ -57,6 +54,15 @@ const ChartCard: FC<ChartCardProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const [selectedPeriod, setSelectedPeriod] = useState<PeriodLabel>(PERIOD_LABELS_MAP.ONE_DAY);
+
+	const { changes, noData, change, isLoadingRates } = useCombinedRates({
+		baseCurrencyKey,
+		quoteCurrencyKey,
+		basePriceRate,
+		quotePriceRate,
+		selectedPeriod,
+	});
+
 	const {
 		isMarketClosed: isBaseMarketClosed,
 		marketClosureReason: baseMarketClosureReason,
@@ -72,20 +78,6 @@ const ChartCard: FC<ChartCardProps> = ({
 	const theme = useContext(ThemeContext);
 	const [currentPrice, setCurrentPrice] = useState<number | null>(null);
 
-	const baseHistoricalRates = useHistoricalRatesQuery(baseCurrencyKey, selectedPeriod.period);
-	const quoteHistoricalRates = useHistoricalRatesQuery(quoteCurrencyKey, selectedPeriod.period);
-
-	const baseChange = useMemo(() => baseHistoricalRates.data?.change ?? null, [baseHistoricalRates]);
-	const quoteChange = useMemo(() => quoteHistoricalRates.data?.change ?? null, [
-		quoteHistoricalRates,
-	]);
-	const baseRates = useMemo(() => baseHistoricalRates.data?.rates ?? [], [baseHistoricalRates]);
-	const quoteRates = useMemo(() => quoteHistoricalRates.data?.rates ?? [], [quoteHistoricalRates]);
-
-	// console.log(baseRates[baseRates.length - 1], quoteRates[quoteRates.length - 1]);
-
-	const change = useMemo(() => (baseChange! ?? 1) - (quoteChange! ?? 1), [quoteChange, baseChange]); // TODO: (mitchel) change != null
-
 	const isChangePositive = change != null && change >= 0;
 	const chartColor = isChangePositive ? theme.colors.green : theme.colors.red;
 
@@ -95,70 +87,16 @@ const ChartCard: FC<ChartCardProps> = ({
 	const price = currentPrice; //  || priceRate;
 
 	const showOverlayMessage = isMarketClosed;
-	const showLoader = baseHistoricalRates.isLoading || quoteHistoricalRates.isLoading;
+	const showLoader = isLoadingRates;
 	const disabledInteraction = showLoader || showOverlayMessage;
-	const baseNoData =
-		baseHistoricalRates.isSuccess &&
-		baseHistoricalRates.data &&
-		baseHistoricalRates.data.rates.length === 0;
-	const quoteNoData =
-		quoteHistoricalRates.isSuccess &&
-		quoteHistoricalRates.data &&
-		quoteHistoricalRates.data.rates.length === 0;
-	const noData = baseNoData || quoteNoData;
 
-	let linearGradientId = `priceChartCardArea-${side}`;
+	let linearGradientId = `priceChartCardArea`;
 
 	const fontStyle = {
 		fontSize: '12px',
 		fill: theme.colors.white,
 		fontFamily: theme.fonts.mono,
 	};
-
-	// TODO(mitchel):
-	const changes = useMemo(() => {
-		// if (selectPriceCurrencyRate != null) {
-		// 	return rates.map((rateData) => ({
-		// 		...rateData,
-		// 		rate: rateData.rate / selectPriceCurrencyRate,
-		// 	}));
-		// }
-		// return rates;
-
-		if (!(baseRates.length && quoteRates.length)) return [];
-
-		const allRates: {
-			isBaseRate?: boolean;
-			timestamp: number;
-			rate: number;
-		}[] = orderBy(
-			[...baseRates.map((r) => ({ ...r, isBaseRate: true })), ...quoteRates],
-			'timestamp'
-		);
-
-		let prevBaseRate = baseRates[0].rate;
-		let prevQuoteRate = quoteRates[0].rate;
-		const initalChange = {
-			timestamp: baseRates[0].timestamp,
-			change: prevBaseRate / prevQuoteRate,
-		};
-
-		return allRates.reduce(
-			(changes, { isBaseRate, rate, timestamp }) => {
-				let change: number = 0;
-				if (isBaseRate) {
-					change = rate / prevQuoteRate;
-					prevBaseRate = rate;
-				} else {
-					change = prevBaseRate / rate;
-					prevQuoteRate = rate;
-				}
-
-				return changes.concat({ timestamp, change });
-			},
-			[initalChange]
-		);
-	}, [baseRates, quoteRates]);
 
 	const CustomTooltip = ({
 		active,
@@ -232,7 +170,7 @@ const ChartCard: FC<ChartCardProps> = ({
 					<RechartsResponsiveContainer
 						width="100%"
 						height="100%"
-						id={`rechartsResponsiveContainer-${side}-${baseCurrencyKey}/${quoteCurrencyKey}`}
+						id={`rechartsResponsiveContainer-${baseCurrencyKey}/${quoteCurrencyKey}`}
 					>
 						<AreaChart
 							data={changes}

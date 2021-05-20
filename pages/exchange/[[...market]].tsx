@@ -16,7 +16,6 @@ import { formatCurrency } from 'utils/formatters/number';
 import media from 'styles/media';
 
 import {
-	FlexDiv,
 	FlexDivColCentered,
 	PageContent,
 	MobileContainerMixin,
@@ -43,6 +42,7 @@ const ExchangePage = () => {
 		handleCurrencySwap,
 		footerCard,
 		combinedPriceChartCard,
+		combinedMarketDetailsCard,
 	} = useExchange({
 		showPriceCard: true,
 		showMarketDetailsCard: true,
@@ -80,12 +80,16 @@ const ExchangePage = () => {
 								</SwapCurrenciesButton>
 							</SwapCurrenciesButtonContainer>
 
-							<DesktopCardsContainer>
-								<LeftCardContainer data-testid="left-side">{quoteCurrencyCard}</LeftCardContainer>
-								<RightCardContainer data-testid="right-side">{baseCurrencyCard}</RightCardContainer>
-							</DesktopCardsContainer>
+							<PageWidthContainer>
+								<DesktopCardsContainer>
+									<LeftCardContainer data-testid="left-side">{quoteCurrencyCard}</LeftCardContainer>
+									<RightCardContainer data-testid="right-side">
+										{baseCurrencyCard}
+									</RightCardContainer>
+								</DesktopCardsContainer>
+							</PageWidthContainer>
 
-							{footerCard}
+							<PageWidthContainer>{footerCard}</PageWidthContainer>
 
 							<ChartsTogglerContainer>
 								<ChartsToggler onClick={toggleIsShowingSingleChart}>
@@ -105,7 +109,7 @@ const ExchangePage = () => {
 
 							<ChartsContainer>
 								{isShowingSingleChart ? (
-									combinedPriceChartCard
+									<PageWidthContainer>{combinedPriceChartCard}</PageWidthContainer>
 								) : (
 									<DesktopCardsContainer>
 										<LeftCardContainer data-testid="left-side">
@@ -118,14 +122,18 @@ const ExchangePage = () => {
 								)}
 							</ChartsContainer>
 
-							<DesktopCardsContainer>
-								<LeftCardContainer data-testid="left-side">
-									{quoteMarketDetailsCard}
-								</LeftCardContainer>
-								<RightCardContainer data-testid="right-side">
-									{baseMarketDetailsCard}
-								</RightCardContainer>
-							</DesktopCardsContainer>
+							{isShowingSingleChart ? (
+								<PageWidthContainer>{combinedMarketDetailsCard}</PageWidthContainer>
+							) : (
+								<DesktopCardsContainer>
+									<LeftCardContainer data-testid="left-side">
+										{quoteMarketDetailsCard}
+									</LeftCardContainer>
+									<RightCardContainer data-testid="right-side">
+										{baseMarketDetailsCard}
+									</RightCardContainer>
+								</DesktopCardsContainer>
+							)}
 						</DesktopContainer>
 					</DesktopOnlyView>
 					<MobileOrTabletView>
@@ -164,7 +172,7 @@ const StyledPageContent = styled(PageContent)`
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
-		padding: 55px 100px 40px;
+		padding: 55px 40px 40px;
 	`}
 
 	.currency-card {
@@ -174,7 +182,6 @@ const StyledPageContent = styled(PageContent)`
 	}
 
 	.market-details-card {
-		max-width: 618px;
 		width: 100%;
 		${media.lessThan('md')`
 		max-width: unset;
@@ -184,6 +191,11 @@ const StyledPageContent = styled(PageContent)`
 
 const ChartsContainer = styled.div`
 	margin-bottom: 20px;
+`;
+
+const PageWidthContainer = styled.div<{ set?: boolean }>`
+	width: ${(props) => (props.set ?? true ? '960px' : 'unset')};
+	margin: ${(props) => (props.set ?? true ? '0 auto' : 'unset')};
 `;
 
 const DesktopContainer = styled(FlexDivCol)``;

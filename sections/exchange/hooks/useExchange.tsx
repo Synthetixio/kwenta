@@ -38,6 +38,7 @@ import useCoinGeckoTokenPricesQuery from 'queries/coingecko/useCoinGeckoTokenPri
 import CurrencyCard from 'sections/exchange/TradeCard/CurrencyCard';
 import PriceChartCard from 'sections/exchange/TradeCard/PriceChartCard';
 import CombinedPriceChartCard from 'sections/exchange/TradeCard/CombinedPriceChartCard';
+import CombinedMarketDetailsCard from 'sections/exchange/TradeCard/CombinedMarketDetailsCard';
 import MarketDetailsCard from 'sections/exchange/TradeCard/MarketDetailsCard';
 import TradeSummaryCard from 'sections/exchange/FooterCard/TradeSummaryCard';
 import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
@@ -903,9 +904,14 @@ const useExchange = ({
 
 	const combinedPriceChartCard = showPriceCard ? (
 		<CombinedPriceChartCard
-			side="base"
 			{...{ baseCurrencyKey, basePriceRate, quoteCurrencyKey, quotePriceRate }}
 			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
+		/>
+	) : null;
+
+	const combinedMarketDetailsCard = showMarketDetailsCard ? (
+		<CombinedMarketDetailsCard
+			{...{ baseCurrencyKey, basePriceRate, quoteCurrencyKey, quotePriceRate }}
 		/>
 	) : null;
 
@@ -1070,6 +1076,7 @@ const useExchange = ({
 		basePriceChartCard,
 		baseMarketDetailsCard,
 		combinedPriceChartCard,
+		combinedMarketDetailsCard,
 		footerCard,
 		handleCurrencySwap,
 	};
