@@ -5,6 +5,9 @@
 		["styled-components", { "ssr": true, "displayName": true }]
 	],
 	"env": {
+		"test": {
+			"presets": ["next/babel"]
+		},
 		"development": {
 			"plugins": [
 				[

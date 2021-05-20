@@ -45,6 +45,7 @@ import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useMarketClosed from 'hooks/useMarketClosed';
 import useMarketHoursTimer from 'sections/exchange/hooks/useMarketHoursTimer';
 import marketNextOpen from 'utils/marketNextOpen';
+import MarketClosureOverlay from './MarketClosureOverlay';
 
 type ChartCardProps = {
 	side: Side;
@@ -267,44 +268,12 @@ const ChartCard: FC<ChartCardProps> = ({
 				</ChartData>
 				<AbsoluteCenteredDiv>
 					{showOverlayMessage ? (
-						<OverlayMessage>
-							<MarketClosureIcon marketClosureReason={marketClosureReason} />
-							<OverlayMessageTitle>
-								{t(`exchange.price-chart-card.overlay-messages.${marketClosureReason}.title`)}
-							</OverlayMessageTitle>
-							<OverlayMessageSubtitle>
-								{openAfterHoursModalCallback != null && AFTER_HOURS_SYNTHS.has(currencyKey ?? '') && (
-									<>
-										<Trans
-											i18nKey="exchange.price-chart-card.overlay-messages.market-closure.after-hours"
-											values={{
-												linkText: t(
-													'exchange.price-chart-card.overlay-messages.market-closure.here'
-												),
-											}}
-											components={{
-												linkTag: <LinkTag onClick={openAfterHoursModalCallback} />,
-											}}
-										/>
-									</>
-								)}
-							</OverlayMessageSubtitle>
-							{marketClosureReason === 'market-closure' &&
-							(AFTER_HOURS_SYNTHS.has(currencyKey ?? '') ||
-								TSE_SYNTHS.has(currencyKey ?? '') ||
-								LSE_SYNTHS.has(currencyKey ?? '') ||
-								FIAT_SYNTHS.has(currencyKey ?? '') ||
-								COMMODITY_SYNTHS.has(currencyKey ?? '')) ? (
-								<>
-									<OverlayMessageSubtitle>Market reopens in: </OverlayMessageSubtitle>
-									<OverlayTimer>{timer}</OverlayTimer>
-								</>
-							) : (
-								<OverlayMessageSubtitle>
-									{t(`exchange.price-chart-card.overlay-messages.${marketClosureReason}.subtitle`)}
-								</OverlayMessageSubtitle>
-							)}
-						</OverlayMessage>
+						<MarketClosureOverlay
+							marketClosureReason={marketClosureReason}
+							openAfterHoursModalCallback={openAfterHoursModalCallback}
+							currencyKey={currencyKey}
+							timer={timer}
+						/>
 					) : showLoader ? (
 						<Svg src={LoaderIcon} />
 					) : noData ? (
@@ -331,14 +300,6 @@ const ChartData = styled.div<{ disabledInteraction: boolean }>`
 			pointer-events: none;
 			opacity: 0.1;
 		`};
-`;
-
-const LinkTag = styled.span`
-	color: ${(props) => props.theme.colors.goldColors.color1};
-	text-decoration: underline;
-	&:hover {
-		cursor: pointer;
-	}
 `;
 
 const ChartHeader = styled(FlexDivRowCentered)`
@@ -398,28 +359,6 @@ const ItemStyle = styled.div`
 
 const LabelStyle = styled(ItemStyle)`
 	text-transform: capitalize;
-`;
-
-const OverlayMessage = styled(GridDivCenteredRow)`
-	justify-items: center;
-	text-align: center;
-`;
-
-const OverlayMessageTitle = styled.div`
-	font-family: ${(props) => props.theme.fonts.bold};
-	color: ${(props) => props.theme.colors.white};
-	font-size: 14px;
-	padding-top: 10px;
-	padding-bottom: 5px;
-`;
-
-const OverlayMessageSubtitle = styled.div`
-	color: ${(props) => props.theme.colors.silver};
-	padding-bottom: 5px;
-`;
-
-const OverlayTimer = styled.div`
-	font-family: ${(props) => props.theme.fonts.mono};
 `;
 
 const NoData = styled.div`
