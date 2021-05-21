@@ -23,7 +23,7 @@ export const forexNextOpen = () => {
 };
 
 export const usNextOpen = () => {
-	moment.locale('en', {
+	moment.updateLocale('en', {
 		workinghours: {
 			0: null,
 			1: ['09:30:00', '4:00:00'],
@@ -79,7 +79,7 @@ export const usNextOpen = () => {
 };
 
 export const lseNextOpen = () => {
-	moment.locale('gb', {
+	moment.updateLocale('gb', {
 		workinghours: {
 			0: null,
 			1: ['08:00:00', '12:00:00', '12:02:00', '16:30:00'],
@@ -134,7 +134,7 @@ export const lseNextOpen = () => {
 };
 
 export const tseNextOpen = () => {
-	moment.locale('jp', {
+	moment.updateLocale('jp', {
 		workinghours: {
 			0: null,
 			1: ['09:00:00', '11:30:00', '12:30:00', '15:00:00'],
