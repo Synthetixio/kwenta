@@ -283,6 +283,7 @@ const ChartCard: FC<ChartCardProps> = ({
 
 const Container = styled.div`
 	position: relative;
+	height: 300px;
 `;
 
 const ChartData = styled.div<{ disabledInteraction: boolean }>`

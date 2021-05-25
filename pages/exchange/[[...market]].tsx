@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import Slider from 'react-slick';
 import { Svg } from 'react-optimized-image';
+import { AnimateSharedLayout, AnimatePresence, motion } from 'framer-motion';
 
 import ArrowsIcon from 'assets/svg/app/arrows.svg';
 import SingleChartIcon from 'assets/svg/app/single-chart.svg';
@@ -108,18 +109,40 @@ const ExchangePage = () => {
 							{chartsToggler}
 
 							<ChartsContainer>
-								{isShowingSingleChart ? (
-									<PageWidthContainer>{combinedPriceChartCard}</PageWidthContainer>
-								) : (
-									<DesktopCardsContainer>
-										<LeftCardContainer data-testid="left-side">
-											{quotePriceChartCard}
-										</LeftCardContainer>
-										<RightCardContainer data-testid="right-side">
-											{basePriceChartCard}
-										</RightCardContainer>
-									</DesktopCardsContainer>
-								)}
+								<AnimateSharedLayout>
+									{isShowingSingleChart ? (
+										<AnimatePresence>
+											<motion.div
+												layout
+												initial={{ width: 1100 }}
+												animate={{ width: 960 }}
+												exit={{ width: 1100 }}
+												transition={{ ease: 'easeIn' }}
+											>
+												{combinedPriceChartCard}
+											</motion.div>
+										</AnimatePresence>
+									) : (
+										<AnimatePresence>
+											<motion.div
+												layout
+												initial={{ width: 960 }}
+												animate={{ width: 1100 }}
+												exit={{ width: 960 }}
+												transition={{ ease: 'easeOut' }}
+											>
+												<DesktopCardsContainer>
+													<LeftCardContainer data-testid="left-side">
+														{quotePriceChartCard}
+													</LeftCardContainer>
+													<RightCardContainer data-testid="right-side">
+														{basePriceChartCard}
+													</RightCardContainer>
+												</DesktopCardsContainer>
+											</motion.div>
+										</AnimatePresence>
+									)}
+								</AnimateSharedLayout>
 							</ChartsContainer>
 
 							{isShowingSingleChart ? (
@@ -201,7 +224,7 @@ const StyledPageContent = styled(PageContent)`
 `;
 
 const ChartsContainer = styled.div`
-	margin-bottom: 20px;
+	margin: 0 auto 30px;
 `;
 
 const PageWidthContainer = styled.div`
