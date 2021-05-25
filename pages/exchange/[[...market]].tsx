@@ -125,14 +125,14 @@ const ExchangePage = () => {
 							{isShowingSingleChart ? (
 								<PageWidthContainer>{combinedMarketDetailsCard}</PageWidthContainer>
 							) : (
-								<DesktopCardsContainer>
+								<DesktopMarketDetailsCardsContainer>
 									<LeftCardContainer data-testid="left-side">
 										{quoteMarketDetailsCard}
 									</LeftCardContainer>
 									<RightCardContainer data-testid="right-side">
 										{baseMarketDetailsCard}
 									</RightCardContainer>
-								</DesktopCardsContainer>
+								</DesktopMarketDetailsCardsContainer>
 							)}
 						</DesktopContainer>
 					</DesktopOnlyView>
@@ -204,9 +204,9 @@ const ChartsContainer = styled.div`
 	margin-bottom: 20px;
 `;
 
-const PageWidthContainer = styled.div<{ set?: boolean }>`
-	width: ${(props) => (props.set ?? true ? '960px' : 'unset')};
-	margin: ${(props) => (props.set ?? true ? '0 auto' : 'unset')};
+const PageWidthContainer = styled.div`
+	width: 960px;
+	margin: 0 auto;
 `;
 
 const DesktopContainer = styled(FlexDivCol)``;
@@ -217,6 +217,10 @@ const DesktopCardsContainer = styled.div`
 	gap: 2px;
 	grid-template-columns: 1fr 1fr;
 	flex: 1;
+`;
+
+const DesktopMarketDetailsCardsContainer = styled(DesktopCardsContainer)`
+	grid-gap: 60px;
 `;
 
 const SwapCurrenciesButtonContainer = styled.div`
@@ -282,7 +286,7 @@ const ChartsTogglerContainer = styled.div`
 
 const ChartsToggler = styled.div`
 	position: absolute;
-	left: calc(50% - 50px);
+	left: calc(50% - 67.5px);
 	width: 135px;
 	height: 20px;
 	border-radius: 5px;
