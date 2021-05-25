@@ -55,6 +55,20 @@ const ExchangePage = () => {
 	const [isShowingSingleChart, setIsShowingSingleChart] = useState(true);
 	const toggleIsShowingSingleChart = () => setIsShowingSingleChart((bool) => !bool);
 
+	const chartsToggler = (
+		<ChartsTogglerContainer>
+			<ChartsToggler onClick={toggleIsShowingSingleChart}>
+				<ChartsTogglerText active={isShowingSingleChart}>
+					{t('exchange.charts.single')}
+				</ChartsTogglerText>
+				{isShowingSingleChart ? <Svg src={SingleChartIcon} /> : <Svg src={DoubleChartIcon} />}
+				<ChartsTogglerText active={!isShowingSingleChart}>
+					{t('exchange.charts.double')}
+				</ChartsTogglerText>
+			</ChartsToggler>
+		</ChartsTogglerContainer>
+	);
+
 	return (
 		<>
 			<Head>
@@ -91,21 +105,7 @@ const ExchangePage = () => {
 
 							<PageWidthContainer>{footerCard}</PageWidthContainer>
 
-							<ChartsTogglerContainer>
-								<ChartsToggler onClick={toggleIsShowingSingleChart}>
-									<ChartsTogglerText active={isShowingSingleChart}>
-										{t('exchange.charts.single')}
-									</ChartsTogglerText>
-									{isShowingSingleChart ? (
-										<Svg src={SingleChartIcon} />
-									) : (
-										<Svg src={DoubleChartIcon} />
-									)}
-									<ChartsTogglerText active={!isShowingSingleChart}>
-										{t('exchange.charts.double')}
-									</ChartsTogglerText>
-								</ChartsToggler>
-							</ChartsTogglerContainer>
+							{chartsToggler}
 
 							<ChartsContainer>
 								{isShowingSingleChart ? (
@@ -145,20 +145,31 @@ const ExchangePage = () => {
 								</SwapCurrenciesButton>
 							</VerticalSpacer>
 							{baseCurrencyCard}
-							<SliderContainer>
-								<Slider arrows={false} dots={false}>
-									<SliderContent data-testid="left-side">
-										{basePriceChartCard}
-										<SliderContentSpacer />
-										{baseMarketDetailsCard}
-									</SliderContent>
-									<SliderContent data-testid="right-side">
-										{quotePriceChartCard}
-										<SliderContentSpacer />
-										{quoteMarketDetailsCard}
-									</SliderContent>
-								</Slider>
-							</SliderContainer>
+
+							{chartsToggler}
+
+							{isShowingSingleChart ? (
+								<>
+									{combinedPriceChartCard}
+									<FooterSpacer />
+									{combinedMarketDetailsCard}
+								</>
+							) : (
+								<SliderContainer>
+									<Slider arrows={false} dots={false}>
+										<SliderContent data-testid="left-side">
+											{basePriceChartCard}
+											<SliderContentSpacer />
+											{baseMarketDetailsCard}
+										</SliderContent>
+										<SliderContent data-testid="right-side">
+											{quotePriceChartCard}
+											<SliderContentSpacer />
+											{quoteMarketDetailsCard}
+										</SliderContent>
+									</Slider>
+								</SliderContainer>
+							)}
 						</MobileContainer>
 					</MobileOrTabletView>
 				</StyledPageContent>
@@ -250,6 +261,10 @@ const SliderContainer = styled.div`
 	}
 `;
 
+const FooterSpacer = styled.div`
+	margin-top: 20px;
+`;
+
 const SliderContent = styled.div``;
 
 const SliderContentSpacer = styled.div`
@@ -259,6 +274,10 @@ const SliderContentSpacer = styled.div`
 const ChartsTogglerContainer = styled.div`
 	position: relative;
 	z-index: 1000;
+
+	${media.lessThan('md')`
+		padding: 20px 0 30px;
+	`}
 `;
 
 const ChartsToggler = styled.div`

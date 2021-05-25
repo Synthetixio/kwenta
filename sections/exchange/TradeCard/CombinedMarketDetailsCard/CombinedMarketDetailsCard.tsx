@@ -145,6 +145,7 @@ const MarketDetailsCard: FC<MarketDetailsCardProps> = ({
 				<StyledCardBody>
 					<Column>
 						{volume24HItem}
+						{marketCapItem}
 						{rates24HighItem}
 						{rates24HLowItem}
 					</Column>
