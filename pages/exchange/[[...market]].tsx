@@ -26,6 +26,7 @@ import {
 
 import { DesktopOnlyView, MobileOrTabletView } from 'components/Media';
 import useExchange from 'sections/exchange/hooks/useExchange';
+import { DEFAULT_WIDTH, WIDE_WIDTH } from 'sections/exchange/TradeCard/constants';
 
 const ExchangePage = () => {
 	const { t } = useTranslation();
@@ -114,9 +115,9 @@ const ExchangePage = () => {
 										<AnimatePresence>
 											<motion.div
 												layout
-												initial={{ width: 1100 }}
-												animate={{ width: 960 }}
-												exit={{ width: 1100 }}
+												initial={{ width: WIDE_WIDTH }}
+												animate={{ width: DEFAULT_WIDTH }}
+												exit={{ width: WIDE_WIDTH }}
 												transition={{ ease: 'easeIn' }}
 											>
 												{combinedPriceChartCard}
@@ -126,9 +127,9 @@ const ExchangePage = () => {
 										<AnimatePresence>
 											<motion.div
 												layout
-												initial={{ width: 960 }}
-												animate={{ width: 1100 }}
-												exit={{ width: 960 }}
+												initial={{ width: DEFAULT_WIDTH }}
+												animate={{ width: WIDE_WIDTH }}
+												exit={{ width: DEFAULT_WIDTH }}
 												transition={{ ease: 'easeOut' }}
 											>
 												<DesktopCardsContainer>
@@ -228,7 +229,7 @@ const ChartsContainer = styled.div`
 `;
 
 const PageWidthContainer = styled.div`
-	width: 960px;
+	width: ${DEFAULT_WIDTH}px;
 	margin: 0 auto;
 `;
 
@@ -244,6 +245,8 @@ const DesktopCardsContainer = styled.div`
 
 const DesktopMarketDetailsCardsContainer = styled(DesktopCardsContainer)`
 	grid-gap: 60px;
+	width: ${WIDE_WIDTH}px;
+	margin: 0 auto;
 `;
 
 const SwapCurrenciesButtonContainer = styled.div`

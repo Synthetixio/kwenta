@@ -15,6 +15,7 @@ import MarketClosureIcon from 'components/MarketClosureIcon';
 
 import { AFTER_HOURS_SYNTHS, CurrencyKey } from 'constants/currency';
 import { PeriodLabel, PERIOD_LABELS_MAP, PERIOD_LABELS, PERIOD_IN_HOURS } from 'constants/period';
+import { CHART_HEIGHT } from 'sections/exchange/TradeCard/constants';
 
 import ChangePercent from 'components/ChangePercent';
 
@@ -283,7 +284,7 @@ const ChartCard: FC<ChartCardProps> = ({
 
 const Container = styled.div`
 	position: relative;
-	height: 300px;
+	height: ${CHART_HEIGHT}px;
 `;
 
 const ChartData = styled.div<{ disabledInteraction: boolean }>`

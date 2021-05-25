@@ -35,6 +35,7 @@ import media from 'styles/media';
 import { Side } from '../types';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useMarketClosed from 'hooks/useMarketClosed';
+import { CHART_HEIGHT } from 'sections/exchange/TradeCard/constants';
 
 type ChartCardProps = {
 	side: Side;
@@ -298,7 +299,7 @@ const ChartCard: FC<ChartCardProps> = ({
 const Container = styled.div`
 	width: 100%;
 	position: relative;
-	height: 300px;
+	height: ${CHART_HEIGHT}px;
 `;
 
 const ChartData = styled.div<{ disabledInteraction: boolean }>`
