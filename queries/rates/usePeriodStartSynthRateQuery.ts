@@ -7,15 +7,20 @@ import { PERIOD_IN_HOURS, Period } from 'constants/period';
 
 import { calculateTimestampForPeriod } from './utils';
 
+interface Rate {
+	rate: number;
+	timestamp: number;
+}
+
 // Get the `currencyKey` rate at the beginning or `period`
 const usePeriodStartSynthRateQuery = (
 	currencyKey: CurrencyKey | null,
 	period: Period = Period.ONE_DAY,
-	options?: QueryConfig<number>
+	options?: QueryConfig<Rate>
 ) => {
 	const periodInHours = PERIOD_IN_HOURS[period];
 
-	return useQuery<{ rate: number; timestamp: number }>(
+	return useQuery<Rate>(
 		QUERY_KEYS.Rates.PeriodStartSynthRate(currencyKey as string, period),
 		async () => {
 			const maxTimestamp = calculateTimestampForPeriod(periodInHours);

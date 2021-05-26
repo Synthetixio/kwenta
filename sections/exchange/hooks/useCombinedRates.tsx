@@ -80,7 +80,7 @@ const useCombinedRates = ({
 			}
 			return changes.concat({ timestamp, change });
 		}, [] as { timestamp: number; change: number }[]);
-	}, [baseRates, quoteRates, baseInitialRate, quoteInitialRate]);
+	}, [baseRates, quoteRates, baseInitialRate, quoteInitialRate, baseCurrencyKey, quoteCurrencyKey]);
 
 	const [low, high] = useMemo(() => {
 		if (changes.length < 2) return [0, 0];
