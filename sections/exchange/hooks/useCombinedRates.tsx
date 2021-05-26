@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import orderBy from 'lodash/orderBy';
 
 import useHistoricalRatesQuery from 'queries/rates/useHistoricalRatesQuery';
-import useLatestSynthRateQuery from 'queries/rates/useLatestSynthRateQuery';
-import { CurrencyKey } from 'constants/currency';
+import usePeriodStartSynthRateQuery from 'queries/rates/usePeriodStartSynthRateQuery';
+import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
 import { PeriodLabel } from 'constants/period';
 
 const useCombinedRates = ({
@@ -22,8 +22,11 @@ const useCombinedRates = ({
 	const baseHistoricalRates = useHistoricalRatesQuery(baseCurrencyKey, selectedPeriod.period);
 	const quoteHistoricalRates = useHistoricalRatesQuery(quoteCurrencyKey, selectedPeriod.period);
 
-	const { data: baseInitialRate } = useLatestSynthRateQuery(baseCurrencyKey, selectedPeriod.period);
-	const { data: quoteInitialRate } = useLatestSynthRateQuery(
+	const { data: baseInitialRate } = usePeriodStartSynthRateQuery(
+		baseCurrencyKey,
+		selectedPeriod.period
+	);
+	const { data: quoteInitialRate } = usePeriodStartSynthRateQuery(
 		quoteCurrencyKey,
 		selectedPeriod.period
 	);
@@ -50,37 +53,33 @@ const useCombinedRates = ({
 	const changes = useMemo(() => {
 		if (!(baseRates.length && quoteRates.length && baseInitialRate && quoteInitialRate)) return [];
 
-		const allRates: {
+		let allRates: {
 			isBaseRate?: boolean;
 			timestamp: number;
 			rate: number;
-		}[] = orderBy(
-			[...baseRates.map((r) => ({ ...r, isBaseRate: true })), ...quoteRates],
-			'timestamp'
-		);
+		}[] = [];
+		if (baseCurrencyKey !== SYNTHS_MAP.sUSD) {
+			allRates = allRates.concat(baseRates.map((r) => ({ ...r, isBaseRate: true })));
+		}
+		if (quoteCurrencyKey !== SYNTHS_MAP.sUSD) {
+			allRates = allRates.concat(quoteRates);
+		}
+		allRates = orderBy(allRates, 'timestamp');
 
-		let prevBaseRate = baseInitialRate;
-		let prevQuoteRate = quoteInitialRate;
-		const initalChange = {
-			timestamp: baseRates[0].timestamp,
-			change: prevBaseRate / prevQuoteRate,
-		};
+		let prevBaseRate = baseInitialRate.rate;
+		let prevQuoteRate = quoteInitialRate.rate;
 
-		return allRates.reduce(
-			(changes, { isBaseRate, rate, timestamp }) => {
-				let change: number = 0;
-				if (isBaseRate) {
-					change = rate / prevQuoteRate;
-					prevBaseRate = rate;
-				} else {
-					change = prevBaseRate / rate;
-					prevQuoteRate = rate;
-				}
-
-				return changes.concat({ timestamp, change });
-			},
-			[initalChange]
-		);
+		return allRates.reduce((changes, { isBaseRate, rate, timestamp }) => {
+			let change: number = 0;
+			if (isBaseRate) {
+				change = rate / prevQuoteRate;
+				prevBaseRate = rate;
+			} else {
+				change = prevBaseRate / rate;
+				prevQuoteRate = rate;
+			}
+			return changes.concat({ timestamp, change });
+		}, [] as { timestamp: number; change: number }[]);
 	}, [baseRates, quoteRates, baseInitialRate, quoteInitialRate]);
 
 	const [low, high] = useMemo(() => {

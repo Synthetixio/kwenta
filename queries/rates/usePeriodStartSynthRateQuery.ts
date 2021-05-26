@@ -7,25 +7,27 @@ import { PERIOD_IN_HOURS, Period } from 'constants/period';
 
 import { calculateTimestampForPeriod } from './utils';
 
-const useLatestSynthRateQuery = (
+// Get the `currencyKey` rate at the beginning or `period`
+const usePeriodStartSynthRateQuery = (
 	currencyKey: CurrencyKey | null,
 	period: Period = Period.ONE_DAY,
 	options?: QueryConfig<number>
 ) => {
 	const periodInHours = PERIOD_IN_HOURS[period];
 
-	return useQuery<number>(
-		QUERY_KEYS.Rates.LatestSynthRate(currencyKey as string, period),
+	return useQuery<{ rate: number; timestamp: number }>(
+		QUERY_KEYS.Rates.PeriodStartSynthRate(currencyKey as string, period),
 		async () => {
+			const maxTimestamp = calculateTimestampForPeriod(periodInHours);
 			if (currencyKey === SYNTHS_MAP.sUSD) {
-				return 1;
+				return { rate: 1, timestamp: maxTimestamp };
 			} else {
 				const rates = await snxData.rate.updates({
 					synth: currencyKey,
-					maxTimestamp: calculateTimestampForPeriod(periodInHours),
+					maxTimestamp,
 					max: 1,
 				});
-				return rates[0]?.rate ?? 1;
+				return rates[0];
 			}
 		},
 		{
@@ -35,4 +37,4 @@ const useLatestSynthRateQuery = (
 	);
 };
 
-export default useLatestSynthRateQuery;
+export default usePeriodStartSynthRateQuery;

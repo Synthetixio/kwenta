@@ -145,22 +145,36 @@ const ExchangePage = () => {
 									)}
 								</ChartsContainer>
 
-								{isShowingSingleChart ? (
-									<motion.div layout>
-										<PageWidthContainer>{combinedMarketDetailsCard}</PageWidthContainer>
-									</motion.div>
-								) : (
-									<motion.div layout>
-										<DesktopMarketDetailsCardsContainer>
-											<LeftCardContainer data-testid="left-side">
-												{quoteMarketDetailsCard}
-											</LeftCardContainer>
-											<RightCardContainer data-testid="right-side">
-												{baseMarketDetailsCard}
-											</RightCardContainer>
-										</DesktopMarketDetailsCardsContainer>
-									</motion.div>
-								)}
+								<ChartsContainer>
+									{isShowingSingleChart ? (
+										<motion.div
+											layout
+											initial={{ width: WIDE_WIDTH }}
+											animate={{ width: DEFAULT_WIDTH }}
+											exit={{ width: WIDE_WIDTH }}
+											transition={{ ease: 'easeIn' }}
+										>
+											{combinedMarketDetailsCard}
+										</motion.div>
+									) : (
+										<motion.div
+											layout
+											initial={{ width: DEFAULT_WIDTH }}
+											animate={{ width: WIDE_WIDTH }}
+											exit={{ width: DEFAULT_WIDTH }}
+											transition={{ ease: 'easeOut' }}
+										>
+											<DesktopMarketDetailsCardsContainer>
+												<LeftCardContainer data-testid="left-side">
+													{quoteMarketDetailsCard}
+												</LeftCardContainer>
+												<RightCardContainer data-testid="right-side">
+													{baseMarketDetailsCard}
+												</RightCardContainer>
+											</DesktopMarketDetailsCardsContainer>
+										</motion.div>
+									)}
+								</ChartsContainer>
 							</AnimateSharedLayout>
 						</DesktopContainer>
 					</DesktopOnlyView>
@@ -249,7 +263,6 @@ const DesktopCardsContainer = styled.div`
 
 const DesktopMarketDetailsCardsContainer = styled(DesktopCardsContainer)`
 	grid-gap: 60px;
-	width: ${WIDE_WIDTH}px;
 	margin: 0 auto;
 `;
 
