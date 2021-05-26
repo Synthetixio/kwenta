@@ -14,9 +14,12 @@ import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer'
 import MarketClosureIcon from 'components/MarketClosureIcon';
 
 import { AFTER_HOURS_SYNTHS, CurrencyKey, SYNTHS_MAP } from 'constants/currency';
-import { PeriodLabel, PERIOD_LABELS_MAP, PERIOD_LABELS, PERIOD_IN_HOURS } from 'constants/period';
+import { PERIOD_LABELS, PERIOD_IN_HOURS } from 'constants/period';
 
 import ChangePercent from 'components/ChangePercent';
+
+import { chartPeriodState } from 'store/app';
+import usePersistedRecoilState from 'hooks/usePersistedRecoilState';
 
 import {
 	GridDivCenteredCol,
@@ -54,7 +57,7 @@ const ChartCard: FC<ChartCardProps> = ({
 	...rest
 }) => {
 	const { t } = useTranslation();
-	const [selectedPeriod, setSelectedPeriod] = useState<PeriodLabel>(PERIOD_LABELS_MAP.ONE_DAY);
+	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState(chartPeriodState);
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
 	const { isMarketClosed, marketClosureReason } = useMarketClosed(currencyKey);
 
