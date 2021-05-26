@@ -934,6 +934,8 @@ const useExchange = ({
 					baseCurrencyMarketClosed={baseCurrencyMarketClosed}
 					quoteCurrencyMarketClosed={quoteCurrencyMarketClosed}
 					attached={footerCardAttached}
+					quoteCurrencyKey={quoteCurrencyKey}
+					baseCurrencyKey={baseCurrencyKey}
 				/>
 			) : showNoSynthsCard && noSynths ? (
 				<NoSynthsCard attached={footerCardAttached} />
