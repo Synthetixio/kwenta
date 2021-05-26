@@ -109,8 +109,8 @@ const ExchangePage = () => {
 
 							{chartsToggler}
 
-							<ChartsContainer>
-								<AnimateSharedLayout>
+							<AnimateSharedLayout>
+								<ChartsContainer>
 									{isShowingSingleChart ? (
 										<AnimatePresence>
 											<motion.div
@@ -143,21 +143,25 @@ const ExchangePage = () => {
 											</motion.div>
 										</AnimatePresence>
 									)}
-								</AnimateSharedLayout>
-							</ChartsContainer>
+								</ChartsContainer>
 
-							{isShowingSingleChart ? (
-								<PageWidthContainer>{combinedMarketDetailsCard}</PageWidthContainer>
-							) : (
-								<DesktopMarketDetailsCardsContainer>
-									<LeftCardContainer data-testid="left-side">
-										{quoteMarketDetailsCard}
-									</LeftCardContainer>
-									<RightCardContainer data-testid="right-side">
-										{baseMarketDetailsCard}
-									</RightCardContainer>
-								</DesktopMarketDetailsCardsContainer>
-							)}
+								{isShowingSingleChart ? (
+									<motion.div layout>
+										<PageWidthContainer>{combinedMarketDetailsCard}</PageWidthContainer>
+									</motion.div>
+								) : (
+									<motion.div layout>
+										<DesktopMarketDetailsCardsContainer>
+											<LeftCardContainer data-testid="left-side">
+												{quoteMarketDetailsCard}
+											</LeftCardContainer>
+											<RightCardContainer data-testid="right-side">
+												{baseMarketDetailsCard}
+											</RightCardContainer>
+										</DesktopMarketDetailsCardsContainer>
+									</motion.div>
+								)}
+							</AnimateSharedLayout>
 						</DesktopContainer>
 					</DesktopOnlyView>
 					<MobileOrTabletView>
