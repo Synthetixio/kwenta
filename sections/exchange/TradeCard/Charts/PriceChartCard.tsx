@@ -3,41 +3,51 @@ import { useContext, FC, useState, useMemo } from 'react';
 import { AreaChart, XAxis, YAxis, Area, Tooltip } from 'recharts';
 import isNumber from 'lodash/isNumber';
 import get from 'lodash/get';
-import styled, { css, ThemeContext } from 'styled-components';
+import styled, { ThemeContext } from 'styled-components';
 import format from 'date-fns/format';
 import { Svg } from 'react-optimized-image';
-// import { useMediaQuery } from 'react-responsive';
 
 import LoaderIcon from 'assets/svg/app/loader.svg';
-
 import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
 import MarketClosureIcon from 'components/MarketClosureIcon';
-
-import { AFTER_HOURS_SYNTHS, CurrencyKey, SYNTHS_MAP } from 'constants/currency';
 import { PERIOD_LABELS, PERIOD_IN_HOURS } from 'constants/period';
-
+import {
+	AFTER_HOURS_SYNTHS,
+	COMMODITY_SYNTHS,
+	CurrencyKey,
+	FIAT_SYNTHS,
+	LSE_SYNTHS,
+	SYNTHS_MAP,
+	TSE_SYNTHS,
+} from 'constants/currency';
 import ChangePercent from 'components/ChangePercent';
-
 import { chartPeriodState } from 'store/app';
 import usePersistedRecoilState from 'hooks/usePersistedRecoilState';
-
-import {
-	GridDivCenteredCol,
-	GridDivCenteredRow,
-	TextButton,
-	FlexDivRowCentered,
-	NoTextTransform,
-	AbsoluteCenteredDiv,
-} from 'styles/common';
-
+import { FlexDivRowCentered, NoTextTransform, AbsoluteCenteredDiv } from 'styles/common';
 import { formatCurrency } from 'utils/formatters/number';
-
 import useHistoricalRatesQuery from 'queries/rates/useHistoricalRatesQuery';
-import media from 'styles/media';
-
-import { Side } from '../types';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useMarketClosed from 'hooks/useMarketClosed';
+import useMarketHoursTimer from 'sections/exchange/hooks/useMarketHoursTimer';
+import marketNextOpen from 'utils/marketNextOpen';
+
+import { Side } from '../types';
+import {
+	ChartData,
+	LinkTag,
+	CurrencyLabel,
+	CurrencyPrice,
+	Actions,
+	ChartBody,
+	StyledTextButton,
+	TooltipContentStyle,
+	LabelStyle,
+	OverlayMessage,
+	OverlayMessageTitle,
+	OverlayMessageSubtitle,
+	OverlayTimer,
+	NoData,
+} from './common';
 
 type ChartCardProps = {
 	side: Side;
@@ -60,6 +70,7 @@ const ChartCard: FC<ChartCardProps> = ({
 	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState(chartPeriodState);
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
 	const { isMarketClosed, marketClosureReason } = useMarketClosed(currencyKey);
+	const timer = useMarketHoursTimer(marketNextOpen(currencyKey ?? '') ?? null);
 
 	const theme = useContext(ThemeContext);
 	const [currentPrice, setCurrentPrice] = useState<number | null>(null);
@@ -271,21 +282,37 @@ const ChartCard: FC<ChartCardProps> = ({
 								{t(`exchange.price-chart-card.overlay-messages.${marketClosureReason}.title`)}
 							</OverlayMessageTitle>
 							<OverlayMessageSubtitle>
-								{openAfterHoursModalCallback != null &&
-								AFTER_HOURS_SYNTHS.has(currencyKey ?? '') ? (
-									<Trans
-										i18nKey="exchange.price-chart-card.overlay-messages.market-closure.after-hours"
-										values={{
-											linkText: t('exchange.price-chart-card.overlay-messages.market-closure.here'),
-										}}
-										components={{
-											linkTag: <LinkTag onClick={openAfterHoursModalCallback} />,
-										}}
-									/>
-								) : (
-									t(`exchange.price-chart-card.overlay-messages.${marketClosureReason}.subtitle`)
+								{openAfterHoursModalCallback != null && AFTER_HOURS_SYNTHS.has(currencyKey ?? '') && (
+									<>
+										<Trans
+											i18nKey="exchange.price-chart-card.overlay-messages.market-closure.after-hours"
+											values={{
+												linkText: t(
+													'exchange.price-chart-card.overlay-messages.market-closure.here'
+												),
+											}}
+											components={{
+												linkTag: <LinkTag onClick={openAfterHoursModalCallback} />,
+											}}
+										/>
+									</>
 								)}
 							</OverlayMessageSubtitle>
+							{marketClosureReason === 'market-closure' &&
+							(AFTER_HOURS_SYNTHS.has(currencyKey ?? '') ||
+								TSE_SYNTHS.has(currencyKey ?? '') ||
+								LSE_SYNTHS.has(currencyKey ?? '') ||
+								FIAT_SYNTHS.has(currencyKey ?? '') ||
+								COMMODITY_SYNTHS.has(currencyKey ?? '')) ? (
+								<>
+									<OverlayMessageSubtitle>Market reopens in: </OverlayMessageSubtitle>
+									<OverlayTimer>{timer}</OverlayTimer>
+								</>
+							) : (
+								<OverlayMessageSubtitle>
+									{t(`exchange.price-chart-card.overlay-messages.${marketClosureReason}.subtitle`)}
+								</OverlayMessageSubtitle>
+							)}
 						</OverlayMessage>
 					) : showLoader ? (
 						<Svg src={LoaderIcon} />
@@ -303,26 +330,6 @@ const Container = styled.div`
 	position: relative;
 `;
 
-const ChartData = styled.div<{ disabledInteraction: boolean }>`
-	width: 100%;
-	height: 100%;
-	position: relative;
-	${(props) =>
-		props.disabledInteraction &&
-		css`
-			pointer-events: none;
-			opacity: 0.1;
-		`};
-`;
-
-const LinkTag = styled.span`
-	color: ${(props) => props.theme.colors.goldColors.color1};
-	text-decoration: underline;
-	&:hover {
-		cursor: pointer;
-	}
-`;
-
 const ChartHeader = styled.div`
 	display: block;
 	padding-bottom: 5px;
@@ -333,84 +340,6 @@ const ChartHeader = styled.div`
 const ChartHeaderTop = styled(FlexDivRowCentered)<{ alignRight?: boolean }>`
 	border-bottom: 1px solid #171a1d;
 	justify-content: ${(props) => (props.alignRight ? 'flex-end' : 'flex-start')};
-`;
-
-const CurrencyLabel = styled.span`
-	padding-right: 20px;
-	font-size: 14px;
-	text-transform: capitalize;
-	color: ${(props) => props.theme.colors.white};
-	font-family: ${(props) => props.theme.fonts.bold};
-`;
-
-const CurrencyPrice = styled.span`
-	font-family: ${(props) => props.theme.fonts.mono};
-	color: ${(props) => props.theme.colors.white};
-	padding-right: 20px;
-`;
-
-const Actions = styled(GridDivCenteredCol)<{ alignRight?: boolean }>`
-	grid-gap: 8px;
-	justify-content: ${(props) => (props.alignRight ? 'flex-end' : 'flex-start')};
-
-	${media.lessThan('sm')`
-		overflow: auto;
-		width: 70px;
-	`}
-`;
-
-const ChartBody = styled.div`
-	padding-top: 10px;
-	height: 35vh;
-`;
-
-const StyledTextButton = styled(TextButton)<{ isActive: boolean }>`
-	font-family: ${(props) => props.theme.fonts.bold};
-	color: ${(props) => (props.isActive ? props.theme.colors.white : props.theme.colors.blueberry)};
-	border-bottom: 2px solid
-		${(props) => (props.isActive ? props.theme.colors.goldColors.color1 : 'transparent')};
-	&:hover {
-		color: ${(props) => props.theme.colors.white};
-	}
-`;
-
-const TooltipContentStyle = styled.div`
-	font-family: ${(props) => props.theme.fonts.regular};
-	padding: 5px;
-	border-radius: 4px;
-	background-color: ${(props) => props.theme.colors.elderberry};
-	text-align: left;
-`;
-
-const ItemStyle = styled.div`
-	color: ${(props) => props.theme.colors.white};
-	padding: 3px 5px;
-`;
-
-const LabelStyle = styled(ItemStyle)`
-	text-transform: capitalize;
-`;
-
-const OverlayMessage = styled(GridDivCenteredRow)`
-	justify-items: center;
-	text-align: center;
-`;
-
-const OverlayMessageTitle = styled.div`
-	font-family: ${(props) => props.theme.fonts.bold};
-	color: ${(props) => props.theme.colors.white};
-	font-size: 14px;
-	padding-top: 10px;
-	padding-bottom: 5px;
-`;
-
-const OverlayMessageSubtitle = styled.div`
-	color: ${(props) => props.theme.colors.silver};
-`;
-
-const NoData = styled.div`
-	font-size: 14px;
-	color: ${(props) => props.theme.colors.white};
 `;
 
 export default ChartCard;

@@ -9,14 +9,10 @@ import { PeriodLabel } from 'constants/period';
 const useCombinedRates = ({
 	baseCurrencyKey,
 	quoteCurrencyKey,
-	basePriceRate,
-	quotePriceRate,
 	selectedPeriod,
 }: {
 	baseCurrencyKey: CurrencyKey | null;
 	quoteCurrencyKey: CurrencyKey | null;
-	basePriceRate: number | null;
-	quotePriceRate: number | null;
 	selectedPeriod: PeriodLabel;
 }) => {
 	const baseHistoricalRates = useHistoricalRatesQuery(baseCurrencyKey, selectedPeriod.period);
