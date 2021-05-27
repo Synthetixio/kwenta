@@ -81,7 +81,7 @@ const ChartCard: FC<ChartCardProps> = ({
 	const isChangePositive = change != null && change >= 0;
 	const chartColor = isChangePositive ? theme.colors.green : theme.colors.red;
 
-	const price = currentPrice || (basePriceRate ?? 1 / quotePriceRate! ?? 1);
+	const price = currentPrice || (basePriceRate ?? 1) / (quotePriceRate! || 1);
 
 	const showOverlayMessage = isMarketClosed;
 	const showLoader = isLoadingRates;
@@ -113,7 +113,11 @@ const ChartCard: FC<ChartCardProps> = ({
 				<LabelStyle>{format(label, 'do MMM yy | HH:mm')}</LabelStyle>
 				<LabelStyle>
 					{t('exchange.price-chart-card.tooltip.price')}{' '}
-					<CurrencyPrice>{formatNumber(payload[0].value, {})}</CurrencyPrice>
+					<CurrencyPrice>
+						{formatNumber(payload[0].value, {
+							minDecimals: getMinNoOfDecimals(payload[0].value),
+						})}
+					</CurrencyPrice>
 				</LabelStyle>
 			</TooltipContentStyle>
 		) : null;
@@ -142,7 +146,7 @@ const ChartCard: FC<ChartCardProps> = ({
 								<FlexDiv>
 									<CurrencyPrice>
 										{formatNumber(price, {
-											minDecimals: 4,
+											minDecimals: getMinNoOfDecimals(price),
 										})}
 									</CurrencyPrice>
 								</FlexDiv>
@@ -176,7 +180,7 @@ const ChartCard: FC<ChartCardProps> = ({
 					>
 						<AreaChart
 							data={changes}
-							margin={{ right: 0, bottom: 0, left: 0, top: 0 }}
+							margin={{ right: 15, bottom: 0, left: 0, top: 0 }}
 							onMouseMove={(e: any) => {
 								const currentRate = get(e, 'activePayload[0].payload.change', null);
 								if (currentRate) {
@@ -224,7 +228,11 @@ const ChartCard: FC<ChartCardProps> = ({
 								orientation="right"
 								axisLine={false}
 								tickLine={false}
-								tickFormatter={(val) => formatNumber(val, {})}
+								tickFormatter={(val) =>
+									formatNumber(val, {
+										minDecimals: getMinNoOfDecimals(val),
+									})
+								}
 							/>
 							<Area
 								dataKey="change"
@@ -302,6 +310,23 @@ const ChartCard: FC<ChartCardProps> = ({
 		</Container>
 	);
 };
+
+function getMinNoOfDecimals(value: number): number {
+	let decimals = 2;
+	if (value < 1) {
+		const [, afterDecimal] = value.toString().split('.'); // todo
+		if (afterDecimal) {
+			for (let i = 0; i < afterDecimal.length; i++) {
+				const n = afterDecimal[i];
+				if (parseInt(n) !== 0) {
+					decimals = i + 3;
+					break;
+				}
+			}
+		}
+	}
+	return decimals;
+}
 
 const Container = styled.div`
 	position: relative;
