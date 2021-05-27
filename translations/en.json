@@ -353,7 +353,10 @@
 			}
 		},
 		"history": {
-			"title": "your positions",
+			"tabs": {
+				"yourPositions": "Your positions",
+				"history": "History"
+			},
 			"assets-sort": {
 				"allAssets": "All Assets"
 			},

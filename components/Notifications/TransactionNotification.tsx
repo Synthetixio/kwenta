@@ -1,8 +1,12 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
+import { toast } from 'react-toastify';
 import { Img } from 'react-optimized-image';
-import { FlexDivCentered, FlexDivCol, FlexDivRowCentered } from 'styles/common';
 import i18n from 'i18n';
+import { TransactionStatusData } from '@synthetixio/transaction-notifier';
+
+import { FlexDivCentered, FlexDivCol, FlexDivRowCentered } from 'styles/common';
+import { AUTOCLOSE_DELAY, NotificationContainerType } from './constants';
 
 import Spinner from 'assets/svg/app/spinner.svg';
 import Success from 'assets/svg/app/success.svg';
@@ -49,6 +53,38 @@ const NotificationError = ({ failureReason }: NotificationProps) => {
 	);
 };
 
+const TransactionNotificationPending = ({ link, transactionHash }: TransactionStatusData) => {
+	const toastProps = {
+		onClick: () => window.open(link, '_blank'),
+		toastId: transactionHash,
+		containerId: NotificationContainerType.TRANSACTION,
+	};
+	toast(NotificationPending, toastProps);
+};
+
+const TransactionNotificationSuccess = ({ link, transactionHash }: TransactionStatusData) => {
+	const toastProps = {
+		onClick: () => window.open(link, '_blank'),
+		autoClose: AUTOCLOSE_DELAY,
+		render: NotificationSuccess,
+		containerId: NotificationContainerType.TRANSACTION,
+	};
+	toast.update(transactionHash, toastProps);
+};
+
+const TransactionNotificationError = ({
+	link,
+	transactionHash,
+	failureReason,
+}: TransactionStatusData) => {
+	const toastProps = {
+		onClick: () => window.open(link, '_blank'),
+		containerId: NotificationContainerType.TRANSACTION,
+		render: <NotificationError failureReason={failureReason} />,
+	};
+	toast.update(transactionHash, toastProps);
+};
+
 const NotificationContainer = styled(FlexDivCentered)``;
 const IconContainer = styled(FlexDivRowCentered)`
 	width: 35px;
@@ -66,4 +102,8 @@ const TransactionInfoBody = styled.div<{ isFailureMessage?: boolean }>`
 
 const StyledImg = styled(Img)``;
 
-export { NotificationPending, NotificationSuccess, NotificationError };
+export default {
+	Pending: TransactionNotificationPending,
+	Success: TransactionNotificationSuccess,
+	Error: TransactionNotificationError,
+};

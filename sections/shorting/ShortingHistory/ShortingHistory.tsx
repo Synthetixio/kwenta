@@ -15,16 +15,15 @@ import { HistoricalShortPosition } from 'queries/collateral/subgraph/types';
 import useShortHistoryQuery from 'queries/collateral/subgraph/useShortHistoryQuery';
 
 import ShortingHistoryTable from './ShortingHistoryTable';
-
-import { Title } from '../common';
+import HistoryMenu, { TabLabel } from './HistoryMenu';
 
 import { SYNTHS_TO_SHORT } from '../constants';
 
 const ShortingHistory: FC = () => {
 	const { t } = useTranslation();
+	const [currentTab, setCurrentTab] = useState<TabLabel>(TabLabel.YOUR_POSITIONS);
 	const shortHistoryQuery = useShortHistoryQuery();
 	const historicalShortsPosition = useRecoilValue(historicalShortsPositionState);
-
 	const synthFilterList = useMemo(
 		() => [
 			{ label: t('shorting.history.assets-sort.allAssets'), key: 'ALL_SYNTHS' },
@@ -133,7 +132,7 @@ const ShortingHistory: FC = () => {
 
 	return (
 		<>
-			<Title>{t('shorting.history.title')}</Title>
+			<HistoryMenu currentTab={currentTab} onTabChange={(tab: TabLabel) => setCurrentTab(tab)} />
 			<Filters>
 				<Select
 					inputId="synth-filter-list"
@@ -181,7 +180,6 @@ const ShortingHistory: FC = () => {
 const Filters = styled(GridDiv)`
 	grid-template-columns: repeat(3, 1fr);
 	grid-gap: 18px;
-	border-top: 1px solid ${(props) => props.theme.colors.navy};
 	padding-top: 15px;
 `;
 
