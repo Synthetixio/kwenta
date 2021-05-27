@@ -296,6 +296,7 @@ const ChartHeader = styled.div`
 const ChartHeaderTop = styled(FlexDivRowCentered)<{ alignRight?: boolean }>`
 	border-bottom: 1px solid #171a1d;
 	justify-content: ${(props) => (props.alignRight ? 'flex-end' : 'flex-start')};
+	padding-bottom: 5px;
 `;
 
 export default ChartCard;
