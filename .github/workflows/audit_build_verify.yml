@@ -35,9 +35,6 @@ jobs:
 
     container:
       image: node:14.7.0-alpine
-      credentials:
-        username: synthetixio
-        password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
 
     steps:
     - name: Checkout
