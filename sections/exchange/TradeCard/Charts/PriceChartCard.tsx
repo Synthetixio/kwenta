@@ -1,5 +1,5 @@
-import { useTranslation, Trans } from 'react-i18next';
 import { useContext, FC, useState, useMemo } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 import { AreaChart, XAxis, YAxis, Area, Tooltip } from 'recharts';
 import isNumber from 'lodash/isNumber';
 import get from 'lodash/get';
@@ -19,8 +19,9 @@ import { formatCurrency } from 'utils/formatters/number';
 import useHistoricalRatesQuery from 'queries/rates/useHistoricalRatesQuery';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useMarketClosed from 'hooks/useMarketClosed';
-import OverlayMessageContainer from './common/OverlayMessage';
 
+import CustomTooltip from './common/CustomTooltip';
+import OverlayMessageContainer from './common/OverlayMessage';
 import { Side } from '../types';
 import {
 	ChartData,
@@ -29,8 +30,6 @@ import {
 	Actions,
 	ChartBody,
 	StyledTextButton,
-	TooltipContentStyle,
-	LabelStyle,
 	NoData,
 	OverlayMessage,
 } from './common/styles';
@@ -98,33 +97,6 @@ const ChartCard: FC<ChartCardProps> = ({
 		}
 		return rates;
 	}, [rates, selectPriceCurrencyRate]);
-
-	const CustomTooltip = ({
-		active,
-		label,
-		payload,
-	}: {
-		active: boolean;
-		payload: [
-			{
-				value: number;
-			}
-		];
-		label: Date;
-	}) =>
-		active && payload && payload[0] ? (
-			<TooltipContentStyle>
-				<LabelStyle>{format(label, 'do MMM yy | HH:mm')}</LabelStyle>
-				<LabelStyle>
-					{t('exchange.price-chart-card.tooltip.price')}{' '}
-					<CurrencyPrice>
-						{formatCurrency(selectedPriceCurrency.name, payload[0].value, {
-							sign: selectedPriceCurrency.sign,
-						})}
-					</CurrencyPrice>
-				</LabelStyle>
-			</TooltipContentStyle>
-		) : null;
 
 	return (
 		<Container {...rest}>
@@ -252,7 +224,13 @@ const ChartCard: FC<ChartCardProps> = ({
 									}}
 									content={
 										// @ts-ignore
-										<CustomTooltip />
+										<CustomTooltip
+											formatCurrentPrice={(n: number) =>
+												formatCurrency(selectedPriceCurrency.name, n, {
+													sign: selectedPriceCurrency.sign,
+												})
+											}
+										/>
 									}
 								/>
 							)}

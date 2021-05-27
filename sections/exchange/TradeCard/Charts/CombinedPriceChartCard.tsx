@@ -33,12 +33,11 @@ import {
 	Actions,
 	ChartBody,
 	StyledTextButton,
-	TooltipContentStyle,
-	LabelStyle,
 	OverlayMessage,
 	NoData,
 } from './common/styles';
 import OverlayMessageContainer from './common/OverlayMessage';
+import CustomTooltip from './common/CustomTooltip';
 
 type ChartCardProps = {
 	baseCurrencyKey: CurrencyKey | null;
@@ -94,33 +93,6 @@ const ChartCard: FC<ChartCardProps> = ({
 		fill: theme.colors.white,
 		fontFamily: theme.fonts.mono,
 	};
-
-	const CustomTooltip = ({
-		active,
-		label,
-		payload,
-	}: {
-		active: boolean;
-		payload: [
-			{
-				value: number;
-			}
-		];
-		label: Date;
-	}) =>
-		active && payload && payload[0] ? (
-			<TooltipContentStyle>
-				<LabelStyle>{format(label, 'do MMM yy | HH:mm')}</LabelStyle>
-				<LabelStyle>
-					{t('exchange.price-chart-card.tooltip.price')}{' '}
-					<CurrencyPrice>
-						{formatNumber(payload[0].value, {
-							minDecimals: getMinNoOfDecimals(payload[0].value),
-						})}
-					</CurrencyPrice>
-				</LabelStyle>
-			</TooltipContentStyle>
-		) : null;
 
 	return (
 		<Container {...rest}>
@@ -250,7 +222,13 @@ const ChartCard: FC<ChartCardProps> = ({
 									}}
 									content={
 										// @ts-ignore
-										<CustomTooltip />
+										<CustomTooltip
+											formatCurrentPrice={(n: number) =>
+												formatNumber(n, {
+													minDecimals: getMinNoOfDecimals(n),
+												})
+											}
+										/>
 									}
 								/>
 							)}
