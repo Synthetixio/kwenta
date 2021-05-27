@@ -195,7 +195,7 @@ const CurrencySelector = styled.div<{
 	${(props) =>
 		!props.currencyKeySelected &&
 		css`
-			margin: 6px 12px -10px;
+			margin: 12px 6px 12px -10px;
 		`};
 
 	${(props) =>

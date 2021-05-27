@@ -26,7 +26,8 @@ import {
 
 import { DesktopOnlyView, MobileOrTabletView } from 'components/Media';
 import useExchange from 'sections/exchange/hooks/useExchange';
-import { DEFAULT_WIDTH, WIDE_WIDTH } from 'sections/exchange/TradeCard/constants';
+import useChartWideWidth from 'sections/exchange/hooks/useChartWideWidth';
+import { DEFAULT_WIDTH } from 'sections/exchange/TradeCard/constants';
 
 const ExchangePage = () => {
 	const { t } = useTranslation();
@@ -56,6 +57,7 @@ const ExchangePage = () => {
 
 	const [isShowingSingleChart, setIsShowingSingleChart] = useState(true);
 	const toggleIsShowingSingleChart = () => setIsShowingSingleChart((bool) => !bool);
+	const wideWidth = useChartWideWidth();
 
 	const chartsToggler = (
 		<ChartsTogglerContainer>
@@ -115,9 +117,9 @@ const ExchangePage = () => {
 										<AnimatePresence>
 											<motion.div
 												layout
-												initial={{ width: WIDE_WIDTH }}
+												initial={{ width: wideWidth }}
 												animate={{ width: DEFAULT_WIDTH }}
-												exit={{ width: WIDE_WIDTH }}
+												exit={{ width: wideWidth }}
 												transition={{ ease: 'easeIn' }}
 											>
 												{combinedPriceChartCard}
@@ -128,7 +130,7 @@ const ExchangePage = () => {
 											<motion.div
 												layout
 												initial={{ width: DEFAULT_WIDTH }}
-												animate={{ width: WIDE_WIDTH }}
+												animate={{ width: wideWidth }}
 												exit={{ width: DEFAULT_WIDTH }}
 												transition={{ ease: 'easeOut' }}
 											>
@@ -149,9 +151,9 @@ const ExchangePage = () => {
 									{isShowingSingleChart ? (
 										<motion.div
 											layout
-											initial={{ width: WIDE_WIDTH }}
+											initial={{ width: wideWidth }}
 											animate={{ width: DEFAULT_WIDTH }}
-											exit={{ width: WIDE_WIDTH }}
+											exit={{ width: wideWidth }}
 											transition={{ ease: 'easeIn' }}
 										>
 											{combinedMarketDetailsCard}
@@ -160,7 +162,7 @@ const ExchangePage = () => {
 										<motion.div
 											layout
 											initial={{ width: DEFAULT_WIDTH }}
-											animate={{ width: WIDE_WIDTH }}
+											animate={{ width: wideWidth }}
 											exit={{ width: DEFAULT_WIDTH }}
 											transition={{ ease: 'easeOut' }}
 										>
