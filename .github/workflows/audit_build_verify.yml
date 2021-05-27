@@ -33,11 +33,11 @@ jobs:
     if: always() && (needs.audit.result == 'success' || needs.audit.result == 'skipped')
     runs-on: ubuntu-latest
 
-    container:
-      image: ghcr.io/synthetixio/docker-node/alpine:14.17
-      credentials:
-        username: synthetixio
-        password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
+    # container:
+    #   image: ghcr.io/synthetixio/docker-node/alpine:14.17
+    #   credentials:
+    #     username: synthetixio
+    #     password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
 
     steps:
     - name: Checkout
@@ -53,6 +53,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-build-
       continue-on-error: true
+
+    - name: Building on Node.js ${{ matrix.node-version }} 🛠️
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14.17.0'
 
     - name: npm update
       run: npm install -g npm@7
