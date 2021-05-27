@@ -56,10 +56,10 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo chown -R root /github
-        sudo chmod -R 777 /github
-        sudo chown -R root /__w
-        sudo chmod -R 777 /__w
+        chown -R root /github
+        chmod -R 777 /github
+        chown -R root /__w
+        chmod -R 777 /__w
         npm install --no-audit --legacy-peer-deps
 
     - name: Lint
