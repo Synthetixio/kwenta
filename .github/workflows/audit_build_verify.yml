@@ -55,7 +55,9 @@ jobs:
       continue-on-error: true
 
     - name: Install dependencies
-      run: npm install --no-audit --legacy-peer-deps
+      run: |
+        whoami
+        npm install --no-audit --legacy-peer-deps
 
     - name: Lint
       # run only on master/dev branch and pull requests
