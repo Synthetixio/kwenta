@@ -37,6 +37,7 @@ export const CurrencyPrice = styled.span`
 `;
 
 export const Actions = styled(GridDivCenteredCol)<{ alignRight?: boolean }>`
+	margin-top: 5px;
 	grid-gap: 8px;
 	justify-content: ${(props) => (props.alignRight ? 'flex-end' : 'flex-start')};
 

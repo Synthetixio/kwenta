@@ -107,9 +107,9 @@ const ExchangePage = () => {
 
 							<PageWidthContainer>{footerCard}</PageWidthContainer>
 
-							{chartsToggler}
-
 							<AnimateSharedLayout>
+								{chartsToggler}
+
 								<ChartsContainer>
 									{isShowingSingleChart ? (
 										<AnimatePresence>
@@ -132,14 +132,14 @@ const ExchangePage = () => {
 												exit={{ width: DEFAULT_WIDTH }}
 												transition={{ ease: 'easeOut' }}
 											>
-												<DesktopCardsContainer>
+												<DesktopCardsGapped>
 													<LeftCardContainer data-testid="left-side">
 														{quotePriceChartCard}
 													</LeftCardContainer>
 													<RightCardContainer data-testid="right-side">
 														{basePriceChartCard}
 													</RightCardContainer>
-												</DesktopCardsContainer>
+												</DesktopCardsGapped>
 											</motion.div>
 										</AnimatePresence>
 									)}
@@ -164,14 +164,14 @@ const ExchangePage = () => {
 											exit={{ width: DEFAULT_WIDTH }}
 											transition={{ ease: 'easeOut' }}
 										>
-											<DesktopMarketDetailsCardsContainer>
+											<DesktopCardsGapped>
 												<LeftCardContainer data-testid="left-side">
 													{quoteMarketDetailsCard}
 												</LeftCardContainer>
 												<RightCardContainer data-testid="right-side">
 													{baseMarketDetailsCard}
 												</RightCardContainer>
-											</DesktopMarketDetailsCardsContainer>
+											</DesktopCardsGapped>
 										</motion.div>
 									)}
 								</ChartsContainer>
@@ -261,14 +261,14 @@ const DesktopCardsContainer = styled.div`
 	flex: 1;
 `;
 
-const DesktopMarketDetailsCardsContainer = styled(DesktopCardsContainer)`
+const DesktopCardsGapped = styled(DesktopCardsContainer)`
 	grid-gap: 60px;
 	margin: 0 auto;
 `;
 
 const SwapCurrenciesButtonContainer = styled.div`
 	align-self: flex-start;
-	margin-top: 43px;
+	margin-top: 37px;
 	position: absolute;
 	left: calc(50% - 16px);
 	z-index: ${zIndex.BASE + 10};

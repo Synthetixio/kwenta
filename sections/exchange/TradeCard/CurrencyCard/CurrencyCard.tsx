@@ -159,8 +159,7 @@ const StyledCard = styled(Card)<{ interactive?: boolean }>`
 `;
 
 const StyledCardBody = styled(Card.Body)`
-	padding-top: 11px;
-	padding-bottom: 11px;
+	padding: 11px 30px;
 `;
 
 const LabelContainer = styled.div`
