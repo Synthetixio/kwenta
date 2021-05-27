@@ -120,7 +120,7 @@ const ExchangePage = () => {
 												initial={{ width: wideWidth }}
 												animate={{ width: DEFAULT_WIDTH }}
 												exit={{ width: wideWidth }}
-												transition={{ ease: 'easeIn' }}
+												transition={{ ease: 'easeOut' }}
 											>
 												{combinedPriceChartCard}
 											</motion.div>
@@ -154,7 +154,7 @@ const ExchangePage = () => {
 											initial={{ width: wideWidth }}
 											animate={{ width: DEFAULT_WIDTH }}
 											exit={{ width: wideWidth }}
-											transition={{ ease: 'easeIn' }}
+											transition={{ ease: 'easeOut' }}
 										>
 											{combinedMarketDetailsCard}
 										</motion.div>
