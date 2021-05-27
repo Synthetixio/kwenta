@@ -54,13 +54,14 @@ jobs:
           ${{ runner.os }}-build-
       continue-on-error: true
 
+    - name: npm update
+      run: npm install -g npm@7
+
+    - name: npm version
+      run: npm --version
+
     - name: Install dependencies
-      run: |
-        chown -R root /github
-        chmod -R 777 /github
-        chown -R root /__w
-        chmod -R 777 /__w
-        npm install --no-audit --legacy-peer-deps
+      run: npm install --no-audit --legacy-peer-deps
 
     - name: Lint
       # run only on master/dev branch and pull requests
