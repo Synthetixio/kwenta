@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: ghcr.io/synthetixio/docker-node/focal:14.17
+      image: node:14.7.0-alpine
       credentials:
         username: synthetixio
         password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
@@ -55,7 +55,9 @@ jobs:
       continue-on-error: true
 
     - name: Install dependencies
-      run: npm install --no-audit --legacy-peer-deps
+      run: |
+        npm install -g npm
+        npm install --no-audit --legacy-peer-deps
 
     - name: Lint
       # run only on master/dev branch and pull requests
