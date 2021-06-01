@@ -19,6 +19,8 @@ import HistoryMenu, { TabLabel } from './HistoryMenu';
 
 import { SYNTHS_TO_SHORT } from '../constants';
 
+import HeaderNotification from 'components/Notifications/HeaderNotification';
+
 const ShortingHistory: FC = () => {
 	const { t } = useTranslation();
 	const [currentTab, setCurrentTab] = useState<TabLabel>(TabLabel.YOUR_POSITIONS);

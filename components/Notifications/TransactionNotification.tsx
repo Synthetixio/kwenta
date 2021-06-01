@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import styled, { css } from 'styled-components';
 import { toast } from 'react-toastify';
 import { Img } from 'react-optimized-image';
@@ -17,41 +17,35 @@ type NotificationProps = {
 	failureReason?: string;
 };
 
-const NotificationPending = () => {
-	return (
-		<NotificationContainer>
-			<IconContainer>
-				<StyledImg width={25} src={Spinner} />
-			</IconContainer>
-			<TransactionInfo>{i18n.t('common.transaction.transaction-sent')}</TransactionInfo>
-		</NotificationContainer>
-	);
-};
+const NotificationPending: FC = () => (
+	<NotificationContainer>
+		<IconContainer>
+			<StyledImg width={25} src={Spinner} />
+		</IconContainer>
+		<TransactionInfo>{i18n.t('common.transaction.transaction-sent')}</TransactionInfo>
+	</NotificationContainer>
+);
 
-const NotificationSuccess = () => {
-	return (
-		<NotificationContainer>
-			<IconContainer>
-				<StyledImg width={35} src={Success} />
-			</IconContainer>
-			<TransactionInfo>{i18n.t('common.transaction.transaction-confirmed')}</TransactionInfo>
-		</NotificationContainer>
-	);
-};
+const NotificationSuccess: FC = () => (
+	<NotificationContainer>
+		<IconContainer>
+			<StyledImg width={35} src={Success} />
+		</IconContainer>
+		<TransactionInfo>{i18n.t('common.transaction.transaction-confirmed')}</TransactionInfo>
+	</NotificationContainer>
+);
 
-const NotificationError = ({ failureReason }: NotificationProps) => {
-	return (
-		<NotificationContainer>
-			<IconContainer>
-				<StyledImg width={35} src={Failure} />
-			</IconContainer>
-			<TransactionInfo>
-				<TransactionInfoBody>{i18n.t('common.transaction.transaction-failed')}</TransactionInfoBody>
-				<TransactionInfoBody isFailureMessage={true}>{failureReason}</TransactionInfoBody>
-			</TransactionInfo>
-		</NotificationContainer>
-	);
-};
+const NotificationError: FC<NotificationProps> = ({ failureReason }) => (
+	<NotificationContainer>
+		<IconContainer>
+			<StyledImg width={35} src={Failure} />
+		</IconContainer>
+		<TransactionInfo>
+			<TransactionInfoBody>{i18n.t('common.transaction.transaction-failed')}</TransactionInfoBody>
+			<TransactionInfoBody isFailureMessage={true}>{failureReason}</TransactionInfoBody>
+		</TransactionInfo>
+	</NotificationContainer>
+);
 
 const TransactionNotificationPending = ({ link, transactionHash }: TransactionStatusData) => {
 	const toastProps = {
