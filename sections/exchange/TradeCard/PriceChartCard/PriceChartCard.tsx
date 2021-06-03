@@ -22,7 +22,13 @@ import {
 	SYNTHS_MAP,
 	TSE_SYNTHS,
 } from 'constants/currency';
-import { PeriodLabel, PERIOD_LABELS_MAP, PERIOD_LABELS, PERIOD_IN_HOURS } from 'constants/period';
+import {
+	PeriodLabel,
+	PERIOD_LABELS_MAP,
+	PERIOD_LABELS,
+	PERIOD_IN_HOURS,
+	Period,
+} from 'constants/period';
 import { ChartType } from 'constants/chartType';
 
 import ChangePercent from 'components/ChangePercent';
@@ -176,7 +182,13 @@ const ChartCard: FC<ChartCardProps> = ({
 							<StyledTextButton
 								key={period.value}
 								isActive={period.value === selectedPeriod.value}
-								onClick={() => setSelectedPeriod(period)}
+								onClick={(event) => {
+									setSelectedPeriod(period);
+									// if not 1W or 1M set area chart
+									if (!(period.period === Period.ONE_WEEK || period.period === Period.ONE_MONTH)) {
+										setSelectedChartType(ChartType.AREA);
+									}
+								}}
 							>
 								{t(period.i18nLabel)}
 							</StyledTextButton>
@@ -184,11 +196,14 @@ const ChartCard: FC<ChartCardProps> = ({
 					</Actions>
 				)}
 			</ChartHeader>
-			<ChartTypeToggle
-				chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
-				selectedChartType={selectedChartType}
-				setSelectedChartType={setSelectedChartType}
-			/>
+			{(selectedPeriod.period === Period.ONE_WEEK ||
+				selectedPeriod.period === Period.ONE_MONTH) && (
+				<ChartTypeToggle
+					chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
+					selectedChartType={selectedChartType}
+					setSelectedChartType={setSelectedChartType}
+				/>
+			)}
 			<ChartBody>
 				<ChartData disabledInteraction={disabledInteraction}>
 					{selectedChartType === ChartType.AREA ? (

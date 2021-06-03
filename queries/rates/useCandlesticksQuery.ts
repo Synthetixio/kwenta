@@ -5,8 +5,7 @@ import { QueryConfig, useQuery } from 'react-query';
 import { Candle } from './types';
 import { calculateTimestampForPeriod } from './utils';
 
-const ENDPOINT =
-	'https://api.thegraph.com/subgraphs/id/QmdXZ1KNsxG31nwkRoDkMBQoVPwsTE3E52d7BUp4H8gndT'; //'https://api.thegraph.com/subgraphs/name/jchiaramonte7/testcandlesticks';
+const ENDPOINT = 'https://api.thegraph.com/subgraphs/name/jchiaramonte7/testcandlesticks';
 
 const useCandlesticksQuery = (
 	currencyKey: string | null,
@@ -19,12 +18,11 @@ const useCandlesticksQuery = (
 	return useQuery<Array<Candle>>(
 		QUERY_KEYS.Rates.Candlesticks(currencyKey as string, period),
 		async () => {
-			const candleGranularity =
-				period === Period.ONE_DAY || period === Period.FOUR_HOURS ? 'hourly' : 'daily';
+			const candleGranularity = period === Period.ONE_WEEK ? 'fourHourly' : 'daily';
 			const response = (await request(
 				ENDPOINT,
 				gql`
-					query ${candleGranularity}dailyCandles($synth: String!, $minTimestamp: BigInt!) {
+					query ${candleGranularity}Candles($synth: String!, $minTimestamp: BigInt!) {
 						${candleGranularity}Candles(
 							where: { synth: $synth, timestamp_gt: $minTimestamp }
 							orderBy: id
