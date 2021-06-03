@@ -34,7 +34,7 @@ const CandlestickChart: FC<CandlestickChartProps> = ({ currencyKey, selectedPeri
 
 	return (
 		<RechartsResponsiveContainer width="100%" height="100%">
-			<BarChart barGap={-2.5} data={data} margin={{ right: 0, bottom: 0, left: 0, top: 0 }}>
+			<BarChart barGap={-4.5} data={data} margin={{ right: 0, bottom: 0, left: 0, top: 0 }}>
 				<XAxis
 					// @ts-ignore
 					dx={-1}
@@ -71,7 +71,7 @@ const CandlestickChart: FC<CandlestickChartProps> = ({ currencyKey, selectedPeri
 						/>
 					))}
 				</Bar>
-				<Bar dataKey="uv" barSize={4} fill={theme.colors.red} radius={2}>
+				<Bar dataKey="uv" barSize={8} minPointSize={1}>
 					{data.map((datum: { uv: number[] }, index: number) => (
 						<Cell
 							key={`cell-${index}`}
