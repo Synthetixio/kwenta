@@ -10,15 +10,17 @@ type ChartTypeToggleProps = {
 	chartTypes: Array<ChartType>;
 	selectedChartType: string;
 	setSelectedChartType: Function;
+	alignRight?: boolean;
 };
 
 const ChartTypeToggle: FC<ChartTypeToggleProps> = ({
 	chartTypes,
 	selectedChartType,
 	setSelectedChartType,
+	alignRight,
 }) => {
 	return (
-		<Segment>
+		<Segment alignRight={!alignRight}>
 			{chartTypes.map((chartType) => (
 				<Button key={chartType} onClick={() => setSelectedChartType(chartType)}>
 					{chartType === ChartType.AREA ? (
@@ -32,9 +34,10 @@ const ChartTypeToggle: FC<ChartTypeToggleProps> = ({
 	);
 };
 
-const Segment = styled.div`
+const Segment = styled.div<{ alignRight?: boolean }>`
 	position: absolute;
-	top: 32px;
+	top: 36px;
+	${(props) => (props.alignRight ? `right: 64px;` : 'left: 2px;')}
 	z-index: 1;
 	background: ${(props) => props.theme.colors.navy};
 	border-radius: 50px;

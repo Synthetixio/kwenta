@@ -173,6 +173,7 @@ const ChartCard: FC<ChartCardProps> = ({
 					chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
 					selectedChartType={selectedChartType}
 					setSelectedChartType={setSelectedChartType}
+					alignRight={alignRight}
 				/>
 			)}
 			<ChartBody>
