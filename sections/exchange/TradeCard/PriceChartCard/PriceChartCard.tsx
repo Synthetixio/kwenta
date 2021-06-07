@@ -185,7 +185,7 @@ const ChartCard: FC<ChartCardProps> = ({
 								onClick={(event) => {
 									setSelectedPeriod(period);
 									// if not 1W or 1M set area chart
-									if (!(period.period === Period.ONE_WEEK || period.period === Period.ONE_MONTH)) {
+									if (period.period !== Period.ONE_MONTH) {
 										setSelectedChartType(ChartType.AREA);
 									}
 								}}
@@ -196,8 +196,7 @@ const ChartCard: FC<ChartCardProps> = ({
 					</Actions>
 				)}
 			</ChartHeader>
-			{(selectedPeriod.period === Period.ONE_WEEK ||
-				selectedPeriod.period === Period.ONE_MONTH) && (
+			{selectedPeriod.period === Period.ONE_MONTH && (
 				<ChartTypeToggle
 					chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
 					selectedChartType={selectedChartType}
