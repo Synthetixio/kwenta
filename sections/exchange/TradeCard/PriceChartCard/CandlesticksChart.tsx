@@ -2,24 +2,26 @@ import { formatEther } from '@ethersproject/units';
 import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
 import { PeriodLabel, PERIOD_IN_HOURS } from 'constants/period';
 import { format } from 'date-fns';
+import { Synth } from 'lib/synthetix';
 import { isNumber } from 'lodash';
-import useCandlesticksQuery from 'queries/rates/useCandlesticksQuery';
+import { Candle } from 'queries/rates/types';
 import React, { FC } from 'react';
 import { BarChart, XAxis, YAxis, Bar, Cell } from 'recharts';
 import { Tooltip } from 'styles/common';
 import theme from 'styles/theme';
+import { formatCurrency } from 'utils/formatters/number';
 
 type CandlestickChartProps = {
-	currencyKey: string | null;
+	candlesticksData: Candle[];
 	selectedPeriod: PeriodLabel;
+	selectedPriceCurrency: Synth;
 };
 
-const CandlestickChart: FC<CandlestickChartProps> = ({ currencyKey, selectedPeriod }) => {
-	const candlesticksQuery = useCandlesticksQuery(currencyKey, selectedPeriod.period);
-
-	const candlesticksData =
-		candlesticksQuery.isSuccess && candlesticksQuery.data ? candlesticksQuery.data : [];
-
+const CandlestickChart: FC<CandlestickChartProps> = ({
+	candlesticksData,
+	selectedPeriod,
+	selectedPriceCurrency,
+}) => {
 	const data = candlesticksData?.map((candle: any) => ({
 		timestamp: Number(candle.timestamp) * 1000,
 		uv: [Number(formatEther(candle.open)), Number(formatEther(candle.close))],
@@ -54,13 +56,21 @@ const CandlestickChart: FC<CandlestickChartProps> = ({ currencyKey, selectedPeri
 
 						return format(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
 					}}
+					hide={data.length === 0}
 				/>
 				<YAxis
+					type="number"
+					allowDataOverflow={true}
 					domain={['dataMin', 'dataMax']}
 					orientation="right"
 					axisLine={false}
 					tickLine={false}
 					tick={fontStyle}
+					tickFormatter={(val) =>
+						formatCurrency(selectedPriceCurrency.name, val, {
+							sign: selectedPriceCurrency.sign,
+						})
+					}
 				/>
 				<Tooltip />
 				<Bar dataKey="pv" barSize={1}>

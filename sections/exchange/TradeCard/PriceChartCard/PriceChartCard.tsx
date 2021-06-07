@@ -82,12 +82,15 @@ const ChartCard: FC<ChartCardProps> = ({
 	const [currentPrice, setCurrentPrice] = useState<number | null>(null);
 
 	const historicalRates = useHistoricalRatesQuery(currencyKey, selectedPeriod.period);
+	const candlesticksQuery = useCandlesticksQuery(currencyKey, selectedPeriod.period);
 
 	const isSUSD = currencyKey === SYNTHS_MAP.sUSD;
 
 	const change = historicalRates.data?.change ?? null;
 	// eslint-disable-next-line
 	const rates = historicalRates.data?.rates ?? [];
+	const candlesticksData =
+		candlesticksQuery.isSuccess && candlesticksQuery.data ? candlesticksQuery.data : [];
 
 	const isChangePositive = change != null && change >= 0;
 	const chartColor = isChangePositive || isSUSD ? theme.colors.green : theme.colors.red;
@@ -95,10 +98,18 @@ const ChartCard: FC<ChartCardProps> = ({
 	const price = currentPrice || priceRate;
 
 	const showOverlayMessage = isMarketClosed;
-	const showLoader = historicalRates.isLoading;
+	const showLoader = historicalRates.isLoading || candlesticksQuery.isLoading;
 	const disabledInteraction = showLoader || showOverlayMessage;
+	const noCandlesticksData =
+		selectedChartType === ChartType.CANDLESTICK &&
+		candlesticksQuery.isSuccess &&
+		candlesticksQuery.data &&
+		candlesticksData.length === 0;
 	const noData =
-		historicalRates.isSuccess && historicalRates.data && historicalRates.data.rates.length === 0;
+		(historicalRates.isSuccess &&
+			historicalRates.data &&
+			historicalRates.data.rates.length === 0) ||
+		noCandlesticksData;
 
 	// const isMobile = useMediaQuery({ query: `(max-width: ${breakpoints.sm})` });
 
@@ -184,7 +195,6 @@ const ChartCard: FC<ChartCardProps> = ({
 								isActive={period.value === selectedPeriod.value}
 								onClick={(event) => {
 									setSelectedPeriod(period);
-									// if not 1W or 1M set area chart
 									if (period.period !== Period.ONE_MONTH) {
 										setSelectedChartType(ChartType.AREA);
 									}
@@ -290,7 +300,11 @@ const ChartCard: FC<ChartCardProps> = ({
 							</AreaChart>
 						</RechartsResponsiveContainer>
 					) : (
-						<CandlestickChart currencyKey={currencyKey} selectedPeriod={selectedPeriod} />
+						<CandlestickChart
+							candlesticksData={candlesticksData}
+							selectedPeriod={selectedPeriod}
+							selectedPriceCurrency={selectedPriceCurrency}
+						/>
 					)}
 				</ChartData>
 				<AbsoluteCenteredDiv>
