@@ -21,6 +21,12 @@ export const QUERY_KEYS = {
 			currencyKey,
 			period,
 		],
+		PeriodStartSynthRate: (currencyKey: CurrencyKey, period: Period) => [
+			'rates',
+			'latestSynthRate',
+			currencyKey,
+			period,
+		],
 	},
 	Network: {
 		EthGasPrice: ['network', 'ethGasPrice'],
