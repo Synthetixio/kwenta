@@ -1,48 +1,47 @@
-import { useContext, FC, useState, useMemo } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { AreaChart, XAxis, YAxis, Area, Tooltip } from 'recharts';
-import isNumber from 'lodash/isNumber';
-import get from 'lodash/get';
-import styled, { ThemeContext } from 'styled-components';
-import format from 'date-fns/format';
+import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
 
-import LoaderIcon from 'assets/svg/app/loader.svg';
-import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
-
 import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
-import { PERIOD_LABELS, PERIOD_IN_HOURS, Period } from 'constants/period';
+import { PERIOD_LABELS, Period } from 'constants/period';
 import { ChartType } from 'constants/chartType';
 
 import ChangePercent from 'components/ChangePercent';
 import { chartPeriodState } from 'store/app';
 import usePersistedRecoilState from 'hooks/usePersistedRecoilState';
-import { FlexDivRowCentered, NoTextTransform, AbsoluteCenteredDiv } from 'styles/common';
+import { FlexDiv, FlexDivRowCentered, NoTextTransform, AbsoluteCenteredDiv } from 'styles/common';
 import { formatCurrency } from 'utils/formatters/number';
-import useHistoricalRatesQuery from 'queries/rates/useHistoricalRatesQuery';
+
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useMarketClosed from 'hooks/useMarketClosed';
-import useCandlesticksQuery from 'queries/rates/useCandlesticksQuery';
-import CandlestickChart from './CandlesticksChart';
-import ChartTypeToggle from './ChartTypeToggle';
+import LoaderIcon from 'assets/svg/app/loader.svg';
 
-import CustomTooltip from './common/CustomTooltip';
+import CandlestickChart from './CandlesticksChart';
+import CompareChart from './CompareChart';
+import AreaChartData from './AreaChart';
+
+import ChartTypeToggle from './ChartTypeToggle';
 import OverlayMessageContainer from './common/OverlayMessage';
-import { Side } from '../types';
 import {
 	ChartData,
 	CurrencyLabel,
 	CurrencyPrice,
 	Actions,
+	PeriodSelector,
 	ChartBody,
 	StyledTextButton,
 	NoData,
 	OverlayMessage,
 } from './common/styles';
+import { Side } from 'sections/exchange/TradeCard/types';
+import useAreaChartData from './hooks/useAreaChartData';
+import useCandleSticksChartData from './hooks/useCandleSticksChartData';
 
 type ChartCardProps = {
 	side: Side;
 	currencyKey: CurrencyKey | null;
+	otherCurrencyKey: CurrencyKey | null;
 	priceRate: number | null;
 	className?: string;
 	openAfterHoursModalCallback?: () => void;
@@ -52,6 +51,7 @@ type ChartCardProps = {
 const ChartCard: FC<ChartCardProps> = ({
 	side,
 	currencyKey,
+	otherCurrencyKey,
 	priceRate,
 	openAfterHoursModalCallback,
 	alignRight,
@@ -63,58 +63,26 @@ const ChartCard: FC<ChartCardProps> = ({
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
 	const { isMarketClosed, marketClosureReason } = useMarketClosed(currencyKey);
 
-	const theme = useContext(ThemeContext);
 	const [currentPrice, setCurrentPrice] = useState<number | null>(null);
 
-	const historicalRates = useHistoricalRatesQuery(currencyKey, selectedPeriod.period);
-	const candlesticksQuery = useCandlesticksQuery(currencyKey, selectedPeriod.period);
-
-	const isSUSD = currencyKey === SYNTHS_MAP.sUSD;
-
-	const change = historicalRates.data?.change ?? null;
-	// eslint-disable-next-line
-	const rates = historicalRates.data?.rates ?? [];
-	const candlesticksData =
-		candlesticksQuery.isSuccess && candlesticksQuery.data ? candlesticksQuery.data : [];
-
-	const isChangePositive = change != null && change >= 0;
-	const chartColor = isChangePositive || isSUSD ? theme.colors.green : theme.colors.red;
+	const {
+		noData: noAreaChartData,
+		isLoading: isLoadingAreaChartData,
+		change,
+		rates,
+	} = useAreaChartData({ currencyKey, selectedPeriod });
+	const {
+		noData: noCandleSticksChartData,
+		isLoading: isLoadingCandleSticksChartData,
+		data: candleSticksChartData,
+	} = useCandleSticksChartData({ currencyKey, selectedPeriod });
 
 	const price = currentPrice || priceRate;
 
 	const showOverlayMessage = isMarketClosed;
-	const showLoader = historicalRates.isLoading || candlesticksQuery.isLoading;
+	const showLoader = isLoadingAreaChartData || isLoadingCandleSticksChartData;
 	const disabledInteraction = showLoader || showOverlayMessage;
-	const noCandlesticksData =
-		selectedChartType === ChartType.CANDLESTICK &&
-		candlesticksQuery.isSuccess &&
-		candlesticksQuery.data &&
-		candlesticksData.length === 0;
-	const noData =
-		(historicalRates.isSuccess &&
-			historicalRates.data &&
-			historicalRates.data.rates.length === 0) ||
-		noCandlesticksData;
-
-	// const isMobile = useMediaQuery({ query: `(max-width: ${breakpoints.sm})` });
-
-	let linearGradientId = `priceChartCardArea-${side}`;
-
-	const fontStyle = {
-		fontSize: '12px',
-		fill: theme.colors.white,
-		fontFamily: theme.fonts.mono,
-	};
-
-	const computedRates = useMemo(() => {
-		if (selectPriceCurrencyRate != null) {
-			return rates.map((rateData) => ({
-				...rateData,
-				rate: rateData.rate / selectPriceCurrencyRate,
-			}));
-		}
-		return rates;
-	}, [rates, selectPriceCurrencyRate]);
+	const noData = noAreaChartData || noCandleSticksChartData;
 
 	return (
 		<Container {...rest}>
@@ -150,21 +118,41 @@ const ChartCard: FC<ChartCardProps> = ({
 					)}
 				</ChartHeaderTop>
 				{!isMarketClosed && (
-					<Actions {...{ alignRight }}>
-						{PERIOD_LABELS.map((period) => (
-							<StyledTextButton
-								key={period.value}
-								isActive={period.value === selectedPeriod.value}
-								onClick={(event) => {
-									setSelectedPeriod(period);
-									if (period.period !== Period.ONE_MONTH) {
-										setSelectedChartType(ChartType.AREA);
-									}
+					<Actions reverseChildren={alignRight}>
+						<PeriodSelector>
+							{PERIOD_LABELS.map((period) => (
+								<StyledTextButton
+									key={period.value}
+									isActive={period.value === selectedPeriod.value}
+									onClick={(event) => {
+										setSelectedPeriod(period);
+										if (period.period !== Period.ONE_MONTH) {
+											setSelectedChartType(ChartType.AREA);
+										}
+									}}
+								>
+									{t(period.i18nLabel)}
+								</StyledTextButton>
+							))}
+						</PeriodSelector>
+						<CompareRatioToggle>
+							<CompareRatioToggleType
+								onClick={() => {
+									setSelectedChartType(ChartType.COMPARE);
 								}}
+								isActive={selectedChartType === ChartType.COMPARE}
 							>
-								{t(period.i18nLabel)}
-							</StyledTextButton>
-						))}
+								{t('common.chart-types.compare')}
+							</CompareRatioToggleType>
+							<CompareRatioToggleType
+								onClick={() => {
+									setSelectedChartType(ChartType.AREA);
+								}}
+								isActive={selectedChartType !== ChartType.COMPARE}
+							>
+								{t('common.chart-types.ratio')}
+							</CompareRatioToggleType>
+						</CompareRatioToggle>
 					</Actions>
 				)}
 			</ChartHeader>
@@ -178,101 +166,30 @@ const ChartCard: FC<ChartCardProps> = ({
 			)}
 			<ChartBody>
 				<ChartData disabledInteraction={disabledInteraction}>
-					{selectedChartType === ChartType.AREA ? (
-						<RechartsResponsiveContainer
-							width="100%"
-							height="100%"
-							id={`rechartsResponsiveContainer-${side}-${currencyKey}`}
-						>
-							<AreaChart
-								data={computedRates}
-								margin={{ right: 0, bottom: 0, left: 0, top: 0 }}
-								onMouseMove={(e: any) => {
-									const currentRate = get(e, 'activePayload[0].payload.rate', null);
-									if (currentRate) {
-										setCurrentPrice(currentRate);
-									} else {
-										setCurrentPrice(null);
-									}
-								}}
-								onMouseLeave={(e: any) => {
-									setCurrentPrice(null);
-								}}
-							>
-								<defs>
-									<linearGradient id={linearGradientId} x1="0" y1="0" x2="0" y2="1">
-										<stop offset="0%" stopColor={chartColor} stopOpacity={0.5} />
-										<stop offset="100%" stopColor={chartColor} stopOpacity={0} />
-									</linearGradient>
-								</defs>
-								<XAxis
-									// @ts-ignore
-									dx={-1}
-									dy={10}
-									minTickGap={20}
-									dataKey="timestamp"
-									allowDataOverflow={true}
-									tick={fontStyle}
-									axisLine={false}
-									tickLine={false}
-									tickFormatter={(val) => {
-										if (!isNumber(val)) {
-											return '';
-										}
-										const periodOverOneDay =
-											selectedPeriod != null && selectedPeriod.value > PERIOD_IN_HOURS.ONE_DAY;
-
-										return format(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
-									}}
-								/>
-								<YAxis
-									// TODO: might need to adjust the width to make sure we do not trim the values...
-									type="number"
-									allowDataOverflow={true}
-									domain={isSUSD ? ['dataMax', 'dataMax'] : ['auto', 'auto']}
-									tick={fontStyle}
-									orientation="right"
-									axisLine={false}
-									tickLine={false}
-									tickFormatter={(val) =>
-										formatCurrency(selectedPriceCurrency.name, val, {
-											sign: selectedPriceCurrency.sign,
-										})
-									}
-								/>
-								<Area
-									dataKey="rate"
-									stroke={chartColor}
-									dot={false}
-									strokeWidth={2}
-									fill={`url(#${linearGradientId})`}
-									isAnimationActive={false}
-								/>
-								{currencyKey != null && !noData && (
-									<Tooltip
-										isAnimationActive={false}
-										position={{
-											y: 0,
-										}}
-										content={
-											// @ts-ignore
-											<CustomTooltip
-												formatCurrentPrice={(n: number) =>
-													formatCurrency(selectedPriceCurrency.name, n, {
-														sign: selectedPriceCurrency.sign,
-													})
-												}
-											/>
-										}
-									/>
-								)}
-							</AreaChart>
-						</RechartsResponsiveContainer>
+					{selectedChartType === ChartType.COMPARE ? (
+						<CompareChart
+							baseCurrencyKey={currencyKey}
+							quoteCurrencyKey={otherCurrencyKey}
+							{...{ side, selectedPeriod }}
+						/>
+					) : selectedChartType === ChartType.AREA ? (
+						<AreaChartData
+							{...{
+								currencyKey,
+								selectedPeriod,
+								selectedPriceCurrency,
+								rates,
+								change,
+								selectPriceCurrencyRate,
+								side,
+								setCurrentPrice,
+							}}
+							noData={noAreaChartData}
+						/>
 					) : (
 						<CandlestickChart
-							candlesticksData={candlesticksData}
-							selectedPeriod={selectedPeriod}
-							selectedPriceCurrency={selectedPriceCurrency}
+							data={candleSticksChartData}
+							{...{ selectedPeriod, selectedPriceCurrency }}
 						/>
 					)}
 				</ChartData>
@@ -297,6 +214,18 @@ const ChartCard: FC<ChartCardProps> = ({
 		</Container>
 	);
 };
+
+const CompareRatioToggle = styled(FlexDiv)`
+	grid-gap: 4px;
+`;
+
+const CompareRatioToggleType = styled.div<{ isActive: boolean }>`
+	cursor: pointer;
+	font-weight: bold;
+	border-bottom: 2px solid ${(props) => (props.isActive ? '#b68b58' : 'transparent')};
+	color: ${(props) => (props.isActive ? props.theme.colors.white : 'inherit')};
+	text-transform: uppercase;
+`;
 
 const Container = styled.div`
 	width: 100%;

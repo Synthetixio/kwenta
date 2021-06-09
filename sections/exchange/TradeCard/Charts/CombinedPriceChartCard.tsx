@@ -35,6 +35,7 @@ import {
 	StyledTextButton,
 	OverlayMessage,
 	NoData,
+	PeriodSelector,
 } from './common/styles';
 import OverlayMessageContainer from './common/OverlayMessage';
 import CustomTooltip from './common/CustomTooltip';
@@ -131,15 +132,17 @@ const ChartCard: FC<ChartCardProps> = ({
 				</FlexDivRowCentered>
 				{!isMarketClosed && (
 					<Actions>
-						{PERIOD_LABELS.map((period) => (
-							<StyledTextButton
-								key={period.value}
-								isActive={period.value === selectedPeriod.value}
-								onClick={() => setSelectedPeriod(period)}
-							>
-								{t(period.i18nLabel)}
-							</StyledTextButton>
-						))}
+						<PeriodSelector>
+							{PERIOD_LABELS.map((period) => (
+								<StyledTextButton
+									key={period.value}
+									isActive={period.value === selectedPeriod.value}
+									onClick={() => setSelectedPeriod(period)}
+								>
+									{t(period.i18nLabel)}
+								</StyledTextButton>
+							))}
+						</PeriodSelector>
 					</Actions>
 				)}
 			</ChartHeader>
@@ -152,7 +155,7 @@ const ChartCard: FC<ChartCardProps> = ({
 					>
 						<AreaChart
 							data={changes}
-							margin={{ right: 15, bottom: 0, left: 0, top: 0 }}
+							margin={{ right: 0, bottom: 0, left: 0, top: 0 }}
 							onMouseMove={(e: any) => {
 								const currentRate = get(e, 'activePayload[0].payload.change', null);
 								if (currentRate) {

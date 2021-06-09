@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import media from 'styles/media';
-import { GridDivCenteredCol, GridDivCenteredRow, TextButton } from 'styles/common';
+import { FlexDiv, GridDivCenteredCol, GridDivCenteredRow, TextButton } from 'styles/common';
 
 export const ChartData = styled.div<{ disabledInteraction: boolean }>`
 	width: 100%;
@@ -36,15 +36,19 @@ export const CurrencyPrice = styled.span`
 	padding-right: 20px;
 `;
 
-export const Actions = styled(GridDivCenteredCol)<{ alignRight?: boolean }>`
+export const Actions = styled(FlexDiv)<{ reverseChildren?: boolean }>`
 	margin-top: 5px;
-	grid-gap: 8px;
-	justify-content: ${(props) => (props.alignRight ? 'flex-end' : 'flex-start')};
+	flex-direction: ${(props) => (props.reverseChildren ? 'row-reverse' : 'row')};
+	justify-content: space-between;
 
 	${media.lessThan('sm')`
 		overflow: auto;
 		width: 70px;
 	`}
+`;
+
+export const PeriodSelector = styled(GridDivCenteredCol)`
+	grid-gap: 8px;
 `;
 
 export const ChartBody = styled.div`

@@ -817,6 +817,7 @@ const useExchange = ({
 		<PriceChartCard
 			side="quote"
 			currencyKey={quoteCurrencyKey}
+			otherCurrencyKey={baseCurrencyKey}
 			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
 			priceRate={quotePriceRate}
 		/>
@@ -892,6 +893,7 @@ const useExchange = ({
 		<PriceChartCard
 			side="base"
 			currencyKey={baseCurrencyKey}
+			otherCurrencyKey={quoteCurrencyKey}
 			priceRate={basePriceRate}
 			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
 			alignRight

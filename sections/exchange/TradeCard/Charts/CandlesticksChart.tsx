@@ -12,17 +12,17 @@ import theme from 'styles/theme';
 import { formatCurrency } from 'utils/formatters/number';
 
 type CandlestickChartProps = {
-	candlesticksData: Candle[];
+	data: Candle[];
 	selectedPeriod: PeriodLabel;
 	selectedPriceCurrency: Synth;
 };
 
 const CandlestickChart: FC<CandlestickChartProps> = ({
-	candlesticksData,
+	data,
 	selectedPeriod,
 	selectedPriceCurrency,
 }) => {
-	const data = candlesticksData?.map((candle: any) => ({
+	const chartData = data?.map((candle: any) => ({
 		timestamp: Number(candle.timestamp) * 1000,
 		uv: [Number(formatEther(candle.open)), Number(formatEther(candle.close))],
 		pv: [Number(formatEther(candle.high)), Number(formatEther(candle.low))],
@@ -56,7 +56,7 @@ const CandlestickChart: FC<CandlestickChartProps> = ({
 
 						return format(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
 					}}
-					hide={data.length === 0}
+					hide={chartData.length === 0}
 				/>
 				<YAxis
 					type="number"
@@ -74,7 +74,7 @@ const CandlestickChart: FC<CandlestickChartProps> = ({
 				/>
 				<Tooltip />
 				<Bar dataKey="pv" barSize={1}>
-					{data.map((datum: { uv: number[] }, index: number) => (
+					{chartData.map((datum: { uv: number[] }, index: number) => (
 						<Cell
 							key={`cell-${index}`}
 							fill={datum.uv[1] - datum.uv[0] > 0 ? '#6DDA78' : '#E0306B'}
@@ -82,7 +82,7 @@ const CandlestickChart: FC<CandlestickChartProps> = ({
 					))}
 				</Bar>
 				<Bar dataKey="uv" barSize={8} minPointSize={1}>
-					{data.map((datum: { uv: number[] }, index: number) => (
+					{chartData.map((datum: { uv: number[] }, index: number) => (
 						<Cell
 							key={`cell-${index}`}
 							fill={datum.uv[1] - datum.uv[0] > 0 ? '#6DDA78' : '#E0306B'}
