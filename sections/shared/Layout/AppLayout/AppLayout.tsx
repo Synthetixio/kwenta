@@ -3,7 +3,7 @@ import { FC } from 'react';
 import { FullScreenContainer } from 'styles/common';
 
 import Header from './Header';
-import NotificationContainer from 'constants/NotificationContainer';
+import NotificationContainer from 'components/Notifications/NotificationContainer';
 
 type AppLayoutProps = {
 	children: React.ReactNode;
