@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
@@ -84,6 +84,10 @@ const ChartCard: FC<ChartCardProps> = ({
 	const disabledInteraction = showLoader || showOverlayMessage;
 	const noData = noAreaChartData || noCandleSticksChartData;
 
+	const isCompareChart = useMemo(() => selectedChartType === ChartType.COMPARE, [
+		selectedChartType,
+	]);
+
 	return (
 		<Container {...rest}>
 			<ChartHeader>
@@ -92,7 +96,28 @@ const ChartCard: FC<ChartCardProps> = ({
 						alignRight,
 					}}
 				>
-					{currencyKey != null ? (
+					{!currencyKey ? (
+						<CurrencyLabel>{t('common.price')}</CurrencyLabel>
+					) : isCompareChart ? (
+						<>
+							<CurrencyLabelWithDot>
+								<Trans
+									i18nKey="common.currency.currency-price"
+									values={{ currencyKey }}
+									components={[<NoTextTransform />]}
+								/>
+								<PriceDot color={'#395BC5'} />
+							</CurrencyLabelWithDot>
+							<CurrencyLabelWithDot>
+								<Trans
+									i18nKey="common.currency.currency-price"
+									values={{ currencyKey: otherCurrencyKey }}
+									components={[<NoTextTransform />]}
+								/>
+								<PriceDot color={'#7AC09F'} />
+							</CurrencyLabelWithDot>
+						</>
+					) : (
 						<>
 							<CurrencyLabel>
 								<Trans
@@ -113,8 +138,6 @@ const ChartCard: FC<ChartCardProps> = ({
 							)}
 							{change != null && <ChangePercent value={change} />}
 						</>
-					) : (
-						<CurrencyLabel>{t('common.price')}</CurrencyLabel>
 					)}
 				</ChartHeaderTop>
 				{!isMarketClosed && (
@@ -140,7 +163,7 @@ const ChartCard: FC<ChartCardProps> = ({
 								onClick={() => {
 									setSelectedChartType(ChartType.COMPARE);
 								}}
-								isActive={selectedChartType === ChartType.COMPARE}
+								isActive={isCompareChart}
 							>
 								{t('common.chart-types.compare')}
 							</CompareRatioToggleType>
@@ -148,7 +171,7 @@ const ChartCard: FC<ChartCardProps> = ({
 								onClick={() => {
 									setSelectedChartType(ChartType.AREA);
 								}}
-								isActive={selectedChartType !== ChartType.COMPARE}
+								isActive={!isCompareChart}
 							>
 								{t('common.chart-types.ratio')}
 							</CompareRatioToggleType>
@@ -243,6 +266,20 @@ const ChartHeaderTop = styled(FlexDivRowCentered)<{ alignRight?: boolean }>`
 	border-bottom: 1px solid #171a1d;
 	justify-content: ${(props) => (props.alignRight ? 'flex-end' : 'flex-start')};
 	padding-bottom: 5px;
+	grid-gap: 20px;
+`;
+
+const CurrencyLabelWithDot = styled(CurrencyLabel)`
+	display: flex;
+	grid-gap: 5px;
+	align-items: center;
+`;
+
+const PriceDot = styled.div<{ color: string }>`
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background-color: ${(props) => props.color};
 `;
 
 export default ChartCard;

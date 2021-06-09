@@ -23,7 +23,6 @@ export const LinkTag = styled.span`
 `;
 
 export const CurrencyLabel = styled.span`
-	padding-right: 20px;
 	font-size: 14px;
 	text-transform: capitalize;
 	color: ${(props) => props.theme.colors.white};
@@ -33,7 +32,6 @@ export const CurrencyLabel = styled.span`
 export const CurrencyPrice = styled.span`
 	font-family: ${(props) => props.theme.fonts.mono};
 	color: ${(props) => props.theme.colors.white};
-	padding-right: 20px;
 `;
 
 export const Actions = styled(FlexDiv)<{ reverseChildren?: boolean }>`

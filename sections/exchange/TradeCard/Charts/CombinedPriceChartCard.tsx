@@ -98,7 +98,7 @@ const ChartCard: FC<ChartCardProps> = ({
 	return (
 		<Container {...rest}>
 			<ChartHeader>
-				<FlexDivRowCentered>
+				<ChartHeaderInner>
 					{baseCurrencyKey && quoteCurrencyKey ? (
 						<>
 							<FlexDiv>
@@ -129,7 +129,7 @@ const ChartCard: FC<ChartCardProps> = ({
 					) : (
 						<CurrencyLabel>{t('common.price')}</CurrencyLabel>
 					)}
-				</FlexDivRowCentered>
+				</ChartHeaderInner>
 				{!isMarketClosed && (
 					<Actions>
 						<PeriodSelector>
@@ -325,6 +325,10 @@ const BothMarketsClosedOverlayMessageContainer = styled(FlexDiv)`
 
 const BothMarketsClosedOverlayMessageItem = styled(FlexDivCol)`
 	align-items: center;
+`;
+
+const ChartHeaderInner = styled(FlexDivRowCentered)`
+	grid-gap: 20px;
 `;
 
 export default ChartCard;
