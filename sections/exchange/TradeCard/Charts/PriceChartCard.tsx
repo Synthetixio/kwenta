@@ -17,9 +17,9 @@ import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useMarketClosed from 'hooks/useMarketClosed';
 import LoaderIcon from 'assets/svg/app/loader.svg';
 
-import CandlestickChart from './CandlesticksChart';
-import CompareChart from './CompareChart';
-import AreaChartData from './AreaChart';
+import CandlestickChart from './Types/CandlesticksChart';
+import CompareChart from './Types/CompareChart';
+import AreaChartData from './Types/AreaChart';
 
 import ChartTypeToggle from './ChartTypeToggle';
 import OverlayMessageContainer from './common/OverlayMessage';
@@ -34,6 +34,10 @@ import {
 	StyledTextButton,
 	NoData,
 	OverlayMessage,
+	CurrencyLabelWithDot,
+	PriceDot,
+	CompareRatioToggle,
+	CompareRatioToggleType,
 } from './common/styles';
 import { Side } from 'sections/exchange/TradeCard/types';
 import useAreaChartData from './hooks/useAreaChartData';
@@ -159,7 +163,7 @@ const ChartCard: FC<ChartCardProps> = ({
 								</StyledTextButton>
 							))}
 						</PeriodSelector>
-						<ActionsRightPane reversed={alignRight}>
+						<ActionsRightPane reverseChildren={alignRight}>
 							{selectedPeriod.period === Period.ONE_MONTH && (
 								<ChartTypeToggle
 									chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
@@ -192,11 +196,11 @@ const ChartCard: FC<ChartCardProps> = ({
 			</ChartHeader>
 			<ChartBody>
 				<ChartData disabledInteraction={disabledInteraction}>
-					{selectedChartType === ChartType.COMPARE ? (
+					{isCompareChart ? (
 						<CompareChart
 							baseCurrencyKey={currencyKey}
 							quoteCurrencyKey={otherCurrencyKey}
-							{...{ side, selectedPeriod }}
+							{...{ selectedPeriod }}
 						/>
 					) : selectedChartType === ChartType.AREA ? (
 						<AreaChartData
@@ -241,18 +245,6 @@ const ChartCard: FC<ChartCardProps> = ({
 	);
 };
 
-const CompareRatioToggle = styled(FlexDiv)`
-	grid-gap: 4px;
-`;
-
-const CompareRatioToggleType = styled.div<{ isActive: boolean }>`
-	cursor: pointer;
-	font-weight: bold;
-	border-bottom: 2px solid ${(props) => (props.isActive ? '#b68b58' : 'transparent')};
-	color: ${(props) => (props.isActive ? props.theme.colors.white : 'inherit')};
-	text-transform: uppercase;
-`;
-
 const Container = styled.div`
 	width: 100%;
 	position: relative;
@@ -270,19 +262,6 @@ const ChartHeaderTop = styled(FlexDivRowCentered)<{ alignRight?: boolean }>`
 	justify-content: ${(props) => (props.alignRight ? 'flex-end' : 'flex-start')};
 	padding-bottom: 5px;
 	grid-gap: 20px;
-`;
-
-const CurrencyLabelWithDot = styled(CurrencyLabel)`
-	display: flex;
-	grid-gap: 5px;
-	align-items: center;
-`;
-
-const PriceDot = styled.div<{ color: string }>`
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background-color: ${(props) => props.color};
 `;
 
 export default ChartCard;

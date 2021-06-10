@@ -4,18 +4,16 @@ import styled, { ThemeContext } from 'styled-components';
 
 import { CurrencyKey } from 'constants/currency';
 import { PeriodLabel } from 'constants/period';
-import { Side } from 'sections/exchange/TradeCard/types';
 import useCompareChartData from 'sections/exchange/hooks/useCompareChartData';
 import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
 import { formatCurrency, formatNumber } from 'utils/formatters/number';
 import { TooltipContentStyle as BaseTooltipContentStyle } from 'sections/exchange/TradeCard/Charts/common/styles';
 
-const CompareCharts: FC<{
-	side: Side;
+const CompareChart: FC<{
 	baseCurrencyKey: CurrencyKey | null;
 	quoteCurrencyKey: CurrencyKey | null;
 	selectedPeriod: PeriodLabel;
-}> = ({ side, baseCurrencyKey, quoteCurrencyKey, selectedPeriod }) => {
+}> = ({ baseCurrencyKey, quoteCurrencyKey, selectedPeriod }) => {
 	const theme = useContext(ThemeContext);
 	const fontStyle = {
 		fontSize: '12px',
@@ -33,16 +31,9 @@ const CompareCharts: FC<{
 		<RechartsResponsiveContainer
 			width="100%"
 			height="100%"
-			id={`rechartsResponsiveContainer-${side}-${baseCurrencyKey}-${quoteCurrencyKey}`}
+			id={`recharts-responsive-container-${baseCurrencyKey}-${quoteCurrencyKey}`}
 		>
 			<LineChart {...{ data }} margin={{ right: 15, bottom: 0, left: 0, top: 0 }}>
-				{/* <defs>
-					<linearGradient id={linearGradientId} x1="0" y1="0" x2="0" y2="1">
-						<stop offset="0%" stopColor={chartColor} stopOpacity={0.5} />
-						<stop offset="100%" stopColor={chartColor} stopOpacity={0} />
-					</linearGradient>
-				</defs>
-				*/}
 				<XAxis
 					// @ts-ignore
 					dx={-1}
@@ -133,7 +124,7 @@ const CustomTooltip: FC<{
 	);
 };
 
-export default CompareCharts;
+export default CompareChart;
 
 export const TooltipContentStyle = styled(BaseTooltipContentStyle)`
 	padding: 12px;

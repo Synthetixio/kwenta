@@ -1,6 +1,5 @@
-import { useContext, FC, useState } from 'react';
+import { useContext, FC, useState, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { AreaChart, XAxis, YAxis, Area, Tooltip } from 'recharts';
 import isNumber from 'lodash/isNumber';
 import get from 'lodash/get';
 import styled, { ThemeContext } from 'styled-components';
@@ -8,7 +7,6 @@ import format from 'date-fns/format';
 import { Svg } from 'react-optimized-image';
 
 import LoaderIcon from 'assets/svg/app/loader.svg';
-import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
 import { PERIOD_LABELS, PERIOD_IN_HOURS } from 'constants/period';
 import { CurrencyKey } from 'constants/currency';
 import { chartPeriodState } from 'store/app';
@@ -36,11 +34,17 @@ import {
 	OverlayMessage,
 	NoData,
 	PeriodSelector,
+	CurrencyLabelWithDot,
+	PriceDot,
+	CompareRatioToggle,
+	CompareRatioToggleType,
 } from './common/styles';
 import OverlayMessageContainer from './common/OverlayMessage';
-import CustomTooltip from './common/CustomTooltip';
+import { ChartType } from 'constants/chartType';
+import AreaChart, { getMinNoOfDecimals } from './CombinedPriceChartCard/AreaChart';
+import CompareChart from './Types/CompareChart';
 
-type ChartCardProps = {
+type CombinedPriceChartCardProps = {
 	baseCurrencyKey: CurrencyKey | null;
 	quoteCurrencyKey: CurrencyKey | null;
 	basePriceRate: number | null;
@@ -49,7 +53,7 @@ type ChartCardProps = {
 	openAfterHoursModalCallback?: () => void;
 };
 
-const ChartCard: FC<ChartCardProps> = ({
+const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	baseCurrencyKey,
 	quoteCurrencyKey,
 	basePriceRate,
@@ -58,6 +62,7 @@ const ChartCard: FC<ChartCardProps> = ({
 	...rest
 }) => {
 	const { t } = useTranslation();
+	const [selectedChartType, setSelectedChartType] = useState(ChartType.AREA);
 	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState(chartPeriodState);
 	const { changes, noData, change, isLoadingRates } = useCombinedRates({
 		baseCurrencyKey,
@@ -75,31 +80,43 @@ const ChartCard: FC<ChartCardProps> = ({
 
 	const isMarketClosed = isBaseMarketClosed || isQuoteMarketClosed;
 
-	const theme = useContext(ThemeContext);
 	const [currentPrice, setCurrentPrice] = useState<number | null>(null);
-
-	const isChangePositive = change != null && change >= 0;
-	const chartColor = isChangePositive ? theme.colors.green : theme.colors.red;
-
 	const price = currentPrice || (basePriceRate ?? 1) / (quotePriceRate! || 1);
 
 	const showOverlayMessage = isMarketClosed;
 	const showLoader = isLoadingRates;
 	const disabledInteraction = showLoader || showOverlayMessage;
 
-	let linearGradientId = `priceChartCardArea`;
-
-	const fontStyle = {
-		fontSize: '12px',
-		fill: theme.colors.white,
-		fontFamily: theme.fonts.mono,
-	};
+	const isCompareChart = useMemo(() => selectedChartType === ChartType.COMPARE, [
+		selectedChartType,
+	]);
 
 	return (
 		<Container {...rest}>
 			<ChartHeader>
 				<ChartHeaderInner>
-					{baseCurrencyKey && quoteCurrencyKey ? (
+					{!(baseCurrencyKey && quoteCurrencyKey) ? (
+						<CurrencyLabel>{t('common.price')}</CurrencyLabel>
+					) : isCompareChart ? (
+						<>
+							<CurrencyLabelWithDot>
+								<Trans
+									i18nKey="common.currency.currency-price"
+									values={{ currencyKey: baseCurrencyKey }}
+									components={[<NoTextTransform />]}
+								/>
+								<PriceDot color={'#395BC5'} />
+							</CurrencyLabelWithDot>
+							<CurrencyLabelWithDot>
+								<Trans
+									i18nKey="common.currency.currency-price"
+									values={{ currencyKey: quoteCurrencyKey }}
+									components={[<NoTextTransform />]}
+								/>
+								<PriceDot color={'#7AC09F'} />
+							</CurrencyLabelWithDot>
+						</>
+					) : (
 						<>
 							<FlexDiv>
 								<DesktopOnlyView>
@@ -126,12 +143,28 @@ const ChartCard: FC<ChartCardProps> = ({
 							)}
 							{change != null && <ChangePercent value={change} />}
 						</>
-					) : (
-						<CurrencyLabel>{t('common.price')}</CurrencyLabel>
 					)}
 				</ChartHeaderInner>
 				{!isMarketClosed && (
 					<Actions>
+						<CompareRatioToggle>
+							<CompareRatioToggleType
+								onClick={() => {
+									setSelectedChartType(ChartType.COMPARE);
+								}}
+								isActive={isCompareChart}
+							>
+								{t('common.chart-types.compare')}
+							</CompareRatioToggleType>
+							<CompareRatioToggleType
+								onClick={() => {
+									setSelectedChartType(ChartType.AREA);
+								}}
+								isActive={!isCompareChart}
+							>
+								{t('common.chart-types.ratio')}
+							</CompareRatioToggleType>
+						</CompareRatioToggle>
 						<PeriodSelector>
 							{PERIOD_LABELS.map((period) => (
 								<StyledTextButton
@@ -148,95 +181,21 @@ const ChartCard: FC<ChartCardProps> = ({
 			</ChartHeader>
 			<ChartBody>
 				<ChartData disabledInteraction={disabledInteraction}>
-					<RechartsResponsiveContainer
-						width="100%"
-						height="100%"
-						id={`rechartsResponsiveContainer-${baseCurrencyKey}/${quoteCurrencyKey}`}
-					>
+					{isCompareChart ? (
+						<CompareChart {...{ baseCurrencyKey, quoteCurrencyKey, selectedPeriod }} />
+					) : (
 						<AreaChart
-							data={changes}
-							margin={{ right: 0, bottom: 0, left: 0, top: 0 }}
-							onMouseMove={(e: any) => {
-								const currentRate = get(e, 'activePayload[0].payload.change', null);
-								if (currentRate) {
-									setCurrentPrice(currentRate);
-								} else {
-									setCurrentPrice(null);
-								}
+							{...{
+								quoteCurrencyKey,
+								baseCurrencyKey,
+								selectedPeriod,
+								changes,
+								change,
+								setCurrentPrice,
+								noData,
 							}}
-							onMouseLeave={(e: any) => {
-								setCurrentPrice(null);
-							}}
-						>
-							<defs>
-								<linearGradient id={linearGradientId} x1="0" y1="0" x2="0" y2="1">
-									<stop offset="0%" stopColor={chartColor} stopOpacity={0.5} />
-									<stop offset="100%" stopColor={chartColor} stopOpacity={0} />
-								</linearGradient>
-							</defs>
-							<XAxis
-								// @ts-ignore
-								dx={-1}
-								dy={10}
-								minTickGap={20}
-								dataKey="timestamp"
-								allowDataOverflow={true}
-								tick={fontStyle}
-								axisLine={false}
-								tickLine={false}
-								tickFormatter={(val) => {
-									if (!isNumber(val)) {
-										return '';
-									}
-									const periodOverOneDay =
-										selectedPeriod != null && selectedPeriod.value > PERIOD_IN_HOURS.ONE_DAY;
-
-									return format(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
-								}}
-							/>
-							<YAxis
-								// TODO: might need to adjust the width to make sure we do not trim the values...
-								type="number"
-								allowDataOverflow={true}
-								domain={['auto', 'auto']}
-								tick={fontStyle}
-								orientation="right"
-								axisLine={false}
-								tickLine={false}
-								tickFormatter={(val) =>
-									formatNumber(val, {
-										minDecimals: getMinNoOfDecimals(val),
-									})
-								}
-							/>
-							<Area
-								dataKey="change"
-								stroke={chartColor}
-								dot={false}
-								strokeWidth={2}
-								fill={`url(#${linearGradientId})`}
-								isAnimationActive={false}
-							/>
-							{baseCurrencyKey && quoteCurrencyKey && !noData && (
-								<Tooltip
-									isAnimationActive={false}
-									position={{
-										y: 0,
-									}}
-									content={
-										// @ts-ignore
-										<CustomTooltip
-											formatCurrentPrice={(n: number) =>
-												formatNumber(n, {
-													minDecimals: getMinNoOfDecimals(n),
-												})
-											}
-										/>
-									}
-								/>
-							)}
-						</AreaChart>
-					</RechartsResponsiveContainer>
+						/>
+					)}
 				</ChartData>
 
 				<AbsoluteCenteredDiv>
@@ -292,23 +251,6 @@ const ChartCard: FC<ChartCardProps> = ({
 	);
 };
 
-function getMinNoOfDecimals(value: number): number {
-	let decimals = 2;
-	if (value < 1) {
-		const [, afterDecimal] = value.toString().split('.'); // todo
-		if (afterDecimal) {
-			for (let i = 0; i < afterDecimal.length; i++) {
-				const n = afterDecimal[i];
-				if (parseInt(n) !== 0) {
-					decimals = i + 3;
-					break;
-				}
-			}
-		}
-	}
-	return decimals;
-}
-
 const Container = styled.div`
 	position: relative;
 `;
@@ -331,4 +273,4 @@ const ChartHeaderInner = styled(FlexDivRowCentered)`
 	grid-gap: 20px;
 `;
 
-export default ChartCard;
+export default CombinedPriceChartCard;

@@ -1,5 +1,5 @@
 import { useContext, FC, useMemo } from 'react';
-import { AreaChart, XAxis, YAxis, Area, Tooltip } from 'recharts';
+import { AreaChart as BaseAreaChart, XAxis, YAxis, Area, Tooltip } from 'recharts';
 import isNumber from 'lodash/isNumber';
 import get from 'lodash/get';
 import { ThemeContext } from 'styled-components';
@@ -12,10 +12,10 @@ import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer'
 import { RateUpdates } from 'queries/rates/types';
 import { formatCurrency } from 'utils/formatters/number';
 
-import { Side } from '../types';
-import CustomTooltip from './common/CustomTooltip';
+import { Side } from '../../types';
+import CustomTooltip from '../common/CustomTooltip';
 
-const SingleCurrenyChart: FC<{
+const AreaChart: FC<{
 	rates: RateUpdates;
 	change: number | null;
 	selectedPeriod: PeriodLabel;
@@ -66,7 +66,7 @@ const SingleCurrenyChart: FC<{
 			height="100%"
 			id={`rechartsResponsiveContainer-${side}-${currencyKey}`}
 		>
-			<AreaChart
+			<BaseAreaChart
 				data={computedRates}
 				margin={{ right: 0, bottom: 0, left: 0, top: 0 }}
 				onMouseMove={(e: any) => {
@@ -148,9 +148,9 @@ const SingleCurrenyChart: FC<{
 						}
 					/>
 				)}
-			</AreaChart>
+			</BaseAreaChart>
 		</RechartsResponsiveContainer>
 	);
 };
 
-export default SingleCurrenyChart;
+export default AreaChart;

@@ -38,6 +38,7 @@ export const Actions = styled(FlexDiv)<{ reverseChildren?: boolean }>`
 	margin-top: 5px;
 	flex-direction: ${(props) => (props.reverseChildren ? 'row-reverse' : 'row')};
 	justify-content: space-between;
+	grid-gap: 15px;
 
 	${media.lessThan('sm')`
 		overflow: auto;
@@ -112,4 +113,29 @@ export const OverlayTimer = styled.div`
 export const NoData = styled.div`
 	font-size: 14px;
 	color: ${(props) => props.theme.colors.white};
+`;
+
+export const CurrencyLabelWithDot = styled(CurrencyLabel)`
+	display: flex;
+	grid-gap: 5px;
+	align-items: center;
+`;
+
+export const PriceDot = styled.div<{ color: string }>`
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background-color: ${(props) => props.color};
+`;
+
+export const CompareRatioToggle = styled(FlexDiv)`
+	grid-gap: 4px;
+`;
+
+export const CompareRatioToggleType = styled.div<{ isActive: boolean }>`
+	cursor: pointer;
+	font-weight: bold;
+	border-bottom: 2px solid ${(props) => (props.isActive ? '#b68b58' : 'transparent')};
+	color: ${(props) => (props.isActive ? props.theme.colors.white : 'inherit')};
+	text-transform: uppercase;
 `;
