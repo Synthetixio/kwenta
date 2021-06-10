@@ -28,7 +28,6 @@ import {
 	CurrencyLabel,
 	CurrencyPrice,
 	Actions,
-	ActionsRightPane,
 	PeriodSelector,
 	ChartBody,
 	StyledTextButton,
@@ -163,34 +162,32 @@ const ChartCard: FC<ChartCardProps> = ({
 								</StyledTextButton>
 							))}
 						</PeriodSelector>
-						<ActionsRightPane reverseChildren={alignRight}>
-							{selectedPeriod.period === Period.ONE_MONTH && (
-								<ChartTypeToggle
-									chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
-									selectedChartType={selectedChartType}
-									setSelectedChartType={setSelectedChartType}
-									alignRight={alignRight}
-								/>
-							)}
-							<CompareRatioToggle>
-								<CompareRatioToggleType
-									onClick={() => {
-										setSelectedChartType(ChartType.COMPARE);
-									}}
-									isActive={isCompareChart}
-								>
-									{t('common.chart-types.compare')}
-								</CompareRatioToggleType>
-								<CompareRatioToggleType
-									onClick={() => {
-										setSelectedChartType(ChartType.AREA);
-									}}
-									isActive={!isCompareChart}
-								>
-									{t('common.chart-types.ratio')}
-								</CompareRatioToggleType>
-							</CompareRatioToggle>
-						</ActionsRightPane>
+						{selectedPeriod.period === Period.ONE_MONTH && (
+							<ChartTypeToggle
+								chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
+								selectedChartType={selectedChartType}
+								setSelectedChartType={setSelectedChartType}
+								alignRight={alignRight}
+							/>
+						)}
+						<CompareRatioToggle>
+							<CompareRatioToggleType
+								onClick={() => {
+									setSelectedChartType(ChartType.COMPARE);
+								}}
+								isActive={isCompareChart}
+							>
+								{t('common.chart-types.compare')}
+							</CompareRatioToggleType>
+							<CompareRatioToggleType
+								onClick={() => {
+									setSelectedChartType(ChartType.AREA);
+								}}
+								isActive={!isCompareChart}
+							>
+								{t('common.chart-types.ratio')}
+							</CompareRatioToggleType>
+						</CompareRatioToggle>
 					</Actions>
 				)}
 			</ChartHeader>
