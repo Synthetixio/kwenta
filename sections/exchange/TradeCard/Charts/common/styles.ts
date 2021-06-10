@@ -45,6 +45,12 @@ export const Actions = styled(FlexDiv)<{ reverseChildren?: boolean }>`
 	`}
 `;
 
+export const ActionsRightPane = styled(FlexDiv)<{ reverseChildren?: boolean }>`
+	flex-direction: ${(props) => (props.reverseChildren ? 'row-reverse' : 'row')};
+	grid-gap: 10px;
+	align-items: center;
+`;
+
 export const PeriodSelector = styled(GridDivCenteredCol)`
 	grid-gap: 8px;
 `;

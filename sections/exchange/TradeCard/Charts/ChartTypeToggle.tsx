@@ -35,8 +35,6 @@ const ChartTypeToggle: FC<ChartTypeToggleProps> = ({
 };
 
 const Segment = styled.div<{ alignRight?: boolean }>`
-	position: absolute;
-	top: 36px;
 	${(props) => (props.alignRight ? `right: 64px;` : 'left: 2px;')}
 	z-index: 1;
 	background: ${(props) => props.theme.colors.navy};

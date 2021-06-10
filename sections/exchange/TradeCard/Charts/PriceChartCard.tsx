@@ -28,6 +28,7 @@ import {
 	CurrencyLabel,
 	CurrencyPrice,
 	Actions,
+	ActionsRightPane,
 	PeriodSelector,
 	ChartBody,
 	StyledTextButton,
@@ -158,35 +159,37 @@ const ChartCard: FC<ChartCardProps> = ({
 								</StyledTextButton>
 							))}
 						</PeriodSelector>
-						<CompareRatioToggle>
-							<CompareRatioToggleType
-								onClick={() => {
-									setSelectedChartType(ChartType.COMPARE);
-								}}
-								isActive={isCompareChart}
-							>
-								{t('common.chart-types.compare')}
-							</CompareRatioToggleType>
-							<CompareRatioToggleType
-								onClick={() => {
-									setSelectedChartType(ChartType.AREA);
-								}}
-								isActive={!isCompareChart}
-							>
-								{t('common.chart-types.ratio')}
-							</CompareRatioToggleType>
-						</CompareRatioToggle>
+						<ActionsRightPane reversed={alignRight}>
+							{selectedPeriod.period === Period.ONE_MONTH && (
+								<ChartTypeToggle
+									chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
+									selectedChartType={selectedChartType}
+									setSelectedChartType={setSelectedChartType}
+									alignRight={alignRight}
+								/>
+							)}
+							<CompareRatioToggle>
+								<CompareRatioToggleType
+									onClick={() => {
+										setSelectedChartType(ChartType.COMPARE);
+									}}
+									isActive={isCompareChart}
+								>
+									{t('common.chart-types.compare')}
+								</CompareRatioToggleType>
+								<CompareRatioToggleType
+									onClick={() => {
+										setSelectedChartType(ChartType.AREA);
+									}}
+									isActive={!isCompareChart}
+								>
+									{t('common.chart-types.ratio')}
+								</CompareRatioToggleType>
+							</CompareRatioToggle>
+						</ActionsRightPane>
 					</Actions>
 				)}
 			</ChartHeader>
-			{selectedPeriod.period === Period.ONE_MONTH && (
-				<ChartTypeToggle
-					chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
-					selectedChartType={selectedChartType}
-					setSelectedChartType={setSelectedChartType}
-					alignRight={alignRight}
-				/>
-			)}
 			<ChartBody>
 				<ChartData disabledInteraction={disabledInteraction}>
 					{selectedChartType === ChartType.COMPARE ? (
