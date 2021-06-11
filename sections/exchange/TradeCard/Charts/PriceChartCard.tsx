@@ -1,14 +1,14 @@
-import { FC, useState, useMemo } from 'react';
+import { FC, useState, useMemo, useCallback } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
 
 import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
-import { PERIOD_LABELS, Period } from 'constants/period';
+import { Period, PERIOD_LABELS_MAP, PERIOD_LABELS } from 'constants/period';
 import { ChartType } from 'constants/chartType';
 
 import ChangePercent from 'components/ChangePercent';
-import { chartPeriodState } from 'store/app';
+import { chartPeriodState, baseChartTypeState, quoteChartTypeState } from 'store/app';
 import usePersistedRecoilState from 'hooks/usePersistedRecoilState';
 import { FlexDivRowCentered, NoTextTransform, AbsoluteCenteredDiv } from 'styles/common';
 import { formatCurrency } from 'utils/formatters/number';
@@ -37,6 +37,7 @@ import {
 	OverlayMessage,
 	CompareRatioToggle,
 	CompareRatioToggleType,
+	CompareRatioToggleContainer,
 } from './common/styles';
 import { Side } from 'sections/exchange/TradeCard/types';
 import useAreaChartData from './hooks/useAreaChartData';
@@ -62,26 +63,31 @@ const ChartCard: FC<ChartCardProps> = ({
 	...rest
 }) => {
 	const { t } = useTranslation();
-	const [selectedChartType, setSelectedChartType] = useState(ChartType.AREA);
-	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState(chartPeriodState);
+	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState<Period>(chartPeriodState);
+	const selectedPeriodLabel = useMemo(() => PERIOD_LABELS_MAP[selectedPeriod], [selectedPeriod]);
+
+	const [selectedBaseChartType, setSelectedBaseChartType] = usePersistedRecoilState<ChartType>(
+		baseChartTypeState
+	);
+	const [selectedQuoteChartType, setSelectedQuoteChartType] = usePersistedRecoilState<ChartType>(
+		quoteChartTypeState
+	);
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
 	const { isMarketClosed, marketClosureReason } = useMarketClosed(currencyKey);
-
-	const [currentPrice, setCurrentPrice] = useState<number | null>(null);
 
 	const {
 		noData: noAreaChartData,
 		isLoading: isLoadingAreaChartData,
 		change,
 		rates,
-	} = useAreaChartData({ currencyKey, selectedPeriod });
-
+	} = useAreaChartData({ currencyKey, selectedPeriodLabel });
 	const {
 		noData: noCandleSticksChartData,
 		isLoading: isLoadingCandleSticksChartData,
 		data: candleSticksChartData,
-	} = useCandleSticksChartData({ currencyKey, selectedPeriod });
+	} = useCandleSticksChartData({ currencyKey, selectedPeriodLabel });
 
+	const [currentPrice, setCurrentPrice] = useState<number | null>(null);
 	const price = currentPrice || priceRate;
 
 	const showOverlayMessage = isMarketClosed;
@@ -92,7 +98,21 @@ const ChartCard: FC<ChartCardProps> = ({
 		isSUSD,
 		otherCurrencyKey,
 	]);
-	const noData = !isSUSD && (noAreaChartData || noCandleSticksChartData);
+
+	const selectedChartType = useMemo(
+		() => (side === 'base' ? selectedBaseChartType : selectedQuoteChartType),
+		[side, selectedBaseChartType, selectedQuoteChartType]
+	);
+	const noData =
+		(selectedChartType === ChartType.AREA && noAreaChartData && !isSUSD) ||
+		(selectedChartType === ChartType.CANDLESTICK && noCandleSticksChartData && !isSUSD);
+
+	const setSelectedChartType = useCallback(
+		(type: ChartType) => {
+			(side === 'base' ? setSelectedBaseChartType : setSelectedQuoteChartType)(type);
+		},
+		[side, setSelectedBaseChartType, setSelectedQuoteChartType]
+	);
 
 	const isCompareChart = useMemo(() => selectedChartType === ChartType.COMPARE, [
 		selectedChartType,
@@ -148,11 +168,15 @@ const ChartCard: FC<ChartCardProps> = ({
 						<PeriodSelector>
 							{PERIOD_LABELS.map((period) => (
 								<StyledTextButton
-									key={period.value}
-									isActive={period.value === selectedPeriod.value}
+									key={period.period}
+									isActive={period.period === selectedPeriod}
 									onClick={(event) => {
-										setSelectedPeriod(period);
-										if (period.period !== Period.ONE_MONTH) {
+										setSelectedPeriod(period.period);
+										if (
+											period.period !== Period.ONE_MONTH &&
+											selectedChartType === ChartType.CANDLESTICK
+										) {
+											// candlesticks type is only available on monthly view
 											setSelectedChartType(ChartType.AREA);
 										}
 									}}
@@ -161,7 +185,7 @@ const ChartCard: FC<ChartCardProps> = ({
 								</StyledTextButton>
 							))}
 						</PeriodSelector>
-						{selectedPeriod.period === Period.ONE_MONTH && (
+						{selectedPeriod === Period.ONE_MONTH && (
 							<ChartTypeToggle
 								chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
 								selectedChartType={selectedChartType}
@@ -170,24 +194,26 @@ const ChartCard: FC<ChartCardProps> = ({
 							/>
 						)}
 						{eitherCurrencyIsSUSD ? null : (
-							<CompareRatioToggle>
-								<CompareRatioToggleType
-									onClick={() => {
-										setSelectedChartType(ChartType.COMPARE);
-									}}
-									isActive={isCompareChart}
-								>
-									{t('common.chart-types.compare')}
-								</CompareRatioToggleType>
-								<CompareRatioToggleType
-									onClick={() => {
-										setSelectedChartType(ChartType.AREA);
-									}}
-									isActive={!isCompareChart}
-								>
-									{t('common.chart-types.ratio')}
-								</CompareRatioToggleType>
-							</CompareRatioToggle>
+							<CompareRatioToggleContainer>
+								<CompareRatioToggle>
+									<CompareRatioToggleType
+										onClick={() => {
+											setSelectedChartType(ChartType.COMPARE);
+										}}
+										isActive={isCompareChart}
+									>
+										{t('common.chart-types.compare')}
+									</CompareRatioToggleType>
+									<CompareRatioToggleType
+										onClick={() => {
+											setSelectedChartType(ChartType.AREA);
+										}}
+										isActive={!isCompareChart}
+									>
+										{t('common.chart-types.ratio')}
+									</CompareRatioToggleType>
+								</CompareRatioToggle>
+							</CompareRatioToggleContainer>
 						)}
 					</Actions>
 				)}
@@ -198,18 +224,18 @@ const ChartCard: FC<ChartCardProps> = ({
 						<CompareChart
 							baseCurrencyKey={currencyKey}
 							quoteCurrencyKey={otherCurrencyKey}
-							{...{ selectedPeriod }}
+							{...{ selectedPeriodLabel }}
 						/>
 					) : selectedChartType === ChartType.AREA ? (
 						<AreaChartData
 							{...{
-								selectedPeriod,
+								selectedPeriodLabel,
 								change,
 								side,
 								setCurrentPrice,
 							}}
 							data={computedRates}
-							noData={noAreaChartData}
+							noData={!isSUSD && noAreaChartData}
 							{...(isSUSD ? { yAxisDomain: ['dataMax', 'dataMax'] } : {})}
 							yAxisTickFormatter={(val: number) =>
 								formatCurrency(selectedPriceCurrency.name, val, {
@@ -226,7 +252,7 @@ const ChartCard: FC<ChartCardProps> = ({
 					) : (
 						<CandlestickChart
 							data={candleSticksChartData}
-							{...{ selectedPeriod, selectedPriceCurrency }}
+							{...{ selectedPeriodLabel, selectedPriceCurrency }}
 						/>
 					)}
 				</ChartData>

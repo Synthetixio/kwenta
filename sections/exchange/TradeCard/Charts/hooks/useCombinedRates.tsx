@@ -9,26 +9,34 @@ import { PeriodLabel } from 'constants/period';
 const useCombinedRates = ({
 	baseCurrencyKey,
 	quoteCurrencyKey,
-	selectedPeriod,
+	selectedPeriodLabel,
 }: {
 	baseCurrencyKey: CurrencyKey | null;
 	quoteCurrencyKey: CurrencyKey | null;
-	selectedPeriod: PeriodLabel;
+	selectedPeriodLabel: PeriodLabel;
 }) => {
-	const baseHistoricalRates = useHistoricalRatesQuery(baseCurrencyKey, selectedPeriod.period);
-	const quoteHistoricalRates = useHistoricalRatesQuery(quoteCurrencyKey, selectedPeriod.period);
+	const baseHistoricalRates = useHistoricalRatesQuery(baseCurrencyKey, selectedPeriodLabel.period);
+	const quoteHistoricalRates = useHistoricalRatesQuery(
+		quoteCurrencyKey,
+		selectedPeriodLabel.period
+	);
 
 	const { data: baseInitialRate } = usePeriodStartSynthRateQuery(
 		baseCurrencyKey,
-		selectedPeriod.period
+		selectedPeriodLabel.period
 	);
 	const { data: quoteInitialRate } = usePeriodStartSynthRateQuery(
 		quoteCurrencyKey,
-		selectedPeriod.period
+		selectedPeriodLabel.period
 	);
 
+	const baseChange = useMemo(() => baseHistoricalRates.data?.change ?? null, [baseHistoricalRates]);
+	const quoteChange = useMemo(() => quoteHistoricalRates.data?.change ?? null, [
+		quoteHistoricalRates,
+	]);
 	const baseRates = useMemo(() => baseHistoricalRates.data?.rates ?? [], [baseHistoricalRates]);
 	const quoteRates = useMemo(() => quoteHistoricalRates.data?.rates ?? [], [quoteHistoricalRates]);
+	const change = useMemo(() => (baseChange! ?? 1) - (quoteChange! ?? 1), [quoteChange, baseChange]);
 
 	const baseNoData =
 		baseHistoricalRates.isSuccess &&
@@ -40,9 +48,7 @@ const useCombinedRates = ({
 		quoteHistoricalRates.data.rates.length === 0;
 	const noData = baseNoData || quoteNoData;
 
-	const data = useMemo(() => {
-		if (!(baseRates.length && quoteRates.length && baseInitialRate && quoteInitialRate)) return [];
-
+	const changes = useMemo(() => {
 		if (!(baseRates.length && quoteRates.length && baseInitialRate && quoteInitialRate)) return [];
 
 		let allRates: {
@@ -61,24 +67,32 @@ const useCombinedRates = ({
 		let prevBaseRate = baseInitialRate.rate;
 		let prevQuoteRate = quoteInitialRate.rate;
 
-		return allRates.reduce((chartData, { isBaseRate, rate, timestamp }) => {
-			let baseRate: number = 0;
-			let quoteRate: number = 0;
+		return allRates.reduce((changes, { isBaseRate, rate, timestamp }) => {
+			let change: number = 0;
 			if (isBaseRate) {
-				baseRate = prevBaseRate = rate;
-				quoteRate = prevQuoteRate;
+				change = rate / prevQuoteRate;
+				prevBaseRate = rate;
 			} else {
-				quoteRate = prevQuoteRate = rate;
-				baseRate = prevBaseRate;
+				change = prevBaseRate / rate;
+				prevQuoteRate = rate;
 			}
-			return chartData.concat({ timestamp, baseRate, quoteRate });
-		}, [] as { timestamp: number; baseRate: number; quoteRate: number }[]);
+			return changes.concat({ timestamp, value: change });
+		}, [] as { timestamp: number; value: number }[]);
 	}, [baseRates, quoteRates, baseInitialRate, quoteInitialRate, baseCurrencyKey, quoteCurrencyKey]);
 
+	const [low, high] = useMemo(() => {
+		if (changes.length < 2) return [0, 0];
+		const sortedChanges = orderBy(changes, 'value');
+		return [0, sortedChanges.length - 1].map((index) => sortedChanges[index].value);
+	}, [changes]);
+
 	return {
-		data,
+		data: changes,
+		change,
 		noData,
 		isLoadingRates: baseHistoricalRates.isLoading || quoteHistoricalRates.isLoading,
+		low,
+		high,
 	};
 };
 

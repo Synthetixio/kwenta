@@ -4,12 +4,12 @@ import useHistoricalRatesQuery from 'queries/rates/useHistoricalRatesQuery';
 
 const useAreaChartData = ({
 	currencyKey,
-	selectedPeriod,
+	selectedPeriodLabel,
 }: {
 	currencyKey: CurrencyKey | null;
-	selectedPeriod: PeriodLabel;
+	selectedPeriodLabel: PeriodLabel;
 }) => {
-	const data = useHistoricalRatesQuery(currencyKey, selectedPeriod.period);
+	const data = useHistoricalRatesQuery(currencyKey, selectedPeriodLabel.period);
 
 	const change = data.data?.change ?? null;
 	// eslint-disable-next-line

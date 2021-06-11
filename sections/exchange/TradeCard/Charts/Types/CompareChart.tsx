@@ -4,7 +4,7 @@ import styled, { ThemeContext } from 'styled-components';
 
 import { CurrencyKey } from 'constants/currency';
 import { PeriodLabel } from 'constants/period';
-import useCompareChartData from 'sections/exchange/hooks/useCompareChartData';
+import useCompareChartData from 'sections/exchange/TradeCard/Charts/hooks/useCompareChartData';
 import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
 import { formatCurrency } from 'utils/formatters/number';
 import { TooltipContentStyle as BaseTooltipContentStyle } from 'sections/exchange/TradeCard/Charts/common/styles';
@@ -12,8 +12,8 @@ import { TooltipContentStyle as BaseTooltipContentStyle } from 'sections/exchang
 const CompareChart: FC<{
 	baseCurrencyKey: CurrencyKey | null;
 	quoteCurrencyKey: CurrencyKey | null;
-	selectedPeriod: PeriodLabel;
-}> = ({ baseCurrencyKey, quoteCurrencyKey, selectedPeriod }) => {
+	selectedPeriodLabel: PeriodLabel;
+}> = ({ baseCurrencyKey, quoteCurrencyKey, selectedPeriodLabel }) => {
 	const theme = useContext(ThemeContext);
 	const fontStyle = {
 		fontSize: '12px',
@@ -24,7 +24,7 @@ const CompareChart: FC<{
 	const { data, noData } = useCompareChartData({
 		baseCurrencyKey,
 		quoteCurrencyKey,
-		selectedPeriod,
+		selectedPeriodLabel,
 	});
 
 	return (
@@ -86,7 +86,7 @@ const CompareChart: FC<{
 					strokeWidth={2}
 					dot={false}
 				/>
-				{baseCurrencyKey && quoteCurrencyKey && !noData && (
+				{!noData && (
 					<Tooltip
 						isAnimationActive={false}
 						position={{

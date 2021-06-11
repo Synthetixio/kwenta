@@ -4,9 +4,10 @@ import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
 
 import LoaderIcon from 'assets/svg/app/loader.svg';
-import { PERIOD_LABELS } from 'constants/period';
 import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
-import { chartPeriodState } from 'store/app';
+import { Period, PERIOD_LABELS_MAP, PERIOD_LABELS } from 'constants/period';
+import { ChartType } from 'constants/chartType';
+import { chartPeriodState, singleChartTypeState } from 'store/app';
 import usePersistedRecoilState from 'hooks/usePersistedRecoilState';
 import ChangePercent from 'components/ChangePercent';
 import {
@@ -18,7 +19,7 @@ import {
 } from 'styles/common';
 import { formatNumber } from 'utils/formatters/number';
 import useMarketClosed from 'hooks/useMarketClosed';
-import useCombinedRates from 'sections/exchange/hooks/useCombinedRates';
+import useCombinedRates from 'sections/exchange/TradeCard/Charts/hooks/useCombinedRates';
 import { DesktopOnlyView, MobileOnlyView } from 'components/Media';
 
 import {
@@ -33,11 +34,11 @@ import {
 	PeriodSelector,
 	CompareRatioToggle,
 	CompareRatioToggleType,
+	CompareRatioToggleContainer,
 } from './common/styles';
 import OverlayMessageContainer from './common/OverlayMessage';
 import CurrencyPricePlaceHolder from './common/CurrencyPricePlaceHolder';
 import CurrencyLabelsWithDots from './common/CurrencyLabelsWithDots';
-import { ChartType } from 'constants/chartType';
 import AreaChart from './Types/AreaChart';
 import CompareChart from './Types/CompareChart';
 
@@ -59,12 +60,16 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	...rest
 }) => {
 	const { t } = useTranslation();
-	const [selectedChartType, setSelectedChartType] = useState(ChartType.AREA);
-	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState(chartPeriodState);
+	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState<Period>(chartPeriodState);
+	const selectedPeriodLabel = useMemo(() => PERIOD_LABELS_MAP[selectedPeriod], [selectedPeriod]);
+
+	const [selectedChartType, setSelectedChartType] = usePersistedRecoilState<ChartType>(
+		singleChartTypeState
+	);
 	const { data, noData, change, isLoadingRates } = useCombinedRates({
 		baseCurrencyKey,
 		quoteCurrencyKey,
-		selectedPeriod,
+		selectedPeriodLabel,
 	});
 	const {
 		isMarketClosed: isBaseMarketClosed,
@@ -133,31 +138,42 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 				{!isMarketClosed && (
 					<Actions>
 						{eitherCurrencyIsSUSD ? null : (
-							<CompareRatioToggle>
-								<CompareRatioToggleType
-									onClick={() => {
-										setSelectedChartType(ChartType.COMPARE);
-									}}
-									isActive={isCompareChart}
-								>
-									{t('common.chart-types.compare')}
-								</CompareRatioToggleType>
-								<CompareRatioToggleType
-									onClick={() => {
-										setSelectedChartType(ChartType.AREA);
-									}}
-									isActive={!isCompareChart}
-								>
-									{t('common.chart-types.ratio')}
-								</CompareRatioToggleType>
-							</CompareRatioToggle>
+							<CompareRatioToggleContainer>
+								<CompareRatioToggle>
+									<CompareRatioToggleType
+										onClick={() => {
+											setSelectedChartType(ChartType.COMPARE);
+										}}
+										isActive={isCompareChart}
+									>
+										{t('common.chart-types.compare')}
+									</CompareRatioToggleType>
+									<CompareRatioToggleType
+										onClick={() => {
+											setSelectedChartType(ChartType.AREA);
+										}}
+										isActive={!isCompareChart}
+									>
+										{t('common.chart-types.ratio')}
+									</CompareRatioToggleType>
+								</CompareRatioToggle>
+							</CompareRatioToggleContainer>
 						)}
 						<PeriodSelector>
 							{PERIOD_LABELS.map((period) => (
 								<StyledTextButton
-									key={period.value}
-									isActive={period.value === selectedPeriod.value}
-									onClick={() => setSelectedPeriod(period)}
+									key={period.period}
+									isActive={period.period === selectedPeriod}
+									onClick={(event) => {
+										setSelectedPeriod(period.period);
+										if (
+											period.period !== Period.ONE_MONTH &&
+											selectedChartType === ChartType.CANDLESTICK
+										) {
+											// candlesticks type is only available on monthly view
+											setSelectedChartType(ChartType.AREA);
+										}
+									}}
 								>
 									{t(period.i18nLabel)}
 								</StyledTextButton>
@@ -169,11 +185,11 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 			<ChartBody>
 				<ChartData disabledInteraction={disabledInteraction}>
 					{isCompareChart ? (
-						<CompareChart {...{ baseCurrencyKey, quoteCurrencyKey, selectedPeriod }} />
+						<CompareChart {...{ baseCurrencyKey, quoteCurrencyKey, selectedPeriodLabel }} />
 					) : (
 						<AreaChart
 							{...{
-								selectedPeriod,
+								selectedPeriodLabel,
 								data,
 								change,
 								setCurrentPrice,

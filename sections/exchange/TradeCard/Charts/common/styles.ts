@@ -22,11 +22,14 @@ export const LinkTag = styled.span`
 	}
 `;
 
-export const CurrencyLabel = styled.span`
+export const CurrencyLabel = styled.div`
 	font-size: 14px;
 	text-transform: capitalize;
 	color: ${(props) => props.theme.colors.white};
 	font-family: ${(props) => props.theme.fonts.bold};
+	display: flex;
+	align-items: center;
+	grid-gap: 5px;
 `;
 
 export const CurrencyPrice = styled.span`
@@ -120,6 +123,11 @@ export const PriceDot = styled.div<{ color: string }>`
 	height: 8px;
 	border-radius: 50%;
 	background-color: ${(props) => props.color};
+`;
+
+export const CompareRatioToggleContainer = styled(FlexDiv)`
+	flex-direction: column;
+	justify-content: center;
 `;
 
 export const CompareRatioToggle = styled(FlexDiv)`
