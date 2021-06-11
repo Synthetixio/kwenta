@@ -1,14 +1,11 @@
-import { useContext, FC, useState, useMemo } from 'react';
+import { FC, useState, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import isNumber from 'lodash/isNumber';
-import get from 'lodash/get';
-import styled, { ThemeContext } from 'styled-components';
-import format from 'date-fns/format';
+import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
 
 import LoaderIcon from 'assets/svg/app/loader.svg';
-import { PERIOD_LABELS, PERIOD_IN_HOURS } from 'constants/period';
-import { CurrencyKey } from 'constants/currency';
+import { PERIOD_LABELS } from 'constants/period';
+import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
 import { chartPeriodState } from 'store/app';
 import usePersistedRecoilState from 'hooks/usePersistedRecoilState';
 import ChangePercent from 'components/ChangePercent';
@@ -83,6 +80,11 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	const [currentPrice, setCurrentPrice] = useState<number | null>(null);
 	const price = currentPrice || (basePriceRate ?? 1) / (quotePriceRate! || 1);
 
+	const eitherCurrencyIsSUSD = useMemo(
+		() => baseCurrencyKey === SYNTHS_MAP.sUSD || quoteCurrencyKey === SYNTHS_MAP.sUSD,
+		[baseCurrencyKey, quoteCurrencyKey]
+	);
+
 	const showOverlayMessage = isMarketClosed;
 	const showLoader = isLoadingRates;
 	const disabledInteraction = showLoader || showOverlayMessage;
@@ -147,24 +149,26 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 				</ChartHeaderInner>
 				{!isMarketClosed && (
 					<Actions>
-						<CompareRatioToggle>
-							<CompareRatioToggleType
-								onClick={() => {
-									setSelectedChartType(ChartType.COMPARE);
-								}}
-								isActive={isCompareChart}
-							>
-								{t('common.chart-types.compare')}
-							</CompareRatioToggleType>
-							<CompareRatioToggleType
-								onClick={() => {
-									setSelectedChartType(ChartType.AREA);
-								}}
-								isActive={!isCompareChart}
-							>
-								{t('common.chart-types.ratio')}
-							</CompareRatioToggleType>
-						</CompareRatioToggle>
+						{eitherCurrencyIsSUSD ? null : (
+							<CompareRatioToggle>
+								<CompareRatioToggleType
+									onClick={() => {
+										setSelectedChartType(ChartType.COMPARE);
+									}}
+									isActive={isCompareChart}
+								>
+									{t('common.chart-types.compare')}
+								</CompareRatioToggleType>
+								<CompareRatioToggleType
+									onClick={() => {
+										setSelectedChartType(ChartType.AREA);
+									}}
+									isActive={!isCompareChart}
+								>
+									{t('common.chart-types.ratio')}
+								</CompareRatioToggleType>
+							</CompareRatioToggle>
+						)}
 						<PeriodSelector>
 							{PERIOD_LABELS.map((period) => (
 								<StyledTextButton

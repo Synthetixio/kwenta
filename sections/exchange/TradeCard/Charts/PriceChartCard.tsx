@@ -10,7 +10,7 @@ import { ChartType } from 'constants/chartType';
 import ChangePercent from 'components/ChangePercent';
 import { chartPeriodState } from 'store/app';
 import usePersistedRecoilState from 'hooks/usePersistedRecoilState';
-import { FlexDiv, FlexDivRowCentered, NoTextTransform, AbsoluteCenteredDiv } from 'styles/common';
+import { FlexDivRowCentered, NoTextTransform, AbsoluteCenteredDiv } from 'styles/common';
 import { formatCurrency } from 'utils/formatters/number';
 
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
@@ -87,6 +87,10 @@ const ChartCard: FC<ChartCardProps> = ({
 	const showLoader = isLoadingAreaChartData || isLoadingCandleSticksChartData;
 	const disabledInteraction = showLoader || showOverlayMessage;
 	const isSUSD = currencyKey === SYNTHS_MAP.sUSD;
+	const eitherCurrencyIsSUSD = useMemo(() => isSUSD || otherCurrencyKey === SYNTHS_MAP.sUSD, [
+		isSUSD,
+		otherCurrencyKey,
+	]);
 	const noData = !isSUSD && (noAreaChartData || noCandleSticksChartData);
 
 	const isCompareChart = useMemo(() => selectedChartType === ChartType.COMPARE, [
@@ -178,24 +182,26 @@ const ChartCard: FC<ChartCardProps> = ({
 								alignRight={alignRight}
 							/>
 						)}
-						<CompareRatioToggle>
-							<CompareRatioToggleType
-								onClick={() => {
-									setSelectedChartType(ChartType.COMPARE);
-								}}
-								isActive={isCompareChart}
-							>
-								{t('common.chart-types.compare')}
-							</CompareRatioToggleType>
-							<CompareRatioToggleType
-								onClick={() => {
-									setSelectedChartType(ChartType.AREA);
-								}}
-								isActive={!isCompareChart}
-							>
-								{t('common.chart-types.ratio')}
-							</CompareRatioToggleType>
-						</CompareRatioToggle>
+						{eitherCurrencyIsSUSD ? null : (
+							<CompareRatioToggle>
+								<CompareRatioToggleType
+									onClick={() => {
+										setSelectedChartType(ChartType.COMPARE);
+									}}
+									isActive={isCompareChart}
+								>
+									{t('common.chart-types.compare')}
+								</CompareRatioToggleType>
+								<CompareRatioToggleType
+									onClick={() => {
+										setSelectedChartType(ChartType.AREA);
+									}}
+									isActive={!isCompareChart}
+								>
+									{t('common.chart-types.ratio')}
+								</CompareRatioToggleType>
+							</CompareRatioToggle>
+						)}
 					</Actions>
 				)}
 			</ChartHeader>
