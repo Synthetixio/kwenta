@@ -86,11 +86,19 @@ const ChartCard: FC<ChartCardProps> = ({
 	const showOverlayMessage = isMarketClosed;
 	const showLoader = isLoadingAreaChartData || isLoadingCandleSticksChartData;
 	const disabledInteraction = showLoader || showOverlayMessage;
-	const noData = noAreaChartData || noCandleSticksChartData;
+	const isSUSD = currencyKey === SYNTHS_MAP.sUSD;
+	const noData = !isSUSD && (noAreaChartData || noCandleSticksChartData);
 
 	const isCompareChart = useMemo(() => selectedChartType === ChartType.COMPARE, [
 		selectedChartType,
 	]);
+
+	const computedRates = useMemo(() => {
+		return rates.map(({ timestamp, rate }) => ({
+			timestamp,
+			value: !selectPriceCurrencyRate ? rate : rate / selectPriceCurrencyRate,
+		}));
+	}, [rates, selectPriceCurrencyRate]);
 
 	return (
 		<Container {...rest}>
@@ -202,16 +210,24 @@ const ChartCard: FC<ChartCardProps> = ({
 					) : selectedChartType === ChartType.AREA ? (
 						<AreaChartData
 							{...{
-								currencyKey,
 								selectedPeriod,
-								selectedPriceCurrency,
-								rates,
 								change,
-								selectPriceCurrencyRate,
 								side,
 								setCurrentPrice,
 							}}
+							data={computedRates}
 							noData={noAreaChartData}
+							{...(isSUSD ? { yAxisDomain: ['dataMax', 'dataMax'] } : {})}
+							yAxisTickFormatter={(val: number) =>
+								formatCurrency(selectedPriceCurrency.name, val, {
+									sign: selectedPriceCurrency.sign,
+								})
+							}
+							tooltipPriceFormatter={(n: number) =>
+								formatCurrency(selectedPriceCurrency.name, n, {
+									sign: selectedPriceCurrency.sign,
+								})
+							}
 						/>
 					) : (
 						<CandlestickChart

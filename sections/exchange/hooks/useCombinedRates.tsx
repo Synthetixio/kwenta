@@ -73,18 +73,18 @@ const useCombinedRates = ({
 				change = prevBaseRate / rate;
 				prevQuoteRate = rate;
 			}
-			return changes.concat({ timestamp, change });
-		}, [] as { timestamp: number; change: number }[]);
+			return changes.concat({ timestamp, value: change });
+		}, [] as { timestamp: number; value: number }[]);
 	}, [baseRates, quoteRates, baseInitialRate, quoteInitialRate, baseCurrencyKey, quoteCurrencyKey]);
 
 	const [low, high] = useMemo(() => {
 		if (changes.length < 2) return [0, 0];
-		const sortedChanges = orderBy(changes, 'change');
-		return [0, sortedChanges.length - 1].map((index) => sortedChanges[index].change);
+		const sortedChanges = orderBy(changes, 'value');
+		return [0, sortedChanges.length - 1].map((index) => sortedChanges[index].value);
 	}, [changes]);
 
 	return {
-		changes,
+		data: changes,
 		change,
 		noData,
 		isLoadingRates: baseHistoricalRates.isLoading || quoteHistoricalRates.isLoading,

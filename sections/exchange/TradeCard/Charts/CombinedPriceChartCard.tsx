@@ -41,7 +41,7 @@ import {
 } from './common/styles';
 import OverlayMessageContainer from './common/OverlayMessage';
 import { ChartType } from 'constants/chartType';
-import AreaChart, { getMinNoOfDecimals } from './CombinedPriceChartCard/AreaChart';
+import AreaChart from './Types/AreaChart';
 import CompareChart from './Types/CompareChart';
 
 type CombinedPriceChartCardProps = {
@@ -64,7 +64,7 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	const { t } = useTranslation();
 	const [selectedChartType, setSelectedChartType] = useState(ChartType.AREA);
 	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState(chartPeriodState);
-	const { changes, noData, change, isLoadingRates } = useCombinedRates({
+	const { data, noData, change, isLoadingRates } = useCombinedRates({
 		baseCurrencyKey,
 		quoteCurrencyKey,
 		selectedPeriod,
@@ -186,14 +186,22 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 					) : (
 						<AreaChart
 							{...{
-								quoteCurrencyKey,
-								baseCurrencyKey,
 								selectedPeriod,
-								changes,
+								data,
 								change,
 								setCurrentPrice,
 								noData,
 							}}
+							yAxisTickFormatter={(val: number) =>
+								formatNumber(val, {
+									minDecimals: getMinNoOfDecimals(val),
+								})
+							}
+							tooltipPriceFormatter={(n: number) =>
+								formatNumber(n, {
+									minDecimals: getMinNoOfDecimals(n),
+								})
+							}
 						/>
 					)}
 				</ChartData>
@@ -250,6 +258,23 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 		</Container>
 	);
 };
+
+function getMinNoOfDecimals(value: number): number {
+	let decimals = 2;
+	if (value < 1) {
+		const [, afterDecimal] = value.toString().split('.'); // todo
+		if (afterDecimal) {
+			for (let i = 0; i < afterDecimal.length; i++) {
+				const n = afterDecimal[i];
+				if (parseInt(n) !== 0) {
+					decimals = i + 3;
+					break;
+				}
+			}
+		}
+	}
+	return decimals;
+}
 
 const Container = styled.div`
 	position: relative;

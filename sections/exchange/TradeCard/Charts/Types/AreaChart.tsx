@@ -1,46 +1,45 @@
-import { useContext, FC, useMemo } from 'react';
+import { useContext, FC } from 'react';
 import { AreaChart as BaseAreaChart, XAxis, YAxis, Area, Tooltip } from 'recharts';
+import { AxisDomain } from 'recharts/types/util/types';
 import isNumber from 'lodash/isNumber';
 import get from 'lodash/get';
 import { ThemeContext } from 'styled-components';
 import format from 'date-fns/format';
 
-import { Synth } from 'lib/synthetix';
-import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
 import { PERIOD_IN_HOURS, PeriodLabel } from 'constants/period';
 import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
-import { RateUpdates } from 'queries/rates/types';
-import { formatCurrency } from 'utils/formatters/number';
 
 import { Side } from '../../types';
 import CustomTooltip from '../common/CustomTooltip';
 
 const AreaChart: FC<{
-	rates: RateUpdates;
+	data: {
+		timestamp: number;
+		value: number;
+	}[];
 	change: number | null;
 	selectedPeriod: PeriodLabel;
-	selectedPriceCurrency: Synth;
-	selectPriceCurrencyRate: number | null;
-	currencyKey: CurrencyKey | null;
 	side: Side;
 	setCurrentPrice: (price: number | null) => void;
 	noData: boolean | undefined;
+	yAxisDomain: AxisDomain;
+	yAxisTickFormatter: (val: number) => string;
+	tooltipPriceFormatter: (n: number) => string;
 }> = ({
-	currencyKey,
 	selectedPeriod,
-	selectedPriceCurrency,
-	rates,
+	data,
 	change,
-	selectPriceCurrencyRate,
 	side,
 	setCurrentPrice,
 	noData,
+	yAxisDomain = ['auto', 'auto'],
+	yAxisTickFormatter,
+	tooltipPriceFormatter,
 }) => {
 	const theme = useContext(ThemeContext);
 
-	const isSUSD = currencyKey === SYNTHS_MAP.sUSD;
 	const isChangePositive = change != null && change >= 0;
-	const chartColor = isChangePositive || isSUSD ? theme.colors.green : theme.colors.red;
+	const chartColor = isChangePositive ? theme.colors.green : theme.colors.red;
 
 	let linearGradientId = `priceChartCardArea-${side}`;
 
@@ -50,27 +49,17 @@ const AreaChart: FC<{
 		fontFamily: theme.fonts.mono,
 	};
 
-	const computedRates = useMemo(() => {
-		if (selectPriceCurrencyRate != null) {
-			return rates.map((rateData) => ({
-				...rateData,
-				rate: rateData.rate / selectPriceCurrencyRate,
-			}));
-		}
-		return rates;
-	}, [rates, selectPriceCurrencyRate]);
-
 	return (
 		<RechartsResponsiveContainer
 			width="100%"
 			height="100%"
-			id={`rechartsResponsiveContainer-${side}-${currencyKey}`}
+			id={`recharts-responsive-container-${side}`}
 		>
 			<BaseAreaChart
-				data={computedRates}
+				{...{ data }}
 				margin={{ right: 0, bottom: 0, left: 0, top: 0 }}
 				onMouseMove={(e: any) => {
-					const currentRate = get(e, 'activePayload[0].payload.rate', null);
+					const currentRate = get(e, 'activePayload[0].payload.value', null);
 					if (currentRate) {
 						setCurrentPrice(currentRate);
 					} else {
@@ -111,26 +100,22 @@ const AreaChart: FC<{
 					// TODO: might need to adjust the width to make sure we do not trim the values...
 					type="number"
 					allowDataOverflow={true}
-					domain={isSUSD ? ['dataMax', 'dataMax'] : ['auto', 'auto']}
+					domain={yAxisDomain}
 					tick={fontStyle}
 					orientation="right"
 					axisLine={false}
 					tickLine={false}
-					tickFormatter={(val) =>
-						formatCurrency(selectedPriceCurrency.name, val, {
-							sign: selectedPriceCurrency.sign,
-						})
-					}
+					tickFormatter={yAxisTickFormatter}
 				/>
 				<Area
-					dataKey="rate"
+					dataKey="value"
 					stroke={chartColor}
 					dot={false}
 					strokeWidth={2}
 					fill={`url(#${linearGradientId})`}
 					isAnimationActive={false}
 				/>
-				{currencyKey != null && !noData && (
+				{!noData && (
 					<Tooltip
 						isAnimationActive={false}
 						position={{
@@ -138,13 +123,7 @@ const AreaChart: FC<{
 						}}
 						content={
 							// @ts-ignore
-							<CustomTooltip
-								formatCurrentPrice={(n: number) =>
-									formatCurrency(selectedPriceCurrency.name, n, {
-										sign: selectedPriceCurrency.sign,
-									})
-								}
-							/>
+							<CustomTooltip formatCurrentPrice={tooltipPriceFormatter} />
 						}
 					/>
 				)}
