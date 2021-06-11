@@ -6,7 +6,7 @@ import { CurrencyKey } from 'constants/currency';
 import { PeriodLabel } from 'constants/period';
 import useCompareChartData from 'sections/exchange/hooks/useCompareChartData';
 import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
-import { formatCurrency, formatNumber } from 'utils/formatters/number';
+import { formatCurrency } from 'utils/formatters/number';
 import { TooltipContentStyle as BaseTooltipContentStyle } from 'sections/exchange/TradeCard/Charts/common/styles';
 
 const CompareChart: FC<{

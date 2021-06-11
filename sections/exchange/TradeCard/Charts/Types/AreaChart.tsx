@@ -4,12 +4,11 @@ import { AxisDomain } from 'recharts/types/util/types';
 import isNumber from 'lodash/isNumber';
 import get from 'lodash/get';
 import { ThemeContext } from 'styled-components';
-import format from 'date-fns/format';
+import formatDate from 'date-fns/format';
 
 import { PERIOD_IN_HOURS, PeriodLabel } from 'constants/period';
 import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
 
-import { Side } from '../../types';
 import CustomTooltip from '../common/CustomTooltip';
 
 const AreaChart: FC<{
@@ -19,17 +18,15 @@ const AreaChart: FC<{
 	}[];
 	change: number | null;
 	selectedPeriod: PeriodLabel;
-	side: Side;
 	setCurrentPrice: (price: number | null) => void;
 	noData: boolean | undefined;
-	yAxisDomain: AxisDomain;
+	yAxisDomain?: AxisDomain;
 	yAxisTickFormatter: (val: number) => string;
 	tooltipPriceFormatter: (n: number) => string;
 }> = ({
 	selectedPeriod,
 	data,
 	change,
-	side,
 	setCurrentPrice,
 	noData,
 	yAxisDomain = ['auto', 'auto'],
@@ -41,7 +38,7 @@ const AreaChart: FC<{
 	const isChangePositive = change != null && change >= 0;
 	const chartColor = isChangePositive ? theme.colors.green : theme.colors.red;
 
-	let linearGradientId = `priceChartCardArea-${side}`;
+	let linearGradientId = `price-chart-card-area`;
 
 	const fontStyle = {
 		fontSize: '12px',
@@ -50,11 +47,7 @@ const AreaChart: FC<{
 	};
 
 	return (
-		<RechartsResponsiveContainer
-			width="100%"
-			height="100%"
-			id={`recharts-responsive-container-${side}`}
-		>
+		<RechartsResponsiveContainer width="100%" height="100%" id={`recharts-responsive-container`}>
 			<BaseAreaChart
 				{...{ data }}
 				margin={{ right: 0, bottom: 0, left: 0, top: 0 }}
@@ -93,7 +86,7 @@ const AreaChart: FC<{
 						const periodOverOneDay =
 							selectedPeriod != null && selectedPeriod.value > PERIOD_IN_HOURS.ONE_DAY;
 
-						return format(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
+						return formatDate(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
 					}}
 				/>
 				<YAxis

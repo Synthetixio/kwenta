@@ -1,7 +1,7 @@
 import { formatEther } from '@ethersproject/units';
 import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
 import { PeriodLabel, PERIOD_IN_HOURS } from 'constants/period';
-import { format } from 'date-fns';
+import formatDate from 'date-fns/format';
 import { Synth } from 'lib/synthetix';
 import { isNumber } from 'lodash';
 import { Candle } from 'queries/rates/types';
@@ -54,7 +54,7 @@ const CandlestickChart: FC<CandlestickChartProps> = ({
 						const periodOverOneDay =
 							selectedPeriod != null && selectedPeriod.value > PERIOD_IN_HOURS.ONE_DAY;
 
-						return format(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
+						return formatDate(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
 					}}
 					hide={chartData.length === 0}
 				/>
