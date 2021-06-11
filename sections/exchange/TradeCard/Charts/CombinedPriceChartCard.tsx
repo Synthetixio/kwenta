@@ -31,12 +31,12 @@ import {
 	OverlayMessage,
 	NoData,
 	PeriodSelector,
-	CurrencyLabelWithDot,
-	PriceDot,
 	CompareRatioToggle,
 	CompareRatioToggleType,
 } from './common/styles';
 import OverlayMessageContainer from './common/OverlayMessage';
+import CurrencyPricePlaceHolder from './common/CurrencyPricePlaceHolder';
+import CurrencyLabelsWithDots from './common/CurrencyLabelsWithDots';
 import { ChartType } from 'constants/chartType';
 import AreaChart from './Types/AreaChart';
 import CompareChart from './Types/CompareChart';
@@ -98,26 +98,9 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 			<ChartHeader>
 				<ChartHeaderInner>
 					{!(baseCurrencyKey && quoteCurrencyKey) ? (
-						<CurrencyLabel>{t('common.price')}</CurrencyLabel>
+						<CurrencyPricePlaceHolder />
 					) : isCompareChart ? (
-						<>
-							<CurrencyLabelWithDot>
-								<Trans
-									i18nKey="common.currency.currency-price"
-									values={{ currencyKey: baseCurrencyKey }}
-									components={[<NoTextTransform />]}
-								/>
-								<PriceDot color={'#395BC5'} />
-							</CurrencyLabelWithDot>
-							<CurrencyLabelWithDot>
-								<Trans
-									i18nKey="common.currency.currency-price"
-									values={{ currencyKey: quoteCurrencyKey }}
-									components={[<NoTextTransform />]}
-								/>
-								<PriceDot color={'#7AC09F'} />
-							</CurrencyLabelWithDot>
-						</>
+						<CurrencyLabelsWithDots {...{ baseCurrencyKey, quoteCurrencyKey }} />
 					) : (
 						<>
 							<FlexDiv>

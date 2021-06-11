@@ -23,6 +23,8 @@ import AreaChartData from './Types/AreaChart';
 
 import ChartTypeToggle from './ChartTypeToggle';
 import OverlayMessageContainer from './common/OverlayMessage';
+import CurrencyPricePlaceHolder from './common/CurrencyPricePlaceHolder';
+import CurrencyLabelsWithDots from './common/CurrencyLabelsWithDots';
 import {
 	ChartData,
 	CurrencyLabel,
@@ -33,8 +35,6 @@ import {
 	StyledTextButton,
 	NoData,
 	OverlayMessage,
-	CurrencyLabelWithDot,
-	PriceDot,
 	CompareRatioToggle,
 	CompareRatioToggleType,
 } from './common/styles';
@@ -113,26 +113,12 @@ const ChartCard: FC<ChartCardProps> = ({
 					}}
 				>
 					{!currencyKey ? (
-						<CurrencyLabel>{t('common.price')}</CurrencyLabel>
+						<CurrencyPricePlaceHolder />
 					) : isCompareChart ? (
-						<>
-							<CurrencyLabelWithDot>
-								<Trans
-									i18nKey="common.currency.currency-price"
-									values={{ currencyKey }}
-									components={[<NoTextTransform />]}
-								/>
-								<PriceDot color={'#395BC5'} />
-							</CurrencyLabelWithDot>
-							<CurrencyLabelWithDot>
-								<Trans
-									i18nKey="common.currency.currency-price"
-									values={{ currencyKey: otherCurrencyKey }}
-									components={[<NoTextTransform />]}
-								/>
-								<PriceDot color={'#7AC09F'} />
-							</CurrencyLabelWithDot>
-						</>
+						<CurrencyLabelsWithDots
+							baseCurrencyKey={currencyKey}
+							quoteCurrencyKey={otherCurrencyKey}
+						/>
 					) : (
 						<>
 							<CurrencyLabel>
