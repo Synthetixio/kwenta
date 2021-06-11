@@ -189,6 +189,7 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 									minDecimals: getMinNoOfDecimals(n),
 								})
 							}
+							linearGradientId={`price-chart-card-area-${baseCurrencyKey}-${quoteCurrencyKey}`}
 						/>
 					)}
 				</ChartData>

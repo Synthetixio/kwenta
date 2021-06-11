@@ -23,6 +23,7 @@ const AreaChart: FC<{
 	yAxisDomain?: AxisDomain;
 	yAxisTickFormatter: (val: number) => string;
 	tooltipPriceFormatter: (n: number) => string;
+	linearGradientId: string;
 }> = ({
 	selectedPeriod,
 	data,
@@ -32,13 +33,12 @@ const AreaChart: FC<{
 	yAxisDomain = ['auto', 'auto'],
 	yAxisTickFormatter,
 	tooltipPriceFormatter,
+	linearGradientId,
 }) => {
 	const theme = useContext(ThemeContext);
 
 	const isChangePositive = change != null && change >= 0;
 	const chartColor = isChangePositive ? theme.colors.green : theme.colors.red;
-
-	let linearGradientId = `price-chart-card-area`;
 
 	const fontStyle = {
 		fontSize: '12px',

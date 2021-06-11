@@ -75,6 +75,7 @@ const ChartCard: FC<ChartCardProps> = ({
 		change,
 		rates,
 	} = useAreaChartData({ currencyKey, selectedPeriod });
+
 	const {
 		noData: noCandleSticksChartData,
 		isLoading: isLoadingCandleSticksChartData,
@@ -220,6 +221,7 @@ const ChartCard: FC<ChartCardProps> = ({
 									sign: selectedPriceCurrency.sign,
 								})
 							}
+							linearGradientId={`price-chart-card-area-${currencyKey}`}
 						/>
 					) : (
 						<CandlestickChart
