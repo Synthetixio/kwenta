@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
@@ -26,7 +25,6 @@ import {
 
 import { DesktopOnlyView, MobileOrTabletView } from 'components/Media';
 import useExchange from 'sections/exchange/hooks/useExchange';
-import useChartWideWidth from 'sections/exchange/hooks/useChartWideWidth';
 import { DEFAULT_WIDTH } from 'sections/exchange/TradeCard/constants';
 
 const ExchangePage = () => {
@@ -46,6 +44,10 @@ const ExchangePage = () => {
 		footerCard,
 		combinedPriceChartCard,
 		combinedMarketDetailsCard,
+
+		toggleIsShowingSingleChart,
+		isShowingSingleChart,
+		wideWidth,
 	} = useExchange({
 		showPriceCard: true,
 		showMarketDetailsCard: true,
@@ -54,10 +56,6 @@ const ExchangePage = () => {
 		persistSelectedCurrencies: true,
 		showNoSynthsCard: true,
 	});
-
-	const [isShowingSingleChart, setIsShowingSingleChart] = useState(true);
-	const toggleIsShowingSingleChart = () => setIsShowingSingleChart((bool) => !bool);
-	const wideWidth = useChartWideWidth();
 
 	const chartsToggler = (
 		<ChartsTogglerContainer>

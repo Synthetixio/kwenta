@@ -7,8 +7,6 @@ import LoaderIcon from 'assets/svg/app/loader.svg';
 import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
 import { Period, PERIOD_LABELS_MAP, PERIOD_LABELS } from 'constants/period';
 import { ChartType } from 'constants/chartType';
-import { chartPeriodState, singleChartTypeState } from 'store/app';
-import usePersistedRecoilState from 'hooks/usePersistedRecoilState';
 import ChangePercent from 'components/ChangePercent';
 import {
 	FlexDivRowCentered,
@@ -49,6 +47,10 @@ type CombinedPriceChartCardProps = {
 	quotePriceRate: number | null;
 	className?: string;
 	openAfterHoursModalCallback?: () => void;
+	selectedPeriod: Period;
+	setSelectedPeriod: (p: Period) => void;
+	selectedChartType: ChartType;
+	setSelectedChartType: (c: ChartType) => void;
 };
 
 const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
@@ -57,15 +59,16 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	basePriceRate,
 	quotePriceRate,
 	openAfterHoursModalCallback,
+	selectedPeriod,
+	setSelectedPeriod,
+	selectedChartType,
+	setSelectedChartType,
 	...rest
 }) => {
 	const { t } = useTranslation();
-	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState<Period>(chartPeriodState);
+
 	const selectedPeriodLabel = useMemo(() => PERIOD_LABELS_MAP[selectedPeriod], [selectedPeriod]);
 
-	const [selectedChartType, setSelectedChartType] = usePersistedRecoilState<ChartType>(
-		singleChartTypeState
-	);
 	const { data, noData, change, isLoadingRates } = useCombinedRates({
 		baseCurrencyKey,
 		quoteCurrencyKey,
@@ -167,8 +170,8 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 									onClick={(event) => {
 										setSelectedPeriod(period.period);
 										if (
-											period.period !== Period.ONE_MONTH &&
-											selectedChartType === ChartType.CANDLESTICK
+											selectedChartType === ChartType.CANDLESTICK &&
+											period.period !== Period.ONE_MONTH
 										) {
 											// candlesticks type is only available on monthly view
 											setSelectedChartType(ChartType.AREA);

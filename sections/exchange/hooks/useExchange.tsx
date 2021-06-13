@@ -23,6 +23,8 @@ import {
 	SYNTHS,
 	SYNTHS_MAP,
 } from 'constants/currency';
+import { Period } from 'constants/period';
+import { ChartType } from 'constants/chartType';
 
 import useSynthsBalancesQuery from 'queries/walletBalances/useSynthsBalancesQuery';
 import useETHBalanceQuery from 'queries/walletBalances/useETHBalanceQuery';
@@ -52,11 +54,19 @@ import SelectTokenModal from 'sections/shared/modals/SelectTokenModal';
 import TxApproveModal from 'sections/shared/modals/TxApproveModal';
 import BalancerTradeModal from 'sections/shared/modals/BalancerTradeModal';
 
+import useChartWideWidth from 'sections/exchange/hooks/useChartWideWidth';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useMarketClosed from 'hooks/useMarketClosed';
 import useDebouncedMemo from 'hooks/useDebouncedMemo';
+import usePersistedRecoilState from 'hooks/usePersistedRecoilState';
 
 import { hasOrdersNotificationState, slippageState } from 'store/ui';
+import {
+	chartPeriodState,
+	singleChartTypeState,
+	baseChartTypeState,
+	quoteChartTypeState,
+} from 'store/app';
 import {
 	customGasPriceState,
 	gasSpeedState,
@@ -140,6 +150,21 @@ const useExchange = ({
 	const customGasPrice = useRecoilValue(customGasPriceState);
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
 	const slippage = useRecoilValue(slippageState);
+
+	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState<Period>(chartPeriodState);
+	const [selectedBaseChartType, setSelectedBaseChartType] = usePersistedRecoilState<ChartType>(
+		baseChartTypeState
+	);
+	const [selectedQuoteChartType, setSelectedQuoteChartType] = usePersistedRecoilState<ChartType>(
+		quoteChartTypeState
+	);
+	const [selectedSingleChartType, setSelectedSingleChartType] = usePersistedRecoilState<ChartType>(
+		singleChartTypeState
+	);
+
+	const [isShowingSingleChart, setIsShowingSingleChart] = useState(true);
+	const toggleIsShowingSingleChart = () => setIsShowingSingleChart((bool) => !bool);
+	const wideWidth = useChartWideWidth();
 
 	const [gasLimit, setGasLimit] = useState<number | null>(null);
 
@@ -817,9 +842,14 @@ const useExchange = ({
 		<PriceChartCard
 			side="quote"
 			currencyKey={quoteCurrencyKey}
-			otherCurrencyKey={baseCurrencyKey}
 			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
 			priceRate={quotePriceRate}
+			selectedChartType={selectedQuoteChartType}
+			setSelectedChartType={setSelectedQuoteChartType}
+			{...{
+				selectedPeriod,
+				setSelectedPeriod,
+			}}
 		/>
 	) : null;
 
@@ -893,10 +923,15 @@ const useExchange = ({
 		<PriceChartCard
 			side="base"
 			currencyKey={baseCurrencyKey}
-			otherCurrencyKey={quoteCurrencyKey}
 			priceRate={basePriceRate}
 			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
 			alignRight
+			selectedChartType={selectedBaseChartType}
+			setSelectedChartType={setSelectedBaseChartType}
+			{...{
+				selectedPeriod,
+				setSelectedPeriod,
+			}}
 		/>
 	) : null;
 
@@ -906,7 +941,16 @@ const useExchange = ({
 
 	const combinedPriceChartCard = showPriceCard ? (
 		<CombinedPriceChartCard
-			{...{ baseCurrencyKey, basePriceRate, quoteCurrencyKey, quotePriceRate }}
+			{...{
+				baseCurrencyKey,
+				basePriceRate,
+				quoteCurrencyKey,
+				quotePriceRate,
+				selectedPeriod,
+				setSelectedPeriod,
+			}}
+			selectedChartType={selectedSingleChartType}
+			setSelectedChartType={setSelectedSingleChartType}
 			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
 		/>
 	) : null;
@@ -1083,6 +1127,9 @@ const useExchange = ({
 		combinedMarketDetailsCard,
 		footerCard,
 		handleCurrencySwap,
+		toggleIsShowingSingleChart,
+		isShowingSingleChart,
+		wideWidth,
 	};
 };
 

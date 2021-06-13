@@ -6,7 +6,6 @@ import { Period } from 'constants/period';
 import { SYNTHS_MAP } from 'constants/currency';
 import { ChartType } from 'constants/chartType';
 import { Synth } from 'lib/synthetix';
-import localStore from 'utils/localStore';
 
 import { getAppKey } from '../utils';
 
@@ -47,20 +46,20 @@ export const priceCurrencyState = atom<Synth>({
 
 export const chartPeriodState = atom<Period>({
 	key: chartPeriodStateKey,
-	default: localStore.get<Period>(chartPeriodStateKey) ?? Period.ONE_DAY,
+	default: Period.ONE_DAY,
 });
 
 export const singleChartTypeState = atom<ChartType>({
 	key: singleChartTypeStateKey,
-	default: localStore.get<ChartType>(singleChartTypeStateKey) ?? ChartType.AREA,
+	default: ChartType.AREA,
 });
 
 export const baseChartTypeState = atom<ChartType>({
 	key: baseChartTypeStateKey,
-	default: localStore.get<ChartType>(baseChartTypeStateKey) ?? ChartType.AREA,
+	default: ChartType.AREA,
 });
 
 export const quoteChartTypeState = atom<ChartType>({
 	key: quoteChartTypeStateKey,
-	default: localStore.get<ChartType>(quoteChartTypeStateKey) ?? ChartType.AREA,
+	default: ChartType.AREA,
 });

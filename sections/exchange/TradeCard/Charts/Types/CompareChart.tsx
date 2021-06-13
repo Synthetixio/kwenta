@@ -1,9 +1,11 @@
 import { FC, useContext } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip } from 'recharts';
 import styled, { ThemeContext } from 'styled-components';
+import formatDate from 'date-fns/format';
+import isNumber from 'lodash/isNumber';
 
 import { CurrencyKey } from 'constants/currency';
-import { PeriodLabel } from 'constants/period';
+import { PeriodLabel, PERIOD_IN_HOURS } from 'constants/period';
 import useCompareChartData from 'sections/exchange/TradeCard/Charts/hooks/useCompareChartData';
 import RechartsResponsiveContainer from 'components/RechartsResponsiveContainer';
 import { formatCurrency } from 'utils/formatters/number';
@@ -44,31 +46,39 @@ const CompareChart: FC<{
 					tick={fontStyle}
 					axisLine={false}
 					tickLine={false}
-					hide={true}
+					tickFormatter={(val) => {
+						if (!isNumber(val)) {
+							return '';
+						}
+						const periodOverOneDay =
+							selectedPeriodLabel != null && selectedPeriodLabel.value > PERIOD_IN_HOURS.ONE_DAY;
+
+						return formatDate(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
+					}}
 				/>
 				<YAxis
 					// TODO: might need to adjust the width to make sure we do not trim the values...
-					type="number"
-					allowDataOverflow={true}
-					tick={fontStyle}
-					orientation="right"
-					axisLine={false}
-					tickLine={false}
 					yAxisId="base"
-					hide={true}
-					domain={['dataMin', 'dataMax']}
-				/>
-				<YAxis
-					// TODO: might need to adjust the width to make sure we do not trim the values...
 					type="number"
 					allowDataOverflow={true}
 					tick={fontStyle}
 					orientation="right"
 					axisLine={false}
 					tickLine={false}
-					yAxisId="quote"
-					hide={true}
 					domain={['dataMin', 'dataMax']}
+					hide
+				/>
+				<YAxis
+					// TODO: might need to adjust the width to make sure we do not trim the values...
+					yAxisId="quote"
+					type="number"
+					allowDataOverflow={true}
+					tick={fontStyle}
+					orientation="right"
+					axisLine={false}
+					tickLine={false}
+					domain={['dataMin', 'dataMax']}
+					hide
 				/>
 				<Line
 					type="monotone"

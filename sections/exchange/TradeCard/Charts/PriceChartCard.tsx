@@ -1,4 +1,4 @@
-import { FC, useState, useMemo, useCallback } from 'react';
+import { FC, useState, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
@@ -8,8 +8,6 @@ import { Period, PERIOD_LABELS_MAP, PERIOD_LABELS } from 'constants/period';
 import { ChartType } from 'constants/chartType';
 
 import ChangePercent from 'components/ChangePercent';
-import { chartPeriodState, baseChartTypeState, quoteChartTypeState } from 'store/app';
-import usePersistedRecoilState from 'hooks/usePersistedRecoilState';
 import { FlexDivRowCentered, NoTextTransform, AbsoluteCenteredDiv } from 'styles/common';
 import { formatCurrency } from 'utils/formatters/number';
 
@@ -18,13 +16,12 @@ import useMarketClosed from 'hooks/useMarketClosed';
 import LoaderIcon from 'assets/svg/app/loader.svg';
 
 import CandlestickChart from './Types/CandlesticksChart';
-import CompareChart from './Types/CompareChart';
 import AreaChartData from './Types/AreaChart';
 
 import ChartTypeToggle from './ChartTypeToggle';
 import OverlayMessageContainer from './common/OverlayMessage';
 import CurrencyPricePlaceHolder from './common/CurrencyPricePlaceHolder';
-import CurrencyLabelsWithDots from './common/CurrencyLabelsWithDots';
+
 import {
 	ChartData,
 	CurrencyLabel,
@@ -35,9 +32,6 @@ import {
 	StyledTextButton,
 	NoData,
 	OverlayMessage,
-	CompareRatioToggle,
-	CompareRatioToggleType,
-	CompareRatioToggleContainer,
 } from './common/styles';
 import { Side } from 'sections/exchange/TradeCard/types';
 import useAreaChartData from './hooks/useAreaChartData';
@@ -46,32 +40,35 @@ import useCandleSticksChartData from './hooks/useCandleSticksChartData';
 type ChartCardProps = {
 	side: Side;
 	currencyKey: CurrencyKey | null;
-	otherCurrencyKey: CurrencyKey | null;
 	priceRate: number | null;
 	className?: string;
 	openAfterHoursModalCallback?: () => void;
 	alignRight?: boolean;
+
+	selectedPeriod: Period;
+	setSelectedPeriod: (p: Period) => void;
+	selectedChartType: ChartType;
+	setSelectedChartType: (c: ChartType) => void;
 };
 
 const ChartCard: FC<ChartCardProps> = ({
 	side,
 	currencyKey,
-	otherCurrencyKey,
 	priceRate,
 	openAfterHoursModalCallback,
 	alignRight,
+
+	selectedPeriod,
+	setSelectedPeriod,
+	selectedChartType,
+	setSelectedChartType,
+
 	...rest
 }) => {
 	const { t } = useTranslation();
-	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState<Period>(chartPeriodState);
+
 	const selectedPeriodLabel = useMemo(() => PERIOD_LABELS_MAP[selectedPeriod], [selectedPeriod]);
 
-	const [selectedBaseChartType, setSelectedBaseChartType] = usePersistedRecoilState<ChartType>(
-		baseChartTypeState
-	);
-	const [selectedQuoteChartType, setSelectedQuoteChartType] = usePersistedRecoilState<ChartType>(
-		quoteChartTypeState
-	);
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
 	const { isMarketClosed, marketClosureReason } = useMarketClosed(currencyKey);
 
@@ -94,29 +91,10 @@ const ChartCard: FC<ChartCardProps> = ({
 	const showLoader = isLoadingAreaChartData || isLoadingCandleSticksChartData;
 	const disabledInteraction = showLoader || showOverlayMessage;
 	const isSUSD = currencyKey === SYNTHS_MAP.sUSD;
-	const eitherCurrencyIsSUSD = useMemo(() => isSUSD || otherCurrencyKey === SYNTHS_MAP.sUSD, [
-		isSUSD,
-		otherCurrencyKey,
-	]);
 
-	const selectedChartType = useMemo(
-		() => (side === 'base' ? selectedBaseChartType : selectedQuoteChartType),
-		[side, selectedBaseChartType, selectedQuoteChartType]
-	);
 	const noData =
 		(selectedChartType === ChartType.AREA && noAreaChartData && !isSUSD) ||
 		(selectedChartType === ChartType.CANDLESTICK && noCandleSticksChartData && !isSUSD);
-
-	const setSelectedChartType = useCallback(
-		(type: ChartType) => {
-			(side === 'base' ? setSelectedBaseChartType : setSelectedQuoteChartType)(type);
-		},
-		[side, setSelectedBaseChartType, setSelectedQuoteChartType]
-	);
-
-	const isCompareChart = useMemo(() => selectedChartType === ChartType.COMPARE, [
-		selectedChartType,
-	]);
 
 	const computedRates = useMemo(() => {
 		return rates.map(({ timestamp, rate }) => ({
@@ -135,11 +113,6 @@ const ChartCard: FC<ChartCardProps> = ({
 				>
 					{!currencyKey ? (
 						<CurrencyPricePlaceHolder />
-					) : isCompareChart ? (
-						<CurrencyLabelsWithDots
-							baseCurrencyKey={currencyKey}
-							quoteCurrencyKey={otherCurrencyKey}
-						/>
 					) : (
 						<>
 							<CurrencyLabel>
@@ -173,8 +146,8 @@ const ChartCard: FC<ChartCardProps> = ({
 									onClick={(event) => {
 										setSelectedPeriod(period.period);
 										if (
-											period.period !== Period.ONE_MONTH &&
-											selectedChartType === ChartType.CANDLESTICK
+											selectedChartType === ChartType.CANDLESTICK &&
+											period.period !== Period.ONE_MONTH
 										) {
 											// candlesticks type is only available on monthly view
 											setSelectedChartType(ChartType.AREA);
@@ -193,40 +166,12 @@ const ChartCard: FC<ChartCardProps> = ({
 								alignRight={alignRight}
 							/>
 						)}
-						{eitherCurrencyIsSUSD ? null : (
-							<CompareRatioToggleContainer>
-								<CompareRatioToggle>
-									<CompareRatioToggleType
-										onClick={() => {
-											setSelectedChartType(ChartType.COMPARE);
-										}}
-										isActive={isCompareChart}
-									>
-										{t('common.chart-types.compare')}
-									</CompareRatioToggleType>
-									<CompareRatioToggleType
-										onClick={() => {
-											setSelectedChartType(ChartType.AREA);
-										}}
-										isActive={!isCompareChart}
-									>
-										{t('common.chart-types.ratio')}
-									</CompareRatioToggleType>
-								</CompareRatioToggle>
-							</CompareRatioToggleContainer>
-						)}
 					</Actions>
 				)}
 			</ChartHeader>
 			<ChartBody>
 				<ChartData disabledInteraction={disabledInteraction}>
-					{isCompareChart ? (
-						<CompareChart
-							baseCurrencyKey={currencyKey}
-							quoteCurrencyKey={otherCurrencyKey}
-							{...{ selectedPeriodLabel }}
-						/>
-					) : selectedChartType === ChartType.AREA ? (
+					{selectedChartType === ChartType.AREA ? (
 						<AreaChartData
 							{...{
 								selectedPeriodLabel,
