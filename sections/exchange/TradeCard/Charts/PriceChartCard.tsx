@@ -15,7 +15,7 @@ import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useMarketClosed from 'hooks/useMarketClosed';
 import LoaderIcon from 'assets/svg/app/loader.svg';
 
-import CandlestickChart from './Types/CandlesticksChart';
+import CandlesticksChart from './Types/CandlesticksChart';
 import AreaChartData from './Types/AreaChart';
 
 import ChartTypeToggle from './common/ChartTypeToggle';
@@ -195,7 +195,7 @@ const ChartCard: FC<ChartCardProps> = ({
 							linearGradientId={`price-chart-card-area-${currencyKey}`}
 						/>
 					) : (
-						<CandlestickChart
+						<CandlesticksChart
 							data={candleSticksChartData}
 							{...{ selectedPeriodLabel, selectedPriceCurrency }}
 						/>

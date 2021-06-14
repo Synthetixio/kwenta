@@ -11,7 +11,6 @@ const useCandleSticksChartData = ({
 }) => {
 	const query = useCandlesticksQuery(currencyKey, selectedPeriodLabel.period);
 	const data = query.isSuccess && query.data ? query.data : [];
-
 	const noData = query.isSuccess && query.data && data.length === 0;
 
 	return {

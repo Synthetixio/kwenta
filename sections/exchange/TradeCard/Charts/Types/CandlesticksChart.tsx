@@ -11,13 +11,13 @@ import { BarChart, XAxis, YAxis, Bar, Cell } from 'recharts';
 import { Tooltip } from 'styles/common';
 import { formatCurrency } from 'utils/formatters/number';
 
-type CandlestickChartProps = {
+type CandlesticksChartProps = {
 	data: Candle[];
 	selectedPeriodLabel: PeriodLabel;
 	selectedPriceCurrency: Synth;
 };
 
-const CandlestickChart: FC<CandlestickChartProps> = ({
+const CandlesticksChart: FC<CandlesticksChartProps> = ({
 	data,
 	selectedPeriodLabel,
 	selectedPriceCurrency,
@@ -96,4 +96,4 @@ const CandlestickChart: FC<CandlestickChartProps> = ({
 	);
 };
 
-export default CandlestickChart;
+export default CandlesticksChart;

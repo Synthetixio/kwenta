@@ -17,6 +17,8 @@ import {
 } from 'styles/common';
 import { formatNumber } from 'utils/formatters/number';
 import useMarketClosed from 'hooks/useMarketClosed';
+import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
+import useCombinedCandleSticksChartData from 'sections/exchange/TradeCard/Charts/hooks/useCombinedCandleSticksChartData';
 import useCombinedRates from 'sections/exchange/TradeCard/Charts/hooks/useCombinedRates';
 import { DesktopOnlyView, MobileOnlyView } from 'components/Media';
 
@@ -39,6 +41,7 @@ import CurrencyPricePlaceHolder from './common/CurrencyPricePlaceHolder';
 import CurrencyLabelsWithDots from './common/CurrencyLabelsWithDots';
 import AreaChart from './Types/AreaChart';
 import CompareChart from './Types/CompareChart';
+import CandlesticksChart from './Types/CandlesticksChart';
 
 type CombinedPriceChartCardProps = {
 	baseCurrencyKey: CurrencyKey | null;
@@ -67,13 +70,24 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 }) => {
 	const { t } = useTranslation();
 
+	const { selectedPriceCurrency } = useSelectedPriceCurrency();
 	const selectedPeriodLabel = useMemo(() => PERIOD_LABELS_MAP[selectedPeriod], [selectedPeriod]);
 
-	const { data, noData, change, isLoadingRates } = useCombinedRates({
+	const {
+		data: areaChartData,
+		noData: noAreaChartData,
+		change,
+		isLoadingRates: isLoadingAreaData,
+	} = useCombinedRates({
 		baseCurrencyKey,
 		quoteCurrencyKey,
 		selectedPeriodLabel,
 	});
+	const {
+		noData: noCandleSticksChartData,
+		isLoading: isLoadingCandleSticksChartData,
+		data: candleSticksChartData,
+	} = useCombinedCandleSticksChartData({ baseCurrencyKey, quoteCurrencyKey, selectedPeriodLabel });
 	const {
 		isMarketClosed: isBaseMarketClosed,
 		marketClosureReason: baseMarketClosureReason,
@@ -94,7 +108,8 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	);
 
 	const showOverlayMessage = isMarketClosed;
-	const showLoader = isLoadingRates;
+	const showLoader = isLoadingAreaData || isLoadingCandleSticksChartData;
+	const noData = noCandleSticksChartData || noAreaChartData;
 	const disabledInteraction = showLoader || showOverlayMessage;
 
 	const isCompareChart = useMemo(() => selectedChartType === ChartType.COMPARE, [
@@ -202,16 +217,19 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 					{isCompareChart ? (
 						<CompareChart {...{ baseCurrencyKey, quoteCurrencyKey, selectedPeriodLabel }} />
 					) : isCandleStickChart ? (
-						<div>x</div>
+						<CandlesticksChart
+							data={candleSticksChartData}
+							{...{ selectedPeriodLabel, selectedPriceCurrency }}
+						/>
 					) : (
 						<AreaChart
 							{...{
 								selectedPeriodLabel,
-								data,
 								change,
 								setCurrentPrice,
-								noData,
 							}}
+							data={areaChartData}
+							noData={noAreaChartData}
 							yAxisTickFormatter={(val: number) =>
 								formatNumber(val, {
 									minDecimals: getMinNoOfDecimals(val),
