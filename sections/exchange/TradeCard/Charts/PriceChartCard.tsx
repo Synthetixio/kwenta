@@ -18,7 +18,7 @@ import LoaderIcon from 'assets/svg/app/loader.svg';
 import CandlestickChart from './Types/CandlesticksChart';
 import AreaChartData from './Types/AreaChart';
 
-import ChartTypeToggle from './ChartTypeToggle';
+import ChartTypeToggle from './common/ChartTypeToggle';
 import OverlayMessageContainer from './common/OverlayMessage';
 import CurrencyPricePlaceHolder from './common/CurrencyPricePlaceHolder';
 

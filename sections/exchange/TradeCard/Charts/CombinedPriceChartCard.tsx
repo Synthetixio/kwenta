@@ -100,6 +100,10 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	const isCompareChart = useMemo(() => selectedChartType === ChartType.COMPARE, [
 		selectedChartType,
 	]);
+	const isAreaChart = useMemo(() => selectedChartType === ChartType.AREA, [selectedChartType]);
+	const isCandleStickChart = useMemo(() => selectedChartType === ChartType.CANDLESTICK, [
+		selectedChartType,
+	]);
 
 	return (
 		<Container {...rest}>
@@ -155,9 +159,17 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 										onClick={() => {
 											setSelectedChartType(ChartType.AREA);
 										}}
-										isActive={!isCompareChart}
+										isActive={isAreaChart}
 									>
 										{t('common.chart-types.ratio')}
+									</CompareRatioToggleType>
+									<CompareRatioToggleType
+										onClick={() => {
+											setSelectedChartType(ChartType.CANDLESTICK);
+										}}
+										isActive={isCandleStickChart}
+									>
+										{t('common.chart-types.candlesticks')}
 									</CompareRatioToggleType>
 								</CompareRatioToggle>
 							</CompareRatioToggleContainer>
@@ -189,6 +201,8 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 				<ChartData disabledInteraction={disabledInteraction}>
 					{isCompareChart ? (
 						<CompareChart {...{ baseCurrencyKey, quoteCurrencyKey, selectedPeriodLabel }} />
+					) : isCandleStickChart ? (
+						<div>x</div>
 					) : (
 						<AreaChart
 							{...{
