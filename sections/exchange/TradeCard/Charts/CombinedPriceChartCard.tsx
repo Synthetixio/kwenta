@@ -109,7 +109,6 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 
 	const showOverlayMessage = isMarketClosed;
 	const showLoader = isLoadingAreaData || isLoadingCandleSticksChartData;
-	const noData = noCandleSticksChartData || noAreaChartData;
 	const disabledInteraction = showLoader || showOverlayMessage;
 
 	const isCompareChart = useMemo(() => selectedChartType === ChartType.COMPARE, [
@@ -119,6 +118,9 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	const isCandleStickChart = useMemo(() => selectedChartType === ChartType.CANDLESTICK, [
 		selectedChartType,
 	]);
+
+	const noData =
+		(isCandleStickChart && noCandleSticksChartData) || (isAreaChart && noAreaChartData);
 
 	return (
 		<Container {...rest}>
@@ -176,7 +178,7 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 										}}
 										isActive={isAreaChart}
 									>
-										{t('common.chart-types.ratio')}
+										{t('common.chart-types.area')}
 									</CompareRatioToggleType>
 									<CompareRatioToggleType
 										onClick={() => {
