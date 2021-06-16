@@ -1,4 +1,4 @@
-import { FC, useState, useMemo } from 'react';
+import { FC, useState, useMemo, useEffect } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
@@ -103,6 +103,16 @@ const ChartCard: FC<ChartCardProps> = ({
 		}));
 	}, [rates, selectPriceCurrencyRate]);
 
+	useEffect(() => {
+		if (
+			isSUSD ||
+			(selectedChartType === ChartType.CANDLESTICK && selectedPeriod !== Period.ONE_MONTH)
+		) {
+			// candlesticks type is only available on monthly view
+			setSelectedChartType(ChartType.AREA);
+		} // eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isSUSD, selectedChartType, selectedPeriod]);
+
 	return (
 		<Container {...rest}>
 			<ChartHeader>
@@ -145,20 +155,13 @@ const ChartCard: FC<ChartCardProps> = ({
 									isActive={period.period === selectedPeriod}
 									onClick={(event) => {
 										setSelectedPeriod(period.period);
-										if (
-											selectedChartType === ChartType.CANDLESTICK &&
-											period.period !== Period.ONE_MONTH
-										) {
-											// candlesticks type is only available on monthly view
-											setSelectedChartType(ChartType.AREA);
-										}
 									}}
 								>
 									{t(period.i18nLabel)}
 								</StyledTextButton>
 							))}
 						</PeriodSelector>
-						{selectedPeriod === Period.ONE_MONTH && (
+						{!(!isSUSD && selectedPeriod === Period.ONE_MONTH) ? null : (
 							<ChartTypeToggle
 								chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
 								selectedChartType={selectedChartType}

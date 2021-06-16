@@ -1,4 +1,4 @@
-import { FC, useState, useMemo } from 'react';
+import { FC, useState, useMemo, useEffect } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
@@ -122,6 +122,13 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	const noData =
 		(isCandleStickChart && noCandleSticksChartData) || (isAreaChart && noAreaChartData);
 
+	useEffect(() => {
+		if (selectedChartType === ChartType.CANDLESTICK && selectedPeriod !== Period.ONE_MONTH) {
+			// candlesticks type is only available on monthly view
+			setSelectedChartType(ChartType.AREA);
+		} // eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedChartType, selectedPeriod]);
+
 	return (
 		<Container {...rest}>
 			<ChartHeader>
@@ -161,9 +168,9 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 				</ChartHeaderInner>
 				{!isMarketClosed && (
 					<Actions>
-						{eitherCurrencyIsSUSD ? null : (
-							<CompareRatioToggleContainer>
-								<CompareRatioToggle>
+						<CompareRatioToggleContainer>
+							<CompareRatioToggle>
+								{eitherCurrencyIsSUSD ? null : (
 									<CompareRatioToggleType
 										onClick={() => {
 											setSelectedChartType(ChartType.COMPARE);
@@ -172,14 +179,16 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 									>
 										{t('common.chart-types.compare')}
 									</CompareRatioToggleType>
-									<CompareRatioToggleType
-										onClick={() => {
-											setSelectedChartType(ChartType.AREA);
-										}}
-										isActive={isAreaChart}
-									>
-										{t('common.chart-types.area')}
-									</CompareRatioToggleType>
+								)}
+								<CompareRatioToggleType
+									onClick={() => {
+										setSelectedChartType(ChartType.AREA);
+									}}
+									isActive={isAreaChart}
+								>
+									{t('common.chart-types.ratio')}
+								</CompareRatioToggleType>
+								{selectedPeriod !== Period.ONE_MONTH ? null : (
 									<CompareRatioToggleType
 										onClick={() => {
 											setSelectedChartType(ChartType.CANDLESTICK);
@@ -188,9 +197,10 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 									>
 										{t('common.chart-types.candlesticks')}
 									</CompareRatioToggleType>
-								</CompareRatioToggle>
-							</CompareRatioToggleContainer>
-						)}
+								)}
+							</CompareRatioToggle>
+						</CompareRatioToggleContainer>
+
 						<PeriodSelector>
 							{PERIOD_LABELS.map((period) => (
 								<StyledTextButton
@@ -198,13 +208,6 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 									isActive={period.period === selectedPeriod}
 									onClick={(event) => {
 										setSelectedPeriod(period.period);
-										if (
-											selectedChartType === ChartType.CANDLESTICK &&
-											period.period !== Period.ONE_MONTH
-										) {
-											// candlesticks type is only available on monthly view
-											setSelectedChartType(ChartType.AREA);
-										}
 									}}
 								>
 									{t(period.i18nLabel)}

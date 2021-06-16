@@ -581,7 +581,7 @@
 		},
 		"chart-types": {
 			"compare": "compare",
-			"area": "area",
+			"ratio": "ratio",
 			"candlesticks": "candlesticks"
 		},
 		"transaction": {
