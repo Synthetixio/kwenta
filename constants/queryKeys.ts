@@ -9,12 +9,24 @@ export const QUERY_KEYS = {
 		HistoricalRates: (currencyKey: CurrencyKey, period: Period) => [
 			'rates',
 			'historicalRates',
-			currencyKey,
 			period,
+			currencyKey,
 		],
 		MarketCap: (currencyKey: CurrencyKey) => ['marketCap', currencyKey],
 		ExchangeRates: ['rates', 'exchangeRates'],
 		SynthExchanges: (period: Period) => ['rates', 'synthExchanges', period],
+		Candlesticks: (currencyKey: CurrencyKey, period: Period) => [
+			'rates',
+			'candlesticks',
+			currencyKey,
+			period,
+		],
+		PeriodStartSynthRate: (currencyKey: CurrencyKey, period: Period) => [
+			'rates',
+			'latestSynthRate',
+			currencyKey,
+			period,
+		],
 	},
 	Network: {
 		EthGasPrice: ['network', 'ethGasPrice'],
@@ -78,6 +90,7 @@ export const QUERY_KEYS = {
 	TokenLists: {
 		Synthetix: ['tokenLists', 'synthetix'],
 		Zapper: ['tokenLists', 'zapper'],
+		OneInch: ['tokenLists', 'oneInch'],
 	},
 	CMC: {
 		Quotes: (currencyKeys: CurrencyKey[]) => ['cmc', 'quotes', currencyKeys.join('|')],

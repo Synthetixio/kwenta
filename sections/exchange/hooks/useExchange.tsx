@@ -36,8 +36,10 @@ import use1InchApproveSpenderQuery from 'queries/1inch/use1InchApproveAddressQue
 import useCoinGeckoTokenPricesQuery from 'queries/coingecko/useCoinGeckoTokenPricesQuery';
 
 import CurrencyCard from 'sections/exchange/TradeCard/CurrencyCard';
-import PriceChartCard from 'sections/exchange/TradeCard/PriceChartCard';
-import MarketDetailsCard from 'sections/exchange/TradeCard/MarketDetailsCard';
+import PriceChartCard from 'sections/exchange/TradeCard/Charts/PriceChartCard';
+import CombinedPriceChartCard from 'sections/exchange/TradeCard/Charts/CombinedPriceChartCard';
+import MarketDetailsCard from 'sections/exchange/TradeCard/Cards/MarketDetailsCard';
+import CombinedMarketDetailsCard from 'sections/exchange/TradeCard/Cards/CombinedMarketDetailsCard';
 import TradeSummaryCard from 'sections/exchange/FooterCard/TradeSummaryCard';
 import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
 import MarketClosureCard from 'sections/exchange/FooterCard/MarketClosureCard';
@@ -879,7 +881,7 @@ const useExchange = ({
 			}
 			priceRate={basePriceRate}
 			label={t('exchange.common.into')}
-			interactive={txProvider === 'synthetix'}
+			disableInput={txProvider === '1inch'}
 			slippagePercent={slippagePercent}
 			isLoading={txProvider === '1inch' && oneInchQuoteQuery.isFetching}
 			txProvider={txProvider}
@@ -892,11 +894,25 @@ const useExchange = ({
 			currencyKey={baseCurrencyKey}
 			priceRate={basePriceRate}
 			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
+			alignRight
 		/>
 	) : null;
 
 	const baseMarketDetailsCard = showMarketDetailsCard ? (
 		<MarketDetailsCard currencyKey={baseCurrencyKey} priceRate={basePriceRate} />
+	) : null;
+
+	const combinedPriceChartCard = showPriceCard ? (
+		<CombinedPriceChartCard
+			{...{ baseCurrencyKey, basePriceRate, quoteCurrencyKey, quotePriceRate }}
+			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
+		/>
+	) : null;
+
+	const combinedMarketDetailsCard = showMarketDetailsCard ? (
+		<CombinedMarketDetailsCard
+			{...{ baseCurrencyKey, basePriceRate, quoteCurrencyKey, quotePriceRate }}
+		/>
 	) : null;
 
 	const footerCard = (
@@ -918,6 +934,8 @@ const useExchange = ({
 					baseCurrencyMarketClosed={baseCurrencyMarketClosed}
 					quoteCurrencyMarketClosed={quoteCurrencyMarketClosed}
 					attached={footerCardAttached}
+					quoteCurrencyKey={quoteCurrencyKey}
+					baseCurrencyKey={baseCurrencyKey}
 				/>
 			) : showNoSynthsCard && noSynths ? (
 				<NoSynthsCard attached={footerCardAttached} />
@@ -939,6 +957,7 @@ const useExchange = ({
 					// show fee's only for "synthetix" (provider)
 					showFee={txProvider === 'synthetix' ? true : false}
 					isApproved={needsApproval ? isApproved : undefined}
+					show1InchProvider={txProvider === '1inch'}
 				/>
 			)}
 			{txConfirmationModalOpen && (
@@ -1013,7 +1032,7 @@ const useExchange = ({
 				/>
 			)}
 			{selectBaseTokenModalOpen && (
-				<SelectTokenModal
+				<SelectCurrencyModal
 					onDismiss={() => setSelectBaseTokenModalOpen(false)}
 					onSelect={(currencyKey) => {
 						resetCurrencies();
@@ -1031,6 +1050,7 @@ const useExchange = ({
 							routeToBaseCurrency(currencyKey);
 						}
 					}}
+					synthsOverride={[SYNTHS_MAP.sETH, SYNTHS_MAP.sUSD]}
 				/>
 			)}
 			{txApproveModalOpen && (
@@ -1059,6 +1079,8 @@ const useExchange = ({
 		baseCurrencyCard,
 		basePriceChartCard,
 		baseMarketDetailsCard,
+		combinedPriceChartCard,
+		combinedMarketDetailsCard,
 		footerCard,
 		handleCurrencySwap,
 	};

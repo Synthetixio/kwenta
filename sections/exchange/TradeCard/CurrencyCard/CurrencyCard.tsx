@@ -33,6 +33,7 @@ type CurrencyCardProps = {
 	className?: string;
 	label: ReactNode;
 	interactive?: boolean;
+	disableInput?: boolean;
 	slippagePercent?: BigNumber | null;
 	isLoading?: boolean;
 	txProvider?: TxProvider;
@@ -50,6 +51,7 @@ const CurrencyCard: FC<CurrencyCardProps> = ({
 	priceRate,
 	label,
 	interactive = true,
+	disableInput = false,
 	isLoading = false,
 	txProvider = 'synthetix',
 	...rest
@@ -105,7 +107,10 @@ const CurrencyCard: FC<CurrencyCardProps> = ({
 							{hasCurrencySelectCallback && <Svg src={CaretDownIcon} />}
 						</CurrencySelector>
 						{currencyKeySelected && (
-							<CurrencyAmountContainer className="currency-amount-container">
+							<CurrencyAmountContainer
+								className="currency-amount-container"
+								disableInput={disableInput}
+							>
 								<CurrencyAmount
 									value={amount}
 									onChange={(_, value) => onAmountChange(value)}
@@ -133,7 +138,7 @@ const CurrencyCard: FC<CurrencyCardProps> = ({
 							</CurrencyAmountContainer>
 						)}
 					</CurrencyContainer>
-					<WalletBalanceContainer>
+					<WalletBalanceContainer disableInput={disableInput}>
 						<WalletBalanceLabel>{t('exchange.currency-card.wallet-balance')}</WalletBalanceLabel>
 						<WalletBalance
 							onClick={hasWalletBalance ? onBalanceClick : undefined}
@@ -159,8 +164,7 @@ const StyledCard = styled(Card)<{ interactive?: boolean }>`
 `;
 
 const StyledCardBody = styled(Card.Body)`
-	padding-top: 11px;
-	padding-bottom: 11px;
+	padding: 11px 30px;
 `;
 
 const LabelContainer = styled.div`
@@ -196,7 +200,7 @@ const CurrencySelector = styled.div<{
 	${(props) =>
 		!props.currencyKeySelected &&
 		css`
-			margin: 12px 0 12px -10px;
+			margin: 12px 6px 12px -10px;
 		`};
 
 	${(props) =>
@@ -210,11 +214,16 @@ const CurrencySelector = styled.div<{
 		`};
 `;
 
-const CurrencyAmountContainer = styled.div`
+const CurrencyAmountContainer = styled.div<{ disableInput?: boolean }>`
 	background-color: ${(props) => props.theme.colors.black};
 	border-radius: 4px;
 	width: 100%;
 	position: relative;
+	${(props) =>
+		props.disableInput &&
+		css`
+			pointer-events: none;
+		`}
 `;
 
 const CurrencyAmount = styled(NumericInput)`
@@ -239,7 +248,13 @@ const Slippage = styled.div`
 	color: ${(props) => props.theme.colors.yellow};
 `;
 
-const WalletBalanceContainer = styled(FlexDivRowCentered)``;
+const WalletBalanceContainer = styled(FlexDivRowCentered)<{ disableInput?: boolean }>`
+	${(props) =>
+		props.disableInput &&
+		css`
+			pointer-events: none;
+		`}
+`;
 
 const WalletBalanceLabel = styled.div`
 	text-transform: capitalize;
