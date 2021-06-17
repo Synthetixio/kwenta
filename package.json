@@ -44,6 +44,7 @@
 		"next": "10.0.0",
 		"next-compose-plugins": "2.2.0",
 		"next-optimized-images": "3.0.0-canary.10",
+		"optimized-images-loader": "github:clementbalestrat/optimized-images-loader",
 		"react": "17.0.1",
 		"react-countdown": "2.3.1",
 		"react-dom": "17.0.1",
