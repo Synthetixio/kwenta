@@ -68,15 +68,9 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 	const { selectedPriceCurrency } = useSelectedPriceCurrency();
 
 	const getBaseCurrencyAmount = (decimals?: number) =>
-		formatCurrency(
-			baseCurrencyKey,
-			feeAmountInBaseCurrency != null
-				? toBigNumber(baseCurrencyAmount).minus(feeAmountInBaseCurrency)
-				: baseCurrencyAmount,
-			{
-				minDecimals: decimals,
-			}
-		);
+		formatCurrency(baseCurrencyKey, baseCurrencyAmount, {
+			minDecimals: decimals,
+		});
 
 	return (
 		<StyledBaseModal
