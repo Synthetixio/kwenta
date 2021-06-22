@@ -123,11 +123,14 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 		(isCandleStickChart && noCandleSticksChartData) || (isAreaChart && noAreaChartData);
 
 	useEffect(() => {
-		if (selectedChartType === ChartType.CANDLESTICK && selectedPeriod !== Period.ONE_MONTH) {
+		if (
+			(eitherCurrencyIsSUSD && isCompareChart) ||
+			(isCandleStickChart && selectedPeriod !== Period.ONE_MONTH)
+		) {
 			// candlesticks type is only available on monthly view
 			setSelectedChartType(ChartType.AREA);
 		} // eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedChartType, selectedPeriod]);
+	}, [eitherCurrencyIsSUSD, isCompareChart, isCandleStickChart, selectedPeriod]);
 
 	return (
 		<Container {...rest}>

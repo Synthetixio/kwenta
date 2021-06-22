@@ -18,7 +18,7 @@ import LoaderIcon from 'assets/svg/app/loader.svg';
 import CandlesticksChart from './Types/CandlesticksChart';
 import AreaChartData from './Types/AreaChart';
 
-import ChartTypeToggle from './common/ChartTypeToggle';
+// import ChartTypeToggle from './common/ChartTypeToggle';
 import OverlayMessageContainer from './common/OverlayMessage';
 import CurrencyPricePlaceHolder from './common/CurrencyPricePlaceHolder';
 
@@ -32,6 +32,9 @@ import {
 	StyledTextButton,
 	NoData,
 	OverlayMessage,
+	CompareRatioToggle,
+	CompareRatioToggleType,
+	CompareRatioToggleContainer,
 } from './common/styles';
 import { Side } from 'sections/exchange/TradeCard/types';
 import useAreaChartData from './hooks/useAreaChartData';
@@ -92,9 +95,14 @@ const ChartCard: FC<ChartCardProps> = ({
 	const disabledInteraction = showLoader || showOverlayMessage;
 	const isSUSD = currencyKey === SYNTHS_MAP.sUSD;
 
+	const isAreaChart = useMemo(() => selectedChartType === ChartType.AREA, [selectedChartType]);
+	const isCandleStickChart = useMemo(() => selectedChartType === ChartType.CANDLESTICK, [
+		selectedChartType,
+	]);
+
 	const noData =
-		(selectedChartType === ChartType.AREA && noAreaChartData && !isSUSD) ||
-		(selectedChartType === ChartType.CANDLESTICK && noCandleSticksChartData && !isSUSD);
+		(isAreaChart && noAreaChartData && !isSUSD) ||
+		(isCandleStickChart && noCandleSticksChartData && !isSUSD);
 
 	const computedRates = useMemo(() => {
 		return rates.map(({ timestamp, rate }) => ({
@@ -104,14 +112,11 @@ const ChartCard: FC<ChartCardProps> = ({
 	}, [rates, selectPriceCurrencyRate]);
 
 	useEffect(() => {
-		if (
-			isSUSD ||
-			(selectedChartType === ChartType.CANDLESTICK && selectedPeriod !== Period.ONE_MONTH)
-		) {
+		if (isSUSD || (isCandleStickChart && selectedPeriod !== Period.ONE_MONTH)) {
 			// candlesticks type is only available on monthly view
 			setSelectedChartType(ChartType.AREA);
 		} // eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isSUSD, selectedChartType, selectedPeriod]);
+	}, [isSUSD, isCandleStickChart, selectedChartType, selectedPeriod]);
 
 	return (
 		<Container {...rest}>
@@ -162,19 +167,45 @@ const ChartCard: FC<ChartCardProps> = ({
 							))}
 						</PeriodSelector>
 						{!(!isSUSD && selectedPeriod === Period.ONE_MONTH) ? null : (
+							<>
+								{/*
 							<ChartTypeToggle
 								chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
 								selectedChartType={selectedChartType}
 								setSelectedChartType={setSelectedChartType}
 								alignRight={alignRight}
 							/>
+						*/}
+								<CompareRatioToggleContainer>
+									<CompareRatioToggle>
+										<CompareRatioToggleType
+											onClick={() => {
+												setSelectedChartType(ChartType.AREA);
+											}}
+											isActive={isAreaChart}
+										>
+											{t('common.chart-types.ratio')}
+										</CompareRatioToggleType>
+										{selectedPeriod !== Period.ONE_MONTH ? null : (
+											<CompareRatioToggleType
+												onClick={() => {
+													setSelectedChartType(ChartType.CANDLESTICK);
+												}}
+												isActive={isCandleStickChart}
+											>
+												{t('common.chart-types.candlesticks')}
+											</CompareRatioToggleType>
+										)}
+									</CompareRatioToggle>
+								</CompareRatioToggleContainer>
+							</>
 						)}
 					</Actions>
 				)}
 			</ChartHeader>
 			<ChartBody>
 				<ChartData disabledInteraction={disabledInteraction}>
-					{selectedChartType === ChartType.AREA ? (
+					{isAreaChart ? (
 						<AreaChartData
 							{...{
 								selectedPeriodLabel,
