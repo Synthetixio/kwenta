@@ -14,8 +14,8 @@ import { TooltipContentStyle as BaseTooltipContentStyle } from 'sections/exchang
 const CompareChart: FC<{
 	baseCurrencyKey: CurrencyKey | null;
 	quoteCurrencyKey: CurrencyKey | null;
-	selectedPeriodLabel: PeriodLabel;
-}> = ({ baseCurrencyKey, quoteCurrencyKey, selectedPeriodLabel }) => {
+	selectedChartPeriodLabel: PeriodLabel;
+}> = ({ baseCurrencyKey, quoteCurrencyKey, selectedChartPeriodLabel }) => {
 	const theme = useContext(ThemeContext);
 	const fontStyle = {
 		fontSize: '12px',
@@ -26,7 +26,7 @@ const CompareChart: FC<{
 	const { data, noData } = useCompareChartData({
 		baseCurrencyKey,
 		quoteCurrencyKey,
-		selectedPeriodLabel,
+		selectedChartPeriodLabel,
 	});
 
 	return (
@@ -51,7 +51,8 @@ const CompareChart: FC<{
 							return '';
 						}
 						const periodOverOneDay =
-							selectedPeriodLabel != null && selectedPeriodLabel.value > PERIOD_IN_HOURS.ONE_DAY;
+							selectedChartPeriodLabel != null &&
+							selectedChartPeriodLabel.value > PERIOD_IN_HOURS.ONE_DAY;
 
 						return formatDate(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
 					}}

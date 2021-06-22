@@ -13,13 +13,13 @@ import { formatCurrency } from 'utils/formatters/number';
 
 type CandlesticksChartProps = {
 	data: Candle[];
-	selectedPeriodLabel: PeriodLabel;
+	selectedChartPeriodLabel: PeriodLabel;
 	selectedPriceCurrency: Synth;
 };
 
 const CandlesticksChart: FC<CandlesticksChartProps> = ({
 	data,
-	selectedPeriodLabel,
+	selectedChartPeriodLabel,
 	selectedPriceCurrency,
 }) => {
 	const theme = useContext(ThemeContext);
@@ -54,7 +54,8 @@ const CandlesticksChart: FC<CandlesticksChartProps> = ({
 							return '';
 						}
 						const periodOverOneDay =
-							selectedPeriodLabel != null && selectedPeriodLabel.value > PERIOD_IN_HOURS.ONE_DAY;
+							selectedChartPeriodLabel != null &&
+							selectedChartPeriodLabel.value > PERIOD_IN_HOURS.ONE_DAY;
 
 						return formatDate(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
 					}}

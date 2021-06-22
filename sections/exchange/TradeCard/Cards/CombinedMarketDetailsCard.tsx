@@ -32,7 +32,7 @@ const MarketDetailsCard: FC<MarketDetailsCardProps> = ({
 	const { low: rates24Low, high: rates24High } = useCombinedRates({
 		baseCurrencyKey,
 		quoteCurrencyKey,
-		selectedPeriodLabel: PERIOD_LABELS_MAP.ONE_DAY,
+		selectedChartPeriodLabel: PERIOD_LABELS_MAP.ONE_DAY,
 	});
 
 	const rates24HighItem = (

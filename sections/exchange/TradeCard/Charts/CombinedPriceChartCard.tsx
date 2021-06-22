@@ -50,8 +50,8 @@ type CombinedPriceChartCardProps = {
 	quotePriceRate: number | null;
 	className?: string;
 	openAfterHoursModalCallback?: () => void;
-	selectedPeriod: Period;
-	setSelectedPeriod: (p: Period) => void;
+	selectedChartPeriod: Period;
+	setSelectedChartPeriod: (p: Period) => void;
 	selectedChartType: ChartType;
 	setSelectedChartType: (c: ChartType) => void;
 };
@@ -62,8 +62,8 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	basePriceRate,
 	quotePriceRate,
 	openAfterHoursModalCallback,
-	selectedPeriod,
-	setSelectedPeriod,
+	selectedChartPeriod,
+	setSelectedChartPeriod,
 	selectedChartType,
 	setSelectedChartType,
 	...rest
@@ -71,7 +71,9 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	const { t } = useTranslation();
 
 	const { selectedPriceCurrency } = useSelectedPriceCurrency();
-	const selectedPeriodLabel = useMemo(() => PERIOD_LABELS_MAP[selectedPeriod], [selectedPeriod]);
+	const selectedChartPeriodLabel = useMemo(() => PERIOD_LABELS_MAP[selectedChartPeriod], [
+		selectedChartPeriod,
+	]);
 
 	const {
 		data: areaChartData,
@@ -81,13 +83,17 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	} = useCombinedRates({
 		baseCurrencyKey,
 		quoteCurrencyKey,
-		selectedPeriodLabel,
+		selectedChartPeriodLabel,
 	});
 	const {
 		noData: noCandleSticksChartData,
 		isLoading: isLoadingCandleSticksChartData,
 		data: candleSticksChartData,
-	} = useCombinedCandleSticksChartData({ baseCurrencyKey, quoteCurrencyKey, selectedPeriodLabel });
+	} = useCombinedCandleSticksChartData({
+		baseCurrencyKey,
+		quoteCurrencyKey,
+		selectedChartPeriodLabel,
+	});
 	const {
 		isMarketClosed: isBaseMarketClosed,
 		marketClosureReason: baseMarketClosureReason,
@@ -119,6 +125,10 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 		selectedChartType,
 	]);
 
+	const isOneMonthPeriod = useMemo(() => selectedChartPeriod === Period.ONE_MONTH, [
+		selectedChartPeriod,
+	]);
+
 	const noData =
 		(isCandleStickChart && noCandleSticksChartData) || (isAreaChart && noAreaChartData);
 
@@ -127,11 +137,11 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 			// candlesticks type is only available on monthly view
 			setSelectedChartType(ChartType.AREA);
 		}
-		if (isCandleStickChart && selectedPeriod !== Period.ONE_MONTH) {
+		if (isCandleStickChart && selectedChartPeriod !== Period.ONE_MONTH) {
 			// candlesticks type is only available on monthly view
-			setSelectedPeriod(Period.ONE_MONTH);
+			setSelectedChartPeriod(Period.ONE_MONTH);
 		} // eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [eitherCurrencyIsSUSD, isCompareChart, isCandleStickChart, selectedPeriod]);
+	}, [eitherCurrencyIsSUSD, isCompareChart, isCandleStickChart, selectedChartPeriod]);
 
 	return (
 		<Container {...rest}>
@@ -207,9 +217,12 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 							{PERIOD_LABELS.map((period) => (
 								<StyledTextButton
 									key={period.period}
-									isActive={period.period === selectedPeriod}
+									isActive={period.period === selectedChartPeriod}
+									disabled={
+										period.period !== Period.ONE_MONTH && isCandleStickChart && isOneMonthPeriod
+									}
 									onClick={(event) => {
-										setSelectedPeriod(period.period);
+										setSelectedChartPeriod(period.period);
 									}}
 								>
 									{t(period.i18nLabel)}
@@ -222,16 +235,16 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 			<ChartBody>
 				<ChartData disabledInteraction={disabledInteraction}>
 					{isCompareChart ? (
-						<CompareChart {...{ baseCurrencyKey, quoteCurrencyKey, selectedPeriodLabel }} />
+						<CompareChart {...{ baseCurrencyKey, quoteCurrencyKey, selectedChartPeriodLabel }} />
 					) : isCandleStickChart ? (
 						<CandlesticksChart
 							data={candleSticksChartData}
-							{...{ selectedPeriodLabel, selectedPriceCurrency }}
+							{...{ selectedChartPeriodLabel, selectedPriceCurrency }}
 						/>
 					) : (
 						<AreaChart
 							{...{
-								selectedPeriodLabel,
+								selectedChartPeriodLabel,
 								change,
 								setCurrentPrice,
 							}}

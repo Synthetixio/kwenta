@@ -9,25 +9,28 @@ import { PeriodLabel } from 'constants/period';
 const useCombinedRates = ({
 	baseCurrencyKey,
 	quoteCurrencyKey,
-	selectedPeriodLabel,
+	selectedChartPeriodLabel,
 }: {
 	baseCurrencyKey: CurrencyKey | null;
 	quoteCurrencyKey: CurrencyKey | null;
-	selectedPeriodLabel: PeriodLabel;
+	selectedChartPeriodLabel: PeriodLabel;
 }) => {
-	const baseHistoricalRates = useHistoricalRatesQuery(baseCurrencyKey, selectedPeriodLabel.period);
+	const baseHistoricalRates = useHistoricalRatesQuery(
+		baseCurrencyKey,
+		selectedChartPeriodLabel.period
+	);
 	const quoteHistoricalRates = useHistoricalRatesQuery(
 		quoteCurrencyKey,
-		selectedPeriodLabel.period
+		selectedChartPeriodLabel.period
 	);
 
 	const { data: baseInitialRate } = usePeriodStartSynthRateQuery(
 		baseCurrencyKey,
-		selectedPeriodLabel.period
+		selectedChartPeriodLabel.period
 	);
 	const { data: quoteInitialRate } = usePeriodStartSynthRateQuery(
 		quoteCurrencyKey,
-		selectedPeriodLabel.period
+		selectedChartPeriodLabel.period
 	);
 
 	const baseChange = useMemo(() => baseHistoricalRates.data?.change ?? null, [baseHistoricalRates]);

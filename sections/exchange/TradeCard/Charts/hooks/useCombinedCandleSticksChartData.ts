@@ -23,17 +23,17 @@ export type TempCandle = {
 const useCombinedCandleSticksChartData = ({
 	baseCurrencyKey,
 	quoteCurrencyKey,
-	selectedPeriodLabel,
+	selectedChartPeriodLabel,
 }: {
 	baseCurrencyKey: CurrencyKey | null;
 	quoteCurrencyKey: CurrencyKey | null;
-	selectedPeriodLabel: PeriodLabel;
+	selectedChartPeriodLabel: PeriodLabel;
 }) => {
 	const baseCurrencyIsSUSD = baseCurrencyKey === SYNTHS_MAP.sUSD;
 	const quoteCurrencyIsSUSD = quoteCurrencyKey === SYNTHS_MAP.sUSD;
 
-	const base = useData(baseCurrencyKey, selectedPeriodLabel);
-	const quote = useData(quoteCurrencyKey, selectedPeriodLabel);
+	const base = useData(baseCurrencyKey, selectedChartPeriodLabel);
+	const quote = useData(quoteCurrencyKey, selectedChartPeriodLabel);
 
 	const data = useMemo(() => {
 		if (baseCurrencyIsSUSD) return quote.data;
@@ -93,8 +93,8 @@ const useCombinedCandleSticksChartData = ({
 	};
 };
 
-const useData = (currencyKey: CurrencyKey | null, selectedPeriodLabel: PeriodLabel) => {
-	const query = useCandlesticksQuery(currencyKey, selectedPeriodLabel.period);
+const useData = (currencyKey: CurrencyKey | null, selectedChartPeriodLabel: PeriodLabel) => {
+	const query = useCandlesticksQuery(currencyKey, selectedChartPeriodLabel.period);
 	const data = query.isSuccess && query.data ? query.data : [];
 	const noData = query.isSuccess && query.data && data.length === 0;
 	return { data, noData, isLoading: query.isLoading };

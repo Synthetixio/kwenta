@@ -62,7 +62,9 @@ import usePersistedRecoilState from 'hooks/usePersistedRecoilState';
 
 import { hasOrdersNotificationState, slippageState } from 'store/ui';
 import {
-	chartPeriodState,
+	singleChartPeriodState,
+	baseChartPeriodState,
+	quoteChartPeriodState,
 	singleChartTypeState,
 	baseChartTypeState,
 	quoteChartTypeState,
@@ -151,7 +153,15 @@ const useExchange = ({
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
 	const slippage = useRecoilValue(slippageState);
 
-	const [selectedPeriod, setSelectedPeriod] = usePersistedRecoilState<Period>(chartPeriodState);
+	const [selectedBaseChartPeriod, setSelectedBaseChartPeriod] = usePersistedRecoilState<Period>(
+		baseChartPeriodState
+	);
+	const [selectedQuoteChartPeriod, setSelectedQuoteChartPeriod] = usePersistedRecoilState<Period>(
+		quoteChartPeriodState
+	);
+	const [selectedSingleChartPeriod, setSelectedSingleChartPeriod] = usePersistedRecoilState<Period>(
+		singleChartPeriodState
+	);
 	const [selectedBaseChartType, setSelectedBaseChartType] = usePersistedRecoilState<ChartType>(
 		baseChartTypeState
 	);
@@ -846,10 +856,8 @@ const useExchange = ({
 			priceRate={quotePriceRate}
 			selectedChartType={selectedQuoteChartType}
 			setSelectedChartType={setSelectedQuoteChartType}
-			{...{
-				selectedPeriod,
-				setSelectedPeriod,
-			}}
+			selectedChartPeriod={selectedQuoteChartPeriod}
+			setSelectedChartPeriod={setSelectedQuoteChartPeriod}
 		/>
 	) : null;
 
@@ -928,10 +936,8 @@ const useExchange = ({
 			alignRight
 			selectedChartType={selectedBaseChartType}
 			setSelectedChartType={setSelectedBaseChartType}
-			{...{
-				selectedPeriod,
-				setSelectedPeriod,
-			}}
+			selectedChartPeriod={selectedBaseChartPeriod}
+			setSelectedChartPeriod={setSelectedBaseChartPeriod}
 		/>
 	) : null;
 
@@ -946,12 +952,12 @@ const useExchange = ({
 				basePriceRate,
 				quoteCurrencyKey,
 				quotePriceRate,
-				selectedPeriod,
-				setSelectedPeriod,
 			}}
 			selectedChartType={selectedSingleChartType}
 			setSelectedChartType={setSelectedSingleChartType}
 			openAfterHoursModalCallback={() => setSelectBalancerTradeModal(true)}
+			selectedChartPeriod={selectedSingleChartPeriod}
+			setSelectedChartPeriod={setSelectedSingleChartPeriod}
 		/>
 	) : null;
 

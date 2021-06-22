@@ -4,12 +4,12 @@ import useCandlesticksQuery from 'queries/rates/useCandlesticksQuery';
 
 const useCandleSticksChartData = ({
 	currencyKey,
-	selectedPeriodLabel,
+	selectedChartPeriodLabel,
 }: {
 	currencyKey: CurrencyKey | null;
-	selectedPeriodLabel: PeriodLabel;
+	selectedChartPeriodLabel: PeriodLabel;
 }) => {
-	const query = useCandlesticksQuery(currencyKey, selectedPeriodLabel.period);
+	const query = useCandlesticksQuery(currencyKey, selectedChartPeriodLabel.period);
 	const data = query.isSuccess && query.data ? query.data : [];
 	const noData = query.isSuccess && query.data && data.length === 0;
 

@@ -17,7 +17,7 @@ const AreaChart: FC<{
 		value: number;
 	}[];
 	change: number | null;
-	selectedPeriodLabel: PeriodLabel;
+	selectedChartPeriodLabel: PeriodLabel;
 	setCurrentPrice: (price: number | null) => void;
 	noData: boolean | undefined;
 	yAxisDomain?: AxisDomain;
@@ -25,7 +25,7 @@ const AreaChart: FC<{
 	tooltipPriceFormatter: (n: number) => string;
 	linearGradientId: string;
 }> = ({
-	selectedPeriodLabel,
+	selectedChartPeriodLabel,
 	data,
 	change,
 	setCurrentPrice,
@@ -84,7 +84,8 @@ const AreaChart: FC<{
 							return '';
 						}
 						const periodOverOneDay =
-							selectedPeriodLabel != null && selectedPeriodLabel.value > PERIOD_IN_HOURS.ONE_DAY;
+							selectedChartPeriodLabel != null &&
+							selectedChartPeriodLabel.value > PERIOD_IN_HOURS.ONE_DAY;
 
 						return formatDate(val, periodOverOneDay ? 'dd MMM' : 'h:mma');
 					}}

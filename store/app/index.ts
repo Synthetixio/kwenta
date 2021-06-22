@@ -12,7 +12,9 @@ import { getAppKey } from '../utils';
 import {
 	languageStateKey,
 	priceCurrencyStateKey,
-	chartPeriodStateKey,
+	singleChartPeriodStateKey,
+	baseChartPeriodStateKey,
+	quoteChartPeriodStateKey,
 	singleChartTypeStateKey,
 	baseChartTypeStateKey,
 	quoteChartTypeStateKey,
@@ -44,8 +46,16 @@ export const priceCurrencyState = atom<Synth>({
 	default: DEFAULT_PRICE_CURRENCY,
 });
 
-export const chartPeriodState = atom<Period>({
-	key: chartPeriodStateKey,
+export const singleChartPeriodState = atom<Period>({
+	key: singleChartPeriodStateKey,
+	default: Period.ONE_DAY,
+});
+export const baseChartPeriodState = atom<Period>({
+	key: baseChartPeriodStateKey,
+	default: Period.ONE_DAY,
+});
+export const quoteChartPeriodState = atom<Period>({
+	key: quoteChartPeriodStateKey,
 	default: Period.ONE_DAY,
 });
 
@@ -53,12 +63,10 @@ export const singleChartTypeState = atom<ChartType>({
 	key: singleChartTypeStateKey,
 	default: ChartType.AREA,
 });
-
 export const baseChartTypeState = atom<ChartType>({
 	key: baseChartTypeStateKey,
 	default: ChartType.AREA,
 });
-
 export const quoteChartTypeState = atom<ChartType>({
 	key: quoteChartTypeStateKey,
 	default: ChartType.AREA,
