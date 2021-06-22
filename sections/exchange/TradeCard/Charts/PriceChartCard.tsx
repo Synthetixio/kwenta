@@ -112,9 +112,14 @@ const ChartCard: FC<ChartCardProps> = ({
 	}, [rates, selectPriceCurrencyRate]);
 
 	useEffect(() => {
-		if (isSUSD || (isCandleStickChart && selectedPeriod !== Period.ONE_MONTH)) {
-			// candlesticks type is only available on monthly view
-			setSelectedChartType(ChartType.AREA);
+		if (isCandleStickChart) {
+			if (isSUSD) {
+				// candlesticks type is only available on monthly view
+				setSelectedChartType(ChartType.AREA);
+			} else if (selectedPeriod !== Period.ONE_MONTH) {
+				// candlesticks type is only available on monthly view
+				setSelectedPeriod(Period.ONE_MONTH);
+			}
 		} // eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isSUSD, isCandleStickChart, selectedChartType, selectedPeriod]);
 
@@ -166,9 +171,8 @@ const ChartCard: FC<ChartCardProps> = ({
 								</StyledTextButton>
 							))}
 						</PeriodSelector>
-						{!(!isSUSD && selectedPeriod === Period.ONE_MONTH) ? null : (
-							<>
-								{/*
+
+						{/*
 							<ChartTypeToggle
 								chartTypes={[ChartType.AREA, ChartType.CANDLESTICK]}
 								selectedChartType={selectedChartType}
@@ -176,30 +180,28 @@ const ChartCard: FC<ChartCardProps> = ({
 								alignRight={alignRight}
 							/>
 						*/}
-								<CompareRatioToggleContainer>
-									<CompareRatioToggle>
-										<CompareRatioToggleType
-											onClick={() => {
-												setSelectedChartType(ChartType.AREA);
-											}}
-											isActive={isAreaChart}
-										>
-											{t('common.chart-types.ratio')}
-										</CompareRatioToggleType>
-										{selectedPeriod !== Period.ONE_MONTH ? null : (
-											<CompareRatioToggleType
-												onClick={() => {
-													setSelectedChartType(ChartType.CANDLESTICK);
-												}}
-												isActive={isCandleStickChart}
-											>
-												{t('common.chart-types.candlesticks')}
-											</CompareRatioToggleType>
-										)}
-									</CompareRatioToggle>
-								</CompareRatioToggleContainer>
-							</>
-						)}
+						<CompareRatioToggleContainer>
+							<CompareRatioToggle>
+								<CompareRatioToggleType
+									onClick={() => {
+										setSelectedChartType(ChartType.AREA);
+									}}
+									isActive={isAreaChart}
+								>
+									{t('common.chart-types.ratio')}
+								</CompareRatioToggleType>
+								{selectedPeriod !== Period.ONE_MONTH ? null : (
+									<CompareRatioToggleType
+										onClick={() => {
+											setSelectedChartType(ChartType.CANDLESTICK);
+										}}
+										isActive={isCandleStickChart}
+									>
+										{t('common.chart-types.candlesticks')}
+									</CompareRatioToggleType>
+								)}
+							</CompareRatioToggle>
+						</CompareRatioToggleContainer>
 					</Actions>
 				)}
 			</ChartHeader>
@@ -264,7 +266,7 @@ const Container = styled.div`
 
 const ChartHeader = styled.div`
 	display: block;
-	padding-bottom: 5px;
+	padding-bottom: 12px;
 	position: relative;
 	top: 6px;
 `;

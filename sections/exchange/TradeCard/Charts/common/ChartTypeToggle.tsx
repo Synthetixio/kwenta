@@ -5,11 +5,13 @@ import { ResetButton } from 'styles/common';
 import { Svg } from 'react-optimized-image';
 import AreaIcon from 'assets/svg/app/area.svg';
 import CandlesticksIcon from 'assets/svg/app/candlesticks.svg';
+import { PERIOD_LABELS_MAP } from 'constants/period';
 
 type ChartTypeToggleProps = {
 	chartTypes: Array<ChartType>;
 	selectedChartType: string;
 	setSelectedChartType: Function;
+	setSelectedPeriod: Function;
 	alignRight?: boolean;
 };
 
@@ -17,12 +19,21 @@ const ChartTypeToggle: FC<ChartTypeToggleProps> = ({
 	chartTypes,
 	selectedChartType,
 	setSelectedChartType,
+	setSelectedPeriod,
 	alignRight,
 }) => {
 	return (
 		<Segment alignRight={!alignRight}>
 			{chartTypes.map((chartType) => (
-				<Button key={chartType} onClick={() => setSelectedChartType(chartType)}>
+				<Button
+					key={chartType}
+					onClick={() => {
+						if (chartType === ChartType.CANDLESTICK) {
+							setSelectedPeriod(PERIOD_LABELS_MAP.ONE_MONTH);
+						}
+						setSelectedChartType(chartType);
+					}}
+				>
 					{chartType === ChartType.AREA ? (
 						<StyledSvg src={AreaIcon} isActive={chartType === selectedChartType} />
 					) : (

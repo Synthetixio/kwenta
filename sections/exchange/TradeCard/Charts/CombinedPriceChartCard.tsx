@@ -123,12 +123,13 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 		(isCandleStickChart && noCandleSticksChartData) || (isAreaChart && noAreaChartData);
 
 	useEffect(() => {
-		if (
-			(eitherCurrencyIsSUSD && isCompareChart) ||
-			(isCandleStickChart && selectedPeriod !== Period.ONE_MONTH)
-		) {
+		if (eitherCurrencyIsSUSD && isCompareChart) {
 			// candlesticks type is only available on monthly view
 			setSelectedChartType(ChartType.AREA);
+		}
+		if (isCandleStickChart && selectedPeriod !== Period.ONE_MONTH) {
+			// candlesticks type is only available on monthly view
+			setSelectedPeriod(Period.ONE_MONTH);
 		} // eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [eitherCurrencyIsSUSD, isCompareChart, isCandleStickChart, selectedPeriod]);
 
@@ -191,16 +192,14 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 								>
 									{t('common.chart-types.ratio')}
 								</CompareRatioToggleType>
-								{selectedPeriod !== Period.ONE_MONTH ? null : (
-									<CompareRatioToggleType
-										onClick={() => {
-											setSelectedChartType(ChartType.CANDLESTICK);
-										}}
-										isActive={isCandleStickChart}
-									>
-										{t('common.chart-types.candlesticks')}
-									</CompareRatioToggleType>
-								)}
+								<CompareRatioToggleType
+									onClick={() => {
+										setSelectedChartType(ChartType.CANDLESTICK);
+									}}
+									isActive={isCandleStickChart}
+								>
+									{t('common.chart-types.candlesticks')}
+								</CompareRatioToggleType>
 							</CompareRatioToggle>
 						</CompareRatioToggleContainer>
 
