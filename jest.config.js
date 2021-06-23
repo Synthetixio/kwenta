@@ -3,8 +3,9 @@ module.exports = {
 	testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
 	roots: ['<rootDir>'],
 	modulePaths: ['node_modules', '<rootDir>'],
-	moduleDirectories: ['node_modules', '.'],
+	moduleDirectories: ['node_modules', '<rootDir>'],
 	moduleFileExtensions: ['ts', 'tsx', 'js'],
+	testEnvironment: 'jsdom',
 	transform: {
 		'^.+\\.(js|jsx|ts|tsx)?$': 'ts-jest',
 	},
@@ -19,7 +20,8 @@ module.exports = {
 	coverageReporters: ['json', 'lcov', 'text', 'text-summary'],
 	moduleNameMapper: {
 		'\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
-			'<rootDir>/__mocks__/mocks.js',
-		'\\.(css|less)$': '<rootDir>/__mocks__/mocks.js',
+			'<rootDir>/tests/unit/mocks/mocks.js',
+		'\\.(css|less)$': '<rootDir>/tests/unit/mocks/mocks.js',
 	},
+	resetMocks: true
 };
