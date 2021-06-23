@@ -61,7 +61,7 @@ const Assets = () => {
 			<Media greaterThanOrEqual="lg">
 				<FlexDivRowCentered>
 					<AssetCollectionWrapper>
-						<AssetsImage src={AssetCollections} alt="" webp={true} />
+						<AssetsImage src={AssetCollections} alt="" />
 						<Svg src={Fade} />
 					</AssetCollectionWrapper>
 					<Col>
@@ -72,7 +72,7 @@ const Assets = () => {
 			</Media>
 			<Media lessThan="lg">
 				{title}
-				<MobileImage src={AssetCollections} alt="" webp={true} />
+				<MobileImage src={AssetCollections} alt="" />
 				{assetCards}
 			</Media>
 		</Container>

@@ -33,7 +33,7 @@ const Hero = () => {
 				</Link>
 			</CTAContainer>
 			<HeroImageContainer>
-				<HeroImage src={MarketOrderPreview} alt="" webp={true} />
+				<HeroImage src={MarketOrderPreview} alt="" />
 			</HeroImageContainer>
 		</StackSection>
 	);
