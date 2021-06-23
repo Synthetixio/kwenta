@@ -6,11 +6,11 @@ test('market', async () => {
 	//render(<div>H World</div>);
 	//render(<Test></Test>);
 	const { render } = await getPage({
-		route: '/'
+		route: '/',
 	});
 
 	render();
-    screen.debug();
-    console.log(window.innerWidth);
-    //expect(screen.getByText('From')).toBeInTheDocument();
+	screen.debug();
+	console.log(window.innerWidth);
+	//expect(screen.getByText('From')).toBeInTheDocument();
 });
