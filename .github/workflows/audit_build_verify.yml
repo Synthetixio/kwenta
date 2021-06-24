@@ -49,9 +49,9 @@ jobs:
           path: |
             .npm
             node_modules
-          key: ${{ runner.os }}-build-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-build1-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-build-
+            ${{ runner.os }}-build1-
         continue-on-error: true
 
       # - name: Building on Node.js ${{ matrix.node-version }} 🛠️
@@ -93,9 +93,9 @@ jobs:
         uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
         with:
           path: .next/cache
-          key: ${{ runner.os }}-next.js-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-next.js1-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-next.js-
+            ${{ runner.os }}-next.js1-
         continue-on-error: true
 
       - name: Build
