@@ -52,8 +52,8 @@ jobs:
       #       ${{ runner.os }}-build-cache-
       #   continue-on-error: true
 
-      - name: Clean npm cache
-        run: npm cache clean --force
+      - name: Chown
+        run: chown -R $(id -u):$(id -g) $GITHUB_WORKSPACE
 
       - name: Install dependencies
         run: npm ci --no-audit --legacy-peer-deps
@@ -124,9 +124,6 @@ jobs:
       #     restore-keys: |
       #       ${{ runner.os }}-e2e_tests-cache-
       #   continue-on-error: true
-
-      - name: Clean npm cache
-        run: npm cache clean --force
 
       - name: Install dependencies
         run: npm ci --no-audit --legacy-peer-deps
