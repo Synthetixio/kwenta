@@ -62,8 +62,8 @@ jobs:
       # - name: npm update
       #   run: npm install -g npm@7
 
-      # - name: npm version
-      #   run: npm --version
+      - name: npm version
+        run: npm --version
 
       - name: Install dependencies
         run: npm install --no-audit --legacy-peer-deps
