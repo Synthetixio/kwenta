@@ -32,13 +32,11 @@ import {
 	OverlayMessage,
 	NoData,
 	PeriodSelector,
-	CompareRatioToggle,
-	CompareRatioToggleType,
-	CompareRatioToggleContainer,
 } from './common/styles';
 import OverlayMessageContainer from './common/OverlayMessage';
 import CurrencyPricePlaceHolder from './common/CurrencyPricePlaceHolder';
 import CurrencyLabelsWithDots from './common/CurrencyLabelsWithDots';
+import ChartTypeToggle from './common/ChartTypeTextsToggle';
 import AreaChart from './Types/AreaChart';
 import CompareChart from './Types/CompareChart';
 import CandlesticksChart from './Types/CandlesticksChart';
@@ -125,16 +123,12 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 		selectedChartType,
 	]);
 
-	const isOneMonthPeriod = useMemo(() => selectedChartPeriod === Period.ONE_MONTH, [
-		selectedChartPeriod,
-	]);
-
 	const noData =
 		(isCandleStickChart && noCandleSticksChartData) || (isAreaChart && noAreaChartData);
 
 	useEffect(() => {
 		if (eitherCurrencyIsSUSD && isCompareChart) {
-			// candlesticks type is only available on monthly view
+			// cannot use compare chart if either is susd
 			setSelectedChartType(ChartType.AREA);
 		}
 		if (isCandleStickChart && selectedChartPeriod !== Period.ONE_MONTH) {
@@ -182,46 +176,28 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 				</ChartHeaderInner>
 				{!isMarketClosed && (
 					<Actions>
-						<CompareRatioToggleContainer>
-							<CompareRatioToggle>
-								{eitherCurrencyIsSUSD ? null : (
-									<CompareRatioToggleType
-										onClick={() => {
-											setSelectedChartType(ChartType.COMPARE);
-										}}
-										isActive={isCompareChart}
-									>
-										{t('common.chart-types.compare')}
-									</CompareRatioToggleType>
-								)}
-								<CompareRatioToggleType
-									onClick={() => {
-										setSelectedChartType(ChartType.AREA);
-									}}
-									isActive={isAreaChart}
-								>
-									{t('common.chart-types.ratio')}
-								</CompareRatioToggleType>
-								<CompareRatioToggleType
-									onClick={() => {
-										setSelectedChartType(ChartType.CANDLESTICK);
-									}}
-									isActive={isCandleStickChart}
-								>
-									{t('common.chart-types.candlesticks')}
-								</CompareRatioToggleType>
-							</CompareRatioToggle>
-						</CompareRatioToggleContainer>
+						<ChartTypeToggle
+							chartTypes={[ChartType.COMPARE, ChartType.AREA, ChartType.CANDLESTICK]}
+							itemIsDisabled={(chartType: ChartType) =>
+								eitherCurrencyIsSUSD && chartType === ChartType.COMPARE
+							}
+							{...{
+								selectedChartType,
+								setSelectedChartType,
+								selectedChartPeriod,
+								setSelectedChartPeriod,
+							}}
+						/>
 
 						<PeriodSelector>
 							{PERIOD_LABELS.map((period) => (
 								<StyledTextButton
 									key={period.period}
 									isActive={period.period === selectedChartPeriod}
-									disabled={
-										period.period !== Period.ONE_MONTH && isCandleStickChart && isOneMonthPeriod
-									}
 									onClick={(event) => {
+										if (isCandleStickChart && period.period !== Period.ONE_MONTH) {
+											setSelectedChartType(ChartType.AREA);
+										}
 										setSelectedChartPeriod(period.period);
 									}}
 								>

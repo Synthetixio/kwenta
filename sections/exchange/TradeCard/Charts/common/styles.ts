@@ -124,20 +124,3 @@ export const PriceDot = styled.div<{ color: string }>`
 	border-radius: 50%;
 	background-color: ${(props) => props.color};
 `;
-
-export const CompareRatioToggleContainer = styled(FlexDiv)`
-	flex-direction: column;
-	justify-content: center;
-`;
-
-export const CompareRatioToggle = styled(FlexDiv)`
-	grid-gap: 4px;
-`;
-
-export const CompareRatioToggleType = styled.div<{ isActive: boolean }>`
-	cursor: pointer;
-	font-weight: bold;
-	border-bottom: 2px solid ${(props) => (props.isActive ? '#b68b58' : 'transparent')};
-	color: ${(props) => (props.isActive ? props.theme.colors.white : 'inherit')};
-	text-transform: uppercase;
-`;
