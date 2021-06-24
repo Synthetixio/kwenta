@@ -329,7 +329,8 @@ const ChartsTogglerContainer = styled.div`
 
 const ChartsToggler = styled.div`
 	position: absolute;
-	left: calc(50% - 67.5px);
+	top: 3.5px;
+	left: calc(50% - 63.5px);
 	width: 135px;
 	height: 20px;
 	border-radius: 5px;
