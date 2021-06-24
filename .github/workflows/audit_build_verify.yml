@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: ghcr.io/synthetixio/docker-node/focal:14.17
+      image: ghcr.io/synthetixio/docker-node/alpine:14.17
       credentials:
         username: synthetixio
         password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
@@ -42,6 +42,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # pin@v2
+
+      - name: fix npm bug
+        run: sudo chown -R 1001:121 "/github/home/.npm"
 
       # - name: Cache node modules
       #   uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
@@ -62,16 +65,16 @@ jobs:
       # - name: npm update
       #   run: npm install -g npm@7
 
-      - name: npm version and debug stuff
-        run: |
-          npm --version
-          whoami
-          echo "$USER"
-          ls -ld /github
-          ls -ld /__w
-          ls -ld /__w/kwenta
-          ls -ld /__w/kwenta/kwenta
-          ls -ld /__w/kwenta/kwenta/package.json
+      # - name: npm version and debug stuff
+      #   run: |
+      #     npm --version
+      #     whoami
+      #     echo "$USER"
+      #     ls -ld /github
+      #     ls -ld /__w
+      #     ls -ld /__w/kwenta
+      #     ls -ld /__w/kwenta/kwenta
+      #     ls -ld /__w/kwenta/kwenta/package.json
       
       - name: Install dependencies
         run: npm install --no-audit --legacy-peer-deps
