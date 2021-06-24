@@ -62,8 +62,17 @@ jobs:
       # - name: npm update
       #   run: npm install -g npm@7
 
-      - name: npm version
-        run: npm --version
+      - name: npm version and debug stuff
+        run: |
+          npm --version
+          whoami
+          echo "$USER"
+          npm config ls -l
+          npm config -g ls -l
+          npm config list
+          npm config -g list
+          npm config get user
+          npm config -g get user
 
       - name: Install dependencies
         run: npm install --no-audit --legacy-peer-deps
