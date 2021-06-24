@@ -77,6 +77,10 @@ jobs:
           ls -ld /__w/kwenta/kwenta
           ls -ld /__w/kwenta/kwenta/.next
           ls -l /__w/kwenta/kwenta/.next/routes-manifest.json
+          stat /__w
+          stat /__w/kwenta/kwenta
+          stat /__w/kwenta/kwenta/.next
+          stat /__w/kwenta/kwenta/.next/routes-manifest.json
 
       - name: Install dependencies
         run: npm install --no-audit --legacy-peer-deps
