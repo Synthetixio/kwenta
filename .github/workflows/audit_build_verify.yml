@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # pin@v2
 
       - name: fix npm bug
-        run: sudo chown -R 1001:121 "/github/home/.npm"
+        run: chown -R 1001:121 "/github/home/.npm"
 
       # - name: Cache node modules
       #   uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
