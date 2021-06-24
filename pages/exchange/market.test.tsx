@@ -1,16 +1,13 @@
 import { getPage } from 'next-page-tester';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 
 test('market', async () => {
-	//render(<ExchangePage />, { wrapper: WithAppContainers });
-	//render(<div>H World</div>);
-	//render(<Test></Test>);
-	const { render } = await getPage({
-		route: '/',
-	});
+	await act(async () => {
+		const { render } = await getPage({
+			route: '/dashboard',
+		});
 
-	render();
-	screen.debug();
-	console.log(window.innerWidth);
+		render();
+	});
 	//expect(screen.getByText('From')).toBeInTheDocument();
 });

@@ -8,14 +8,17 @@ window.matchMedia = (media) => ({
 });
 
 Object.defineProperty(global.self, 'crypto', {
-    value: {
-      getRandomValues: arr => crypto.randomBytes(arr.length)
-    }
-  });
+	value: {
+		getRandomValues: (arr) => crypto.randomBytes(arr.length),
+	},
+});
 
-jest.mock('react-optimized-image', () => ({
-	__esModule: true,
-	Img: () => jest.fn(),
-	Svg: () => jest.fn(),
-	default: () => jest.fn(),
-}));
+jest.mock('react-optimized-image', () => {
+	const React = require('react'); // React must be hoisted with this mock
+	return {
+		__esModule: true,
+		Img: () => React.Fragment,
+		Svg: () => React.Fragment,
+		default: () => React.Fragment,
+	};
+});
