@@ -67,14 +67,12 @@ jobs:
           npm --version
           whoami
           echo "$USER"
+          ls -ld /github
           ls -ld /__w
+          ls -ld /__w/kwenta
           ls -ld /__w/kwenta/kwenta
           ls -ld /__w/kwenta/kwenta/package.json
-          stat /__w
-          stat /__w/kwenta/kwenta
-          stat /__w/kwenta/kwenta/package.json
-          chown root:root -R /__w/kwenta/kwenta/
-
+      
       - name: Install dependencies
         run: npm install --no-audit --legacy-peer-deps
 
