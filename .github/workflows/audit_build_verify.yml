@@ -38,7 +38,6 @@ jobs:
       credentials:
         username: synthetixio
         password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
-      options: -v /var/run/docker.sock:/var/run/docker.sock
 
     steps:
       - name: Checkout
@@ -68,18 +67,13 @@ jobs:
           npm --version
           whoami
           echo "$USER"
-          npm config ls -l
-          npm config -g ls -l
-          npm config list
-          npm config -g list
-          npm config get user
-          npm config -g get user
           ls -ld /__w
           ls -ld /__w/kwenta/kwenta
           ls -ld /__w/kwenta/kwenta/package.json
           stat /__w
           stat /__w/kwenta/kwenta
           stat /__w/kwenta/kwenta/package.json
+          chown root:root -R /__w/kwenta/kwenta/
 
       - name: Install dependencies
         run: npm install --no-audit --legacy-peer-deps
