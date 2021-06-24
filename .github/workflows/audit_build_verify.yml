@@ -46,9 +46,7 @@ jobs:
       - name: Cache node modules
         uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
         with:
-          path: |
-            .npm
-            node_modules
+          path: ~/.npm
           key: ${{ runner.os }}-build-cache-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-cache-
@@ -118,9 +116,7 @@ jobs:
       - name: Cache node modules
         uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
         with:
-          path: |
-            .npm
-            node_modules
+          path: ~/.npm
           key: ${{ runner.os }}-e2e_tests-cache-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-e2e_tests-cache-
