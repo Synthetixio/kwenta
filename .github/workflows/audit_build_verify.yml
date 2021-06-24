@@ -151,6 +151,9 @@ jobs:
       - name: Extract build
         run: tar -xf build.tar.gz
 
+      - name: Run unit tests
+        run: npm run test:unit
+
       - name: Run e2e tests
         run: npm run test:e2e:ci
         env:
