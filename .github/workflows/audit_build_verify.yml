@@ -54,12 +54,14 @@ jobs:
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
+        with:
+          sudo: false
 
       - name: Install dependencies
         run: npm ci --no-audit --legacy-peer-deps
 
       - name: Lint
-        # run only on master/dev branch and pull requests 
+        # run only on master/dev branch and pull requests
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.event_name == 'pull_request'
         run: npm run lint:sarif
 
