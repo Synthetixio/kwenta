@@ -43,17 +43,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # pin@v2
 
-      # - name: Cache node modules
-      #   uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
-      #   with:
-      #     path: ~/.npm
-      #     key: ${{ runner.os }}-build-cache-${{ hashFiles('**/package-lock.json') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-build-cache-
-      #   continue-on-error: true
+      - name: Cache node modules
+        uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-cache-
+        continue-on-error: true
 
-      - name: Chown
-        run: chown -R $(id -u):$(id -g) $GITHUB_WORKSPACE
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       - name: Install dependencies
         run: npm ci --no-audit --legacy-peer-deps
@@ -71,14 +71,14 @@ jobs:
           sarif_file: lint-results.sarif
         continue-on-error: true
 
-      # - name: Cache next.js build cache
-      #   uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
-      #   with:
-      #     path: .next/cache
-      #     key: ${{ runner.os }}-next.js-cache-${{ hashFiles('**/package-lock.json') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-next.js-cache-
-      #   continue-on-error: true
+      - name: Cache next.js build cache
+        uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-next.js-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-next.js-cache-
+        continue-on-error: true
 
       - name: Build
         run: npm run build
@@ -116,14 +116,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # pin@v2
 
-      # - name: Cache node modules
-      #   uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
-      #   with:
-      #     path: ~/.npm
-      #     key: ${{ runner.os }}-e2e_tests-cache-${{ hashFiles('**/package-lock.json') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-e2e_tests-cache-
-      #   continue-on-error: true
+      - name: Cache node modules
+        uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-e2e_tests-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-e2e_tests-cache-
+        continue-on-error: true
 
       - name: Install dependencies
         run: npm ci --no-audit --legacy-peer-deps
