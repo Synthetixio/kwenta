@@ -47,6 +47,8 @@ import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
 import MarketClosureCard from 'sections/exchange/FooterCard/MarketClosureCard';
 import TradeBalancerFooterCard from 'sections/exchange/FooterCard/TradeBalancerFooterCard';
 import ConnectWalletCard from 'sections/exchange/FooterCard/ConnectWalletCard';
+import L2TradingIncentiveCard from 'sections/exchange/FooterCard/L2TradingIncentiveCard';
+
 import TxConfirmationModal from 'sections/shared/modals/TxConfirmationModal';
 import { TxProvider } from 'sections/shared/modals/TxConfirmationModal/TxConfirmationModal';
 import SelectCurrencyModal from 'sections/shared/modals/SelectCurrencyModal';
@@ -1122,6 +1124,8 @@ const useExchange = ({
 		</>
 	);
 
+	const l2TradingIncentiveCard = <L2TradingIncentiveCard attached={footerCardAttached} />;
+
 	return {
 		baseCurrencyKey,
 		quoteCurrencyKey,
@@ -1139,6 +1143,7 @@ const useExchange = ({
 		toggleIsShowingSingleChart,
 		isShowingSingleChart,
 		wideWidth,
+		l2TradingIncentiveCard,
 	};
 };
 

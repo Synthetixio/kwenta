@@ -653,6 +653,10 @@
 			"minutes": "m",
 			"seconds": "s"
 		},
-		"min": "min"
+		"min": "min",
+		"learn-more": "Learn More"
+	},
+	"l2-trading-incentives": {
+		"message": "This trade is eligible for rewards!"
 	}
 }

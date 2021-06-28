@@ -44,10 +44,10 @@ const ExchangePage = () => {
 		footerCard,
 		combinedPriceChartCard,
 		combinedMarketDetailsCard,
-
 		toggleIsShowingSingleChart,
 		isShowingSingleChart,
 		wideWidth,
+		l2TradingIncentiveCard,
 	} = useExchange({
 		showPriceCard: true,
 		showMarketDetailsCard: true,
@@ -96,16 +96,17 @@ const ExchangePage = () => {
 								</SwapCurrenciesButton>
 							</SwapCurrenciesButtonContainer>
 
-							<PageWidthContainer>
+							<TopCards>
 								<DesktopCardsContainer>
 									<LeftCardContainer data-testid="left-side">{quoteCurrencyCard}</LeftCardContainer>
 									<RightCardContainer data-testid="right-side">
 										{baseCurrencyCard}
 									</RightCardContainer>
 								</DesktopCardsContainer>
-							</PageWidthContainer>
 
-							<PageWidthContainer>{footerCard}</PageWidthContainer>
+								{footerCard}
+								{l2TradingIncentiveCard}
+							</TopCards>
 
 							<AnimateSharedLayout>
 								{chartsToggler}
@@ -344,6 +345,10 @@ const ChartsToggler = styled.div`
 const ChartsTogglerText = styled.div<{ active: boolean }>`
 	text-transform: uppercase;
 	color: ${(props) => (props.active ? props.theme.colors.white : props.theme.colors.silver)};
+`;
+
+const TopCards = styled(PageWidthContainer)`
+	margin-bottom: 18px;
 `;
 
 export default ExchangePage;
