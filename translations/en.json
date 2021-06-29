@@ -657,6 +657,15 @@
 		"learn-more": "Learn More"
 	},
 	"l2-trading-incentives": {
-		"message": "This trade is eligible for rewards!"
+		"exchange": {
+			"message": "This trade is eligible for rewards!"
+		},
+		"dashboard": {
+			"title": "L2 Weekly Trading Rewards",
+			"potential-rewards": "Potential Rewards:",
+			"claimable-rewards": "Claimable Rewards:",
+			"claim": "Claim",
+			"epoch": "EPOCH  1/30"
+		}
 	}
 }

@@ -10,15 +10,14 @@ import Select from 'components/Select';
 import { Period } from 'constants/period';
 import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
 import useHistoricalVolumeQuery from 'queries/rates/useHistoricalVolumeQuery';
-
 import { CardTitle } from 'sections/dashboard/common';
-
 import { FlexDivRowCentered } from 'styles/common';
+import { trendingSynthsOptionState } from 'store/ui';
 
 import SynthRow from './SynthRow';
 import { numericSort, toCurrencyKeyMap } from './utils';
 import { SYNTH_SORT_OPTIONS, SynthSort } from './constants';
-import { trendingSynthsOptionState } from 'store/ui';
+import L2TradingRewards from './L2TradingRewards';
 
 const TrendingSynths: FC = () => {
 	const { t } = useTranslation();
@@ -69,6 +68,8 @@ const TrendingSynths: FC = () => {
 	return (
 		<>
 			<Container>
+				<L2TradingRewards />
+
 				<TitleSortContainer>
 					<CardTitle>{t('dashboard.trending')}</CardTitle>
 					<TrendingSortSelect
@@ -101,7 +102,7 @@ const Container = styled.div`
 `;
 
 const TitleSortContainer = styled(FlexDivRowCentered)`
-	margin-top: -10px;
+	/* margin-top: -10px; */
 `;
 
 const Rows = styled.div`

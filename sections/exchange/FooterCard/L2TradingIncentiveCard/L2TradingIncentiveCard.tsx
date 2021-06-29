@@ -21,7 +21,7 @@ const L2TradingIncentiveCard: FC<L2TradingIncentiveCardProps> = ({ attached }) =
 	return !show ? null : (
 		<MessageContainer {...{ attached }} className="footer-card">
 			<FlexDiv>
-				<Message>{t('l2-trading-incentives.message')}</Message>
+				<Message>{t('l2-trading-incentives.exchange.message')}</Message>
 				<Link href={'http://synthetix.io'}>{t('common.learn-more')}</Link>
 			</FlexDiv>
 
