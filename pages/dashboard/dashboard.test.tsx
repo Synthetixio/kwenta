@@ -8,6 +8,5 @@ test('render dashboard', async () => {
 		});
 		render(); //Not ideal currently double rendering
 	});
-
-	expect(screen.getAllByText('Learn How it Works')[0]).toBeInTheDocument();
+	expect(screen.getByText('Learn How it Works')).toBeInTheDocument();
 });

@@ -1,11 +1,13 @@
 import '@testing-library/jest-dom';
 import crypto from 'crypto';
 
-window.matchMedia = (media) => ({
-	addListener: () => {},
-	removeListener: () => {},
-	matches: true,
-});
+window.matchMedia = (media) => {
+	return {
+		addListener: () => {},
+		removeListener: () => {},
+		matches: media === '(min-width:1151px) and (max-width:1300px)', // TODO: find a less brittle way to tell @artsy/fresnel to render only desktop
+	};
+};
 
 Object.defineProperty(global.self, 'crypto', {
 	value: {
