@@ -61,7 +61,7 @@ jobs:
       #     limit-access-to-actor: true
 
       - name: chown
-        run: chown -R root:root $GITHUB_WORKSPACE
+        run: chown -R $(whoami) $GITHUB_WORKSPACE
 
       - name: Install dependencies
         run: npm ci --no-audit --legacy-peer-deps
