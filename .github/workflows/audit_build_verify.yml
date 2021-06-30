@@ -62,6 +62,7 @@ jobs:
 
       - name: debug
         run: |
+          npm install -g npm@7.19.0
           whoami
           npm --version
           node --version
