@@ -19,6 +19,7 @@ import SynthRow from './SynthRow';
 import { numericSort, toCurrencyKeyMap } from './utils';
 import { SYNTH_SORT_OPTIONS, SynthSort } from './constants';
 import { trendingSynthsOptionState } from 'store/ui';
+import L2TradingRewards from './L2TradingRewards';
 
 const TrendingSynths: FC = () => {
 	const { t } = useTranslation();
@@ -69,6 +70,8 @@ const TrendingSynths: FC = () => {
 	return (
 		<>
 			<Container>
+				<L2TradingRewards />
+
 				<TitleSortContainer>
 					<CardTitle>{t('dashboard.trending')}</CardTitle>
 					<TrendingSortSelect
@@ -101,7 +104,7 @@ const Container = styled.div`
 `;
 
 const TitleSortContainer = styled(FlexDivRowCentered)`
-	margin-top: -10px;
+	/* margin-top: -10px; */
 `;
 
 const Rows = styled.div`

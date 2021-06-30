@@ -84,6 +84,12 @@ export const QUERY_KEYS = {
 			walletAddress,
 			networkId,
 		],
+		AvailableL2TradingRewards: (walletAddress: string, networkId: NetworkId) => [
+			'trades',
+			'availableL2TradingRewards',
+			walletAddress,
+			networkId,
+		],
 	},
 	SystemStatus: {
 		IsUpgrading: ['systemStatus', 'isUpgrading'],
