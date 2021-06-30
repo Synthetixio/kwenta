@@ -54,11 +54,17 @@ jobs:
       #       ${{ runner.os }}-build-cache-
       #   continue-on-error: true
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        with:
-          sudo: false
-          limit-access-to-actor: true
+      # - name: Setup tmate session
+      #   uses: mxschmitt/action-tmate@v3
+      #   with:
+      #     sudo: false
+      #     limit-access-to-actor: true
+
+      - name: debug
+        run: |
+          whoami
+          npm --version
+          node --version
 
       # - name: chown
       #   run: |
