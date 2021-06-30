@@ -38,6 +38,8 @@ jobs:
       credentials:
         username: synthetixio
         password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
+      # options: --privileged=true
+      # options: --cap-add=SYS_ADMIN
 
     steps:
       - name: Checkout
@@ -57,6 +59,9 @@ jobs:
       #   with:
       #     sudo: false
       #     limit-access-to-actor: true
+
+      - name: npm doctor
+        run: npm doctor
 
       - name: Install dependencies
         run: npm ci --no-audit --legacy-peer-deps
