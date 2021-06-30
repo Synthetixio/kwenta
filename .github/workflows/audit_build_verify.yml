@@ -54,14 +54,14 @@ jobs:
       #       ${{ runner.os }}-build-cache-
       #   continue-on-error: true
 
-      # - name: Setup tmate session
-      #   uses: mxschmitt/action-tmate@v3
-      #   with:
-      #     sudo: false
-      #     limit-access-to-actor: true
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          sudo: false
+          limit-access-to-actor: true
 
-      - name: npm doctor
-        run: npm doctor
+      # - name: npm doctor
+        # run: npm doctor
 
       - name: Install dependencies
         run: npm ci --no-audit --legacy-peer-deps
