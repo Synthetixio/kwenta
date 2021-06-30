@@ -34,7 +34,12 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: node:14.17.1-buster
+      image: ghcr.io/synthetixio/docker-node/dev:14.17
+      credentials:
+        username: synthetixio
+        password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
+      # options: --privileged=true
+      options: --cap-add=SYS_ADMIN
 
     steps:
       - name: Checkout
@@ -57,7 +62,6 @@ jobs:
 
       - name: debug
         run: |
-          npm install -g npm
           whoami
           npm --version
           node --version
