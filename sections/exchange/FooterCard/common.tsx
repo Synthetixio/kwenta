@@ -60,7 +60,7 @@ export const MessageContainer = styled(GridDivCentered)<{
 	grid-template-columns: ${(props) => props.showProvider && '.5fr'} 1fr auto;
 	background-color: ${(props) => props.theme.colors.elderberry};
 	padding: 16px 32px;
-	margin: 0 0 20px;
+	margin: 0 0 2px;
 
 	/*
 	width: 100%;
