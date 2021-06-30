@@ -3,15 +3,21 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { Svg } from 'react-optimized-image';
 
+import { CRYPTO_CURRENCY_MAP } from 'constants/currency';
 import Button from 'components/Button';
 import InfoIcon from 'assets/svg/app/info.svg';
 import { CardTitle } from 'sections/dashboard/common';
 import { FlexDivCol, FlexDivRowCentered, numericValueCSS } from 'styles/common';
+import useAvailableL2TradingRewardsQuery from 'queries/trades/useAvailableL2TradingRewardsQuery';
+import { formatCryptoCurrency, zeroBN } from 'utils/formatters/number';
 
 const L2TradingRewards: FC = () => {
 	const { t } = useTranslation();
 
-	const isClaimRewardsDisabled = true;
+	const rewardsQuery = useAvailableL2TradingRewardsQuery();
+	const rewards = rewardsQuery.data ?? zeroBN;
+
+	const canClaimRewards = !rewards.isZero();
 	const onClaimRewards = () => {};
 
 	return (
@@ -30,13 +36,17 @@ const L2TradingRewards: FC = () => {
 			<RewardsCard>
 				<FlexDivCol>
 					<Title>{t('l2-trading-incentives.dashboard.claimable-rewards')}</Title>
-					<Amount>100 SNX</Amount>
+					<Amount>
+						{formatCryptoCurrency(rewards, {
+							currencyKey: CRYPTO_CURRENCY_MAP.SNX,
+						})}
+					</Amount>
 				</FlexDivCol>
 
 				<ClaimRewardsButton
 					variant="primary"
 					isRounded={true}
-					disabled={isClaimRewardsDisabled}
+					disabled={!canClaimRewards}
 					onClick={onClaimRewards}
 					size="lg"
 					data-testid="submit-order"

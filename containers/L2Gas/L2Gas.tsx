@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { ethers } from 'ethers';
 import { createContainer } from 'unstated-next';
 import { useRecoilValue } from 'recoil';
 import Connector from 'containers/Connector';
@@ -38,7 +39,7 @@ const MakeContainer = () => {
 		const loadBalance = async () => {
 			try {
 				const balance = await wETHContract.balanceOf(address);
-				if (isMounted) setBalance(toBigNumber(balance.toString()).div(1e18));
+				if (isMounted) setBalance(toBigNumber(ethers.utils.formatEther(balance)));
 			} catch (e) {
 				console.error(e);
 			}
@@ -48,7 +49,7 @@ const MakeContainer = () => {
 			const transferEvent = wETHContract.filters.Transfer();
 			const onBalanceChange = async (from: string, to: string) => {
 				if (from === address || to === address) {
-					if (isMounted) setBalance(await wETHContract.balanceOf(address));
+					loadBalance();
 				}
 			};
 
@@ -60,6 +61,7 @@ const MakeContainer = () => {
 
 		loadBalance();
 		subscribe();
+
 		return () => {
 			unsubs.forEach((unsub) => unsub());
 		};
