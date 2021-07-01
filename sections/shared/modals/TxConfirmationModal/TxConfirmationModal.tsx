@@ -1,8 +1,9 @@
 import { FC, ReactNode } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styled from 'styled-components';
-import Img from 'react-optimized-image';
 import BigNumber from 'bignumber.js';
+import Img, { Svg } from 'react-optimized-image';
+
 import {
 	FlexDivRowCentered,
 	numericValueCSS,
@@ -13,19 +14,18 @@ import {
 } from 'styles/common';
 
 import { CurrencyKey } from 'constants/currency';
+import { ESTIMATE_VALUE } from 'constants/placeholder';
 
 import BaseModal from 'components/BaseModal';
 import Currency from 'components/Currency';
 
 import OneInchImage from 'assets/svg/providers/1inch.svg';
 import BalancerImage from 'assets/svg/providers/balancer.svg';
+import InfoIcon from 'assets/svg/app/info.svg';
 
 import { formatCurrency, LONG_CRYPTO_CURRENCY_DECIMALS } from 'utils/formatters/number';
 import { MessageButton } from 'sections/exchange/FooterCard/common';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
-import { ESTIMATE_VALUE } from 'constants/placeholder';
-import { Svg } from 'react-optimized-image';
-import InfoIcon from 'assets/svg/app/info.svg';
 
 export type TxProvider = 'synthetix' | '1inch' | 'balancer';
 
@@ -43,6 +43,7 @@ type TxConfirmationModalProps = {
 	quoteCurrencyLabel?: ReactNode;
 	baseCurrencyLabel: ReactNode;
 	icon?: ReactNode;
+	priceAdjustment?: BigNumber | null;
 };
 
 export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
@@ -59,6 +60,7 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 	quoteCurrencyLabel,
 	baseCurrencyLabel,
 	icon,
+	priceAdjustment,
 }) => {
 	const { t } = useTranslation();
 	const { selectedPriceCurrency } = useSelectedPriceCurrency();
@@ -187,6 +189,40 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 						</span>
 					</SummaryItemValue>
 				</SummaryItem>
+				{!priceAdjustment ? null : (
+					<SummaryItem>
+						<SummaryItemLabel data-testid="price-adjustment-label">
+							<Trans
+								i18nKey="common.currency.price-adjustment"
+								components={[<NoTextTransform />]}
+							/>
+							&nbsp;
+							<StyledTooltip
+								placement="top"
+								content={
+									<Trans
+										i18nKey="modals.confirm-transaction.price-adjustment-hint"
+										values={{ currencyKey: baseCurrencyKey }}
+										components={[<ExternalLink href="https://synthetix.io/synths" />]}
+									/>
+								}
+								arrow={false}
+								interactive={true}
+							>
+								<TooltipItem>
+									<Svg src={InfoIcon} />
+								</TooltipItem>
+							</StyledTooltip>
+						</SummaryItemLabel>
+						<SummaryItemValue data-testid="price-adjustment-value">
+							<span>
+								{formatCurrency(selectedPriceCurrency.name, priceAdjustment, {
+									sign: selectedPriceCurrency.sign,
+								})}
+							</span>
+						</SummaryItemValue>
+					</SummaryItem>
+				)}
 			</Summary>
 			{txProvider === '1inch' && (
 				<TxProviderContainer>
