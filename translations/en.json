@@ -304,6 +304,21 @@
 				"value": "Value",
 				"no-results": "No transactions found"
 			}
+		},
+		"price-adjusting-trades": {
+			"title": "In Progress",
+			"row": {
+				"main-col-title": "From <0>{{fromCurrencyKey}}</0> to <1>{{toCurrencyKey}}</1>",
+				"main-col-subtitle": "Price adjustment in progress",
+				"col-initial-price": "Initial Price",
+				"col-adjusted-price": "Adjusted Price",
+				"col-debt-surplus": "Debt/Surplus",
+				"col-remaining": "Remaining"
+			}
+		},
+		"price-adjustment-on-next-trade": {
+			"label": "Price adjustment on next trade",
+			"value-hint": "Price adjustment on next trade"
 		}
 	},
 	"shorting": {

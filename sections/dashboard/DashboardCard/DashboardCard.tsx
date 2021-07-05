@@ -24,6 +24,9 @@ import { CardTitle, ConvertContainer } from '../common';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import { zeroBN } from 'utils/formatters/number';
 
+import PriceAdjustingTrades from './PriceAdjustingTrades';
+import PriceAdjustmentOnNextTrade from './PriceAdjustmentOnNextTrade';
+
 enum Tab {
 	SynthBalances = 'synth-balances',
 	Convert = 'convert',
@@ -101,6 +104,9 @@ const DashboardCard: FC = () => {
 					<Title>{t('common.totals.total-synth-value')}</Title>
 				</PortfolioCard>
 			</Totals>
+
+			<PriceAdjustingTrades />
+
 			<StyledTabList>
 				{TABS.map(({ name, label, active, onClick }) => (
 					<TabButton key={name} name={name} active={active} onClick={onClick}>
@@ -108,6 +114,9 @@ const DashboardCard: FC = () => {
 					</TabButton>
 				))}
 			</StyledTabList>
+
+			<PriceAdjustmentOnNextTrade />
+
 			<TabPanel name={Tab.SynthBalances} activeTab={activeTab}>
 				<SynthBalances
 					balances={synthBalances?.balances ?? []}
