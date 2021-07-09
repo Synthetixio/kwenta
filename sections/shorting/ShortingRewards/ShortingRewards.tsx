@@ -1,16 +1,13 @@
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 
-import { gasSpeedState } from 'store/wallet';
+import { gasSpeedState, networkState } from 'store/wallet';
 
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 
-import useEthGasPriceQuery from 'queries/network/useEthGasPriceQuery';
-import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
-
-import { CRYPTO_CURRENCY_MAP, SYNTHS_MAP } from 'constants/currency';
+import { CRYPTO_CURRENCY_MAP, Synths } from 'constants/currency';
 import { SYNTHS_TO_SHORT } from '../constants';
 
 import ShortingReward from './ShortingRewardRow';
@@ -21,12 +18,18 @@ import { getTransactionPrice } from 'utils/network';
 import GasPriceSummaryItem from 'sections/exchange/FooterCard/TradeSummaryCard/GasPriceSummaryItem';
 
 import { Title } from '../common';
+import useSynthetixQueries from '@synthetixio/queries';
 
 const ShortingRewards: FC = () => {
 	const { t } = useTranslation();
 
 	const [gasLimit, setGasLimit] = useState<number | null>(null);
 	const [gasSpeed] = useRecoilState(gasSpeedState);
+
+	const network = useRecoilValue(networkState);
+	const { useEthGasPriceQuery, useExchangeRatesQuery } = useSynthetixQueries({
+		networkId: network.id,
+	});
 
 	const ethGasPriceQuery = useEthGasPriceQuery();
 	const { selectedPriceCurrency } = useSelectedPriceCurrency();
@@ -63,7 +66,7 @@ const ShortingRewards: FC = () => {
 	);
 
 	const ethPriceRate = useMemo(
-		() => getExchangeRatesForCurrencies(exchangeRates, SYNTHS_MAP.sETH, selectedPriceCurrency.name),
+		() => getExchangeRatesForCurrencies(exchangeRates, Synths.sETH, selectedPriceCurrency.name),
 		[exchangeRates, selectedPriceCurrency.name]
 	);
 

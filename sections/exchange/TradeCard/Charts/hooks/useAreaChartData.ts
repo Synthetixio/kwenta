@@ -1,6 +1,8 @@
+import useSynthetixQueries from '@synthetixio/queries';
 import { CurrencyKey } from 'constants/currency';
 import { PeriodLabel } from 'constants/period';
-import useHistoricalRatesQuery from 'queries/rates/useHistoricalRatesQuery';
+import { useRecoilValue } from 'recoil';
+import { networkState } from 'store/wallet';
 
 const useAreaChartData = ({
 	currencyKey,
@@ -9,6 +11,12 @@ const useAreaChartData = ({
 	currencyKey: CurrencyKey | null;
 	selectedChartPeriodLabel: PeriodLabel;
 }) => {
+	const network = useRecoilValue(networkState);
+
+	const { useHistoricalRatesQuery } = useSynthetixQueries({
+		networkId: network.id,
+	});
+
 	const data = useHistoricalRatesQuery(currencyKey, selectedChartPeriodLabel.period);
 
 	const change = data.data?.change ?? null;

@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import orderBy from 'lodash/orderBy';
 
-import useHistoricalRatesQuery from 'queries/rates/useHistoricalRatesQuery';
 import usePeriodStartSynthRateQuery from 'queries/rates/usePeriodStartSynthRateQuery';
-import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
+import { CurrencyKey, Synths } from 'constants/currency';
 import { PeriodLabel } from 'constants/period';
+import { useRecoilValue } from 'recoil';
+import { networkState } from 'store/wallet';
+import useSynthetixQueries from '@synthetixio/queries';
 
 const useCombinedRates = ({
 	baseCurrencyKey,
@@ -15,6 +17,12 @@ const useCombinedRates = ({
 	quoteCurrencyKey: CurrencyKey | null;
 	selectedChartPeriodLabel: PeriodLabel;
 }) => {
+	const network = useRecoilValue(networkState);
+
+	const { useHistoricalRatesQuery } = useSynthetixQueries({
+		networkId: network.id,
+	});
+
 	const baseHistoricalRates = useHistoricalRatesQuery(
 		baseCurrencyKey,
 		selectedChartPeriodLabel.period
@@ -59,10 +67,10 @@ const useCombinedRates = ({
 			timestamp: number;
 			rate: number;
 		}[] = [];
-		if (baseCurrencyKey !== SYNTHS_MAP.sUSD) {
+		if (baseCurrencyKey !== Synths.sUSD) {
 			allRates = allRates.concat(baseRates.map((r) => ({ ...r, isBaseRate: true })));
 		}
-		if (quoteCurrencyKey !== SYNTHS_MAP.sUSD) {
+		if (quoteCurrencyKey !== Synths.sUSD) {
 			allRates = allRates.concat(quoteRates);
 		}
 		allRates = orderBy(allRates, 'timestamp');
