@@ -105,7 +105,7 @@ jobs:
         containers: [1, 2]
 
     container:
-      image: ghcr.io/synthetixio/docker-e2e/base:14.17
+      image: ghcr.io/synthetixio/docker-e2e/base:14.16-npm6
       credentials:
         username: synthetixio
         password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
@@ -124,12 +124,8 @@ jobs:
             ${{ runner.os }}-e2e_tests-cache-
         continue-on-error: true
 
-      # workaround for npm 7 permission issues on GH actions
-      - name: Chown
-        run: chown -R 1001:121 "$GITHUB_WORKSPACE"
-
       - name: Install dependencies
-        run: npm ci --no-audit --legacy-peer-deps
+        run: npm ci --no-audit
         env:
           CYPRESS_CACHE_FOLDER: ${{ github.workspace }}/node_modules/.cache/Cypress
 
