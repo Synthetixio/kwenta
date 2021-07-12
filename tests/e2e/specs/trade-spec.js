@@ -6,9 +6,9 @@ const testedAsset = 'sETH';
 describe('Trades tests', () => {
 	context(`Trade sUSD => ${testedAsset}`, () => {
 		before(() => {
-			exchange.snxExchangerSettle(testedAsset).then((settleTx) => {
-				if (settleTx) {
-					exchange.waitUntilAvailableOnEtherscan(settleTx, 'settleTx');
+			exchange.snxExchangerSettle(testedAsset).then((settleTxId) => {
+				if (settleTxId) {
+					exchange.etherscanWaitForTxSuccess(settleTxId);
 				}
 			});
 			exchange.snxCheckWaitingPeriod(testedAsset);
@@ -23,12 +23,9 @@ describe('Trades tests', () => {
 			exchange.confirmMetamaskTransaction();
 			exchange.waitForTransactionSuccess();
 			exchange.getTransactionUrl().then((url) => {
-				exchange.waitUntilAvailableOnEtherscan(url, 'etherscan');
-				cy.get('@etherscan').should((response) => {
-					expect(response.body).to.include('</i>Success</span>');
-					// blocker: need slippage explanations
-					// todo: verify gas amount in metamask and etherscan, etherscan asset sent, fee and received asset value
-				});
+				const txId = url.split('tx/')[1];
+				exchange.etherscanWaitForTxSuccess(txId);
+				expect(txId).to.have.lengthOf(66);
 			});
 		});
 	});
