@@ -1,29 +1,80 @@
-import { FC } from 'react';
+import { FC, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
-import BigNumber from 'bignumber.js';
 import { Trans, useTranslation } from 'react-i18next';
+import Countdown, { zeroPad } from 'react-countdown';
 import add from 'date-fns/add';
+import { Svg } from 'react-optimized-image';
+import BigNumber from 'bignumber.js';
 
 import media from 'styles/media';
-import Currency from 'components/Currency';
-import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
-import { formatCurrency, toBigNumber, zeroBN } from 'utils/formatters/number';
-import { SYNTHS_MAP } from 'constants/currency';
-import Countdown, { zeroPad } from 'react-countdown';
 import { NoTextTransform } from 'styles/common';
+import Currency from 'components/Currency';
+import Button from 'components/Button';
+import CircleEllipsis from 'assets/svg/app/circle-ellipsis.svg';
+import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
+import useSettlementOwing from 'hooks/trades/useSettlementOwing';
+import { HistoricalTrade } from 'queries/trades/types';
+import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
+import useFeeReclaimPeriodQuery from 'queries/synths/useFeeReclaimPeriodQuery';
+import { formatCurrency, toBigNumber } from 'utils/formatters/number';
+import { SYNTHS_MAP } from 'constants/currency';
 
-const PriceAdjustingTrade: FC = () => {
+const PriceAdjustingTrade: FC<{ trade: HistoricalTrade }> = ({ trade }) => {
 	const { t } = useTranslation();
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
 
-	const fromCurrencyKey = 'sETH';
-	const toCurrencyKey = 'sLINK';
-	const initialPrice = toBigNumber('13.77');
-	const adjustedPrice = toBigNumber('15.48');
-	const change = adjustedPrice.minus(initialPrice);
-	const adjustmentEndDate = add(new Date(), { seconds: 1000 });
+	const { fromCurrencyKey, toCurrencyKey } = trade;
+	// const fee = useSettlementOwing(toCurrencyKey);
 
-	return (
+	const initialPrice = useMemo(
+		() => toBigNumber(trade.toAmountInUSD).div(toBigNumber(trade.toAmount)),
+		[trade.toAmountInUSD, trade.toAmount]
+	);
+
+	const exchangeRatesQuery = useExchangeRatesQuery();
+	const exchangeRates = useMemo(
+		() => (exchangeRatesQuery.isSuccess ? exchangeRatesQuery.data ?? null : null),
+		[exchangeRatesQuery.isSuccess, exchangeRatesQuery.data]
+	);
+	const adjustedPrice = useMemo(
+		() => (!exchangeRates ? toBigNumber(0) : exchangeRates[toCurrencyKey]),
+		[exchangeRates, toCurrencyKey]
+	);
+
+	const feeReclaimPeriodSecQuery = useFeeReclaimPeriodQuery(toCurrencyKey);
+	const feeReclaimPeriodSec = useMemo(
+		() => (feeReclaimPeriodSecQuery.isSuccess ? feeReclaimPeriodSecQuery.data : 0),
+		[feeReclaimPeriodSecQuery.isSuccess, feeReclaimPeriodSecQuery.data]
+	);
+	// const adjustmentEndDate = useMemo(() => add(new Date(), { seconds: feeReclaimPeriodSec }), [
+	// 	feeReclaimPeriodSec,
+	// ]);
+	// const adjustmentEnded = feeReclaimPeriodSec === 0, [feeReclaimPeriodSec]);
+
+	const adjustmentEndDate = useMemo(() => add(new Date(), { seconds: 1000 }), []);
+	const fee =
+		toCurrencyKey === 'sRUNE'
+			? toBigNumber(1.7)
+			: toCurrencyKey === 'sBNB'
+			? toBigNumber(-18.77)
+			: toBigNumber(0);
+	const adjustmentEnded = false;
+
+	const hasFee = useMemo(() => !fee.isZero(), [fee]);
+
+	const onSettleClaimFee = () => {};
+
+	// useEffect(() => {
+	// 	if (adjustmentEnded) {
+
+	// 	} else {
+
+	// 	}
+	// }, [adjustmentEndDate, adjustmentEnded]);
+
+	console.log('fee', fee.toString());
+
+	return adjustmentEnded ? null : (
 		<Container>
 			<ColorLine />
 			<Currency.Icon currencyKey={toCurrencyKey} width="24px" height="24px" />
@@ -63,35 +114,54 @@ const PriceAdjustingTrade: FC = () => {
 			</Col>
 			<Col>
 				<ColTitle>
-					<ChangePercent value={change} />
+					{hasFee ? (
+						<Change value={fee} />
+					) : (
+						<PendingIcon>
+							<Svg src={CircleEllipsis} />
+						</PendingIcon>
+					)}
 				</ColTitle>
 				<ColSubtitle>{t('dashboard.price-adjusting-trades.row.col-debt-surplus')}</ColSubtitle>
 			</Col>
 			<Col>
-				<ColTitle>
-					<Countdown
-						date={adjustmentEndDate}
-						renderer={({ minutes, seconds }) => {
-							const duration = [
-								`${zeroPad(minutes)}${t('common.time.minutes')}`,
-								`${zeroPad(seconds)}${t('common.time.seconds')}`,
-							];
-
-							return <span>{duration.join(':')}</span>;
-						}}
-					/>
-				</ColTitle>
-				<ColSubtitle>{t('dashboard.price-adjusting-trades.row.col-remaining')}</ColSubtitle>
+				{hasFee ? (
+					<>
+						<ColTitle>
+							<Button variant="primary" isRounded={true} onClick={onSettleClaimFee} size="md">
+								{fee.isNegative()
+									? t('dashboard.price-adjusting-trades.settle-fee')
+									: t('dashboard.price-adjusting-trades.claim-fee')}
+							</Button>
+						</ColTitle>
+					</>
+				) : (
+					<>
+						<ColTitle>
+							<Countdown
+								date={adjustmentEndDate}
+								renderer={({ minutes, seconds }) => {
+									const duration = [
+										`${zeroPad(minutes)}${t('common.time.minutes')}`,
+										`${zeroPad(seconds)}${t('common.time.seconds')}`,
+									];
+									return <span>{duration.join(':')}</span>;
+								}}
+							/>
+						</ColTitle>
+						<ColSubtitle>{t('dashboard.price-adjusting-trades.row.col-remaining')}</ColSubtitle>
+					</>
+				)}
 			</Col>
 		</Container>
 	);
 };
 
-const ChangePercent: FC<{ value: BigNumber }> = ({ value }) => {
+const Change: FC<{ value: BigNumber }> = ({ value }) => {
 	const { selectedPriceCurrency } = useSelectedPriceCurrency();
 	return (
-		<CurrencyChange isPositive={value.gte(zeroBN)}>
-			{formatCurrency(SYNTHS_MAP.sUSD, value, {
+		<CurrencyChange isPositive={!value.isNegative()}>
+			{formatCurrency(SYNTHS_MAP.sUSD, value.toString(), {
 				sign: selectedPriceCurrency.sign,
 			})}
 		</CurrencyChange>
@@ -145,5 +215,9 @@ const MainColTitle = styled(ColTitle)`
 `;
 
 const MainColSubtitle = styled(ColSubtitle)``;
+
+const PendingIcon = styled.div`
+	color: ${(props) => props.theme.colors.yellow};
+`;
 
 export default PriceAdjustingTrade;

@@ -3,18 +3,21 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
 import { CardTitle } from 'sections/dashboard/common';
+import usePriceAdjustingTrades from 'hooks/trades/usePriceAdjustingTrades';
 
 import PriceAdjustingTrade from './PriceAdjustingTrade';
 
 const PriceAdjustingTrades: FC = () => {
 	const { t } = useTranslation();
-	const trades: number[] = [1];
+	const trades = usePriceAdjustingTrades();
 
 	return !trades.length ? null : (
 		<Container>
 			<Title>{t('dashboard.price-adjusting-trades.title')}</Title>
 			<Card>
-				<PriceAdjustingTrade />
+				{trades.map((trade) => (
+					<PriceAdjustingTrade key={trade.hash} {...{ trade }} />
+				))}
 			</Card>
 		</Container>
 	);

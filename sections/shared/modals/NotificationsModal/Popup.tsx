@@ -38,6 +38,7 @@ export const Popup: FC<PopupProps> = ({
 	const hasCancelledOrders = ordersByStatus.cancelled.length > 0;
 
 	const hasOrders = hasConfirmedOrders || hasPendingOrders || hasCancelledOrders;
+	const canGoFullScreen = hasPendingOrders;
 
 	return (
 		<StyledMenuModal onDismiss={onDismiss} isOpen={true} title={t('modals.notifications.title')}>
@@ -61,7 +62,7 @@ export const Popup: FC<PopupProps> = ({
 							</OrdersGroupList>
 						</OrdersGroup>
 					))}
-					{hasPendingOrders && (
+					{canGoFullScreen && (
 						<ViewAllButtonContainer>
 							<ViewAllButton onClick={() => setIsFullScreen(true)}>
 								{t('modals.notifications.view-all')}

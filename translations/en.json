@@ -314,7 +314,9 @@
 				"col-adjusted-price": "Adjusted Price",
 				"col-debt-surplus": "Debt/Surplus",
 				"col-remaining": "Remaining"
-			}
+			},
+			"settle-fee": "Settle fee",
+			"claim-fee": "Claim fee"
 		},
 		"price-adjustment-on-next-trade": {
 			"label": "Price adjustment on next trade",

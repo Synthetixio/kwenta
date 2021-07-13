@@ -1028,7 +1028,6 @@ const useExchange = ({
 					quoteCurrencyLabel={t('exchange.common.from')}
 					baseCurrencyLabel={t('exchange.common.into')}
 					icon={<Svg src={ArrowsIcon} />}
-					priceAdjustment={toBigNumber('10')}
 				/>
 			)}
 			{selectBaseCurrencyModalOpen && (

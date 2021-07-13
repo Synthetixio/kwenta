@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import { FC, useMemo, ReactNode } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styled from 'styled-components';
 import BigNumber from 'bignumber.js';
@@ -23,9 +23,18 @@ import OneInchImage from 'assets/svg/providers/1inch.svg';
 import BalancerImage from 'assets/svg/providers/balancer.svg';
 import InfoIcon from 'assets/svg/app/info.svg';
 
-import { formatCurrency, LONG_CRYPTO_CURRENCY_DECIMALS } from 'utils/formatters/number';
+import {
+	formatCurrency,
+	LONG_CRYPTO_CURRENCY_DECIMALS,
+	toBigNumber,
+} from 'utils/formatters/number';
 import { MessageButton } from 'sections/exchange/FooterCard/common';
+
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
+import useSettlementOwing from 'hooks/trades/useSettlementOwing';
+
+import useExchangeRatesQuery from 'queries/rates/useExchangeRatesQuery';
+import { formatBytes32String } from 'ethers/lib/utils';
 
 export type TxProvider = 'synthetix' | '1inch' | 'balancer';
 
@@ -43,7 +52,6 @@ type TxConfirmationModalProps = {
 	quoteCurrencyLabel?: ReactNode;
 	baseCurrencyLabel: ReactNode;
 	icon?: ReactNode;
-	priceAdjustment?: BigNumber | null;
 };
 
 export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
@@ -60,7 +68,6 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 	quoteCurrencyLabel,
 	baseCurrencyLabel,
 	icon,
-	priceAdjustment,
 }) => {
 	const { t } = useTranslation();
 	const { selectedPriceCurrency } = useSelectedPriceCurrency();
@@ -69,6 +76,21 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 		formatCurrency(baseCurrencyKey, baseCurrencyAmount, {
 			minDecimals: decimals,
 		});
+
+	const exchangeRatesQuery = useExchangeRatesQuery();
+	const exchangeRates = useMemo(
+		() => (exchangeRatesQuery.isSuccess ? exchangeRatesQuery.data ?? null : null),
+		[exchangeRatesQuery.isSuccess, exchangeRatesQuery.data]
+	);
+	const quoteCurrencyRate = useMemo(
+		() => (!(exchangeRates && quoteCurrencyKey) ? toBigNumber(0) : exchangeRates[quoteCurrencyKey]),
+		[exchangeRates, quoteCurrencyKey]
+	);
+	const priceAdjustmentFee = useSettlementOwing(quoteCurrencyKey ?? '');
+	const priceAdjustmentFeeUSD = useMemo(
+		() => priceAdjustmentFee.times(quoteCurrencyRate).div(1e18),
+		[priceAdjustmentFee, quoteCurrencyRate]
+	);
 
 	return (
 		<StyledBaseModal
@@ -189,7 +211,7 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 						</span>
 					</SummaryItemValue>
 				</SummaryItem>
-				{!priceAdjustment ? null : (
+				{!priceAdjustmentFee ? null : (
 					<SummaryItem>
 						<SummaryItemLabel data-testid="price-adjustment-label">
 							<Trans
@@ -216,7 +238,7 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 						</SummaryItemLabel>
 						<SummaryItemValue data-testid="price-adjustment-value">
 							<span>
-								{formatCurrency(selectedPriceCurrency.name, priceAdjustment, {
+								{formatCurrency(selectedPriceCurrency.name, priceAdjustmentFeeUSD.toString(), {
 									sign: selectedPriceCurrency.sign,
 								})}
 							</span>

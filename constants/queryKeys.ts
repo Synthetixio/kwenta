@@ -1,4 +1,6 @@
 import { NetworkId } from '@synthetixio/contracts-interface';
+import Currency from 'components/Currency';
+import { toCurrencyKeyMap } from 'sections/dashboard/TrendingSynths/utils';
 
 import { CurrencyKey } from './currency';
 import { Period } from './period';
@@ -80,6 +82,12 @@ export const QUERY_KEYS = {
 	Trades: {
 		AllTrades: ['trades', 'allTrades'],
 		WalletTrades: (walletAddress: string) => ['trades', 'walletTrades', walletAddress],
+		SettlementOwing: (walletAddress: string, currencyKey: CurrencyKey) => [
+			'trades',
+			'settlementOwing',
+			walletAddress,
+			currencyKey,
+		],
 	},
 	SystemStatus: {
 		IsUpgrading: ['systemStatus', 'isUpgrading'],

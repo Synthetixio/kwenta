@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
@@ -11,6 +11,7 @@ import { CapitalizedText, ExternalLink, FlexDivRowCentered, NumericValue } from 
 import { Order } from 'store/orders';
 import Etherscan from 'containers/Etherscan';
 import { formatCurrency } from 'utils/formatters/number';
+import useSettlementOwing from 'hooks/trades/useSettlementOwing';
 
 type CurrencyExchangeProps = {
 	order: Order;
@@ -19,6 +20,8 @@ type CurrencyExchangeProps = {
 export const CurrencyExchange: FC<CurrencyExchangeProps> = ({ order }) => {
 	const { t } = useTranslation();
 	const { etherscanInstance } = Etherscan.useContainer();
+
+	const fee = useSettlementOwing(order.quoteCurrencyKey);
 
 	const isConfirmed = order.status === 'confirmed';
 	const isPending = order.status === 'pending';
@@ -59,6 +62,9 @@ export const CurrencyExchange: FC<CurrencyExchangeProps> = ({ order }) => {
 						<Svg src={CircleEllipsis} />
 					</PendingIcon>
 				)}
+				{isPending && (
+					<PriceAjustmentLabel>{t('common.currency.price-adjustment')}</PriceAjustmentLabel>
+				)}
 			</FlexDivRowCentered>
 			{isConfirmed && etherscanInstance != null && (
 				<StyledExternalLink href={etherscanInstance.txLink(order.hash)}>
@@ -95,6 +101,10 @@ const StyledExternalLink = styled(ExternalLink)`
 		width: 14px;
 		height: 14px;
 	}
+`;
+
+const PriceAjustmentLabel = styled.div`
+	color: ${(props) => props.theme.colors.yellow};
 `;
 
 export default CurrencyExchange;
