@@ -20,6 +20,7 @@ import CurrencyConvertCard from 'sections/dashboard/CurrencyConvertCard';
 import { BoldText } from 'styles/common';
 
 import { CardTitle, ConvertContainer } from '../common';
+import FeeReclaimingSynths from '../FeeReclaimingSynths';
 
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import { zeroBN } from 'utils/formatters/number';
@@ -112,6 +113,7 @@ const DashboardCard: FC = () => {
 					<Title>{t('common.totals.total-synth-value')}</Title>
 				</PortfolioCard>
 			</Totals>
+			<FeeReclaimingSynths />
 			<StyledTabList>
 				{TABS.map(({ name, label, active, onClick }) => (
 					<TabButton key={name} name={name} active={active} onClick={onClick}>

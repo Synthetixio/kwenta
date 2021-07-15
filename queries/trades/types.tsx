@@ -1,3 +1,4 @@
+import * as ethers from 'ethers';
 import { CurrencyKey } from 'constants/currency';
 
 export type HistoricalTrade = {
@@ -20,3 +21,9 @@ export type HistoricalTrade = {
 };
 
 export type HistoricalTrades = HistoricalTrade[];
+
+export type SettlementOwing = {
+	reclaim: ethers.BigNumber;
+	rebate: ethers.BigNumber;
+	numEntries: ethers.BigNumber;
+};

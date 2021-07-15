@@ -1,12 +1,13 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, useMemo, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Trans, useTranslation } from 'react-i18next';
 import { CellProps } from 'react-table';
 import { Svg } from 'react-optimized-image';
+import Tippy from '@tippyjs/react';
 
 import { HistoricalTrade, HistoricalTrades } from 'queries/trades/types';
 
-import { formatCurrency } from 'utils/formatters/number';
+import { formatCryptoCurrency, formatCurrency } from 'utils/formatters/number';
 
 import { NO_VALUE } from 'constants/placeholder';
 
@@ -20,6 +21,7 @@ import Currency from 'components/Currency';
 import LinkIcon from 'assets/svg/app/link.svg';
 import NoNotificationIcon from 'assets/svg/app/no-notifications.svg';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
+import useTxReclaimFee from 'hooks/trades/useTxReclaimFee';
 
 type TradeHistoryProps = {
 	trades: HistoricalTrades;
@@ -47,7 +49,7 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 						<StyledOrderType>{t('dashboard.transactions.order-type-sort.market')}</StyledOrderType>
 					),
 					sortable: true,
-					width: 200,
+					width: 125,
 				},
 				{
 					Header: <StyledTableHeader>{t('dashboard.transactions.table.from')}</StyledTableHeader>,
@@ -64,7 +66,7 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 							</StyledPrice>
 						</span>
 					),
-					width: 200,
+					width: 175,
 					sortable: true,
 				},
 				{
@@ -82,7 +84,7 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 							</StyledPrice>
 						</span>
 					),
-					width: 200,
+					width: 175,
 					sortable: true,
 				},
 				{
@@ -105,7 +107,19 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 							conversionRate={selectPriceCurrencyRate}
 						/>
 					),
-					width: 200,
+					width: 175,
+					sortable: true,
+				},
+				{
+					Header: (
+						<StyledTableHeader>{t('dashboard.transactions.table.fee-reclaim')}</StyledTableHeader>
+					),
+					accessor: 'timestamp',
+					sortType: 'basic',
+					Cell: (cellProps: CellProps<HistoricalTrade>) => (
+						<TxReclaimFee trade={cellProps.row.original} />
+					),
+					width: 175,
 					sortable: true,
 				},
 				{
@@ -121,6 +135,7 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 						) : (
 							NO_VALUE
 						),
+					width: 50,
 					sortable: false,
 				},
 			]}
@@ -139,6 +154,34 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 		/>
 	);
 };
+
+const TxReclaimFee: FC<{ trade: HistoricalTrade }> = ({ trade }) => {
+	const { t } = useTranslation();
+	const fee = useTxReclaimFee(trade.timestamp / 1000);
+	return (
+		<TxReclaimFeeTooltip
+			placement="top"
+			content={<div>{t('dashboard.transactions.table.tx-reclaim-fee-hint')}</div>}
+		>
+			<TxReclaimFeeLabel isPositive={!fee.isNegative()}>
+				{formatCryptoCurrency(fee, { currencyKey: trade.toCurrencyKey })}
+			</TxReclaimFeeLabel>
+		</TxReclaimFeeTooltip>
+	);
+};
+
+const TxReclaimFeeLabel = styled.span<{ isPositive: boolean }>`
+	color: ${(props) => (props.isPositive ? props.theme.colors.green : props.theme.colors.red)};
+`;
+
+const TxReclaimFeeTooltip = styled(Tippy)`
+	font-size: 12px;
+	background-color: ${(props) => props.theme.colors.navy};
+	color: ${(props) => props.theme.colors.white};
+	.tippy-arrow {
+		color: ${(props) => props.theme.colors.navy};
+	}
+`;
 
 const StyledExternalLink = styled(ExternalLink)`
 	margin-left: auto;

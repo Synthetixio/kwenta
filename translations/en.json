@@ -310,8 +310,22 @@
 				"from": "From",
 				"to": "To",
 				"value": "Value",
-				"no-results": "No transactions found"
+				"fee-reclaim": "Fee Rebate/Reclaim",
+				"no-results": "No transactions found",
+				"tx-reclaim-fee-hint": "Trransaction incurred a fee rebate if +ve. Otherwise, fee was reclaimed."
 			}
+		},
+		"fee-reclaiming-synths": {
+			"title": "In Progress",
+			"row": {
+				"main-col-subtitle": "Price adjustment in progress",
+				"main-col-complete-subtitle": "Price adjustment complete",
+				"col-trades": "Trades",
+				"col-debt-surplus": "Debt/Surplus",
+				"col-remaining": "Remaining"
+			},
+			"settle-fee": "Settle fee",
+			"claim-fee": "Claim fee"
 		}
 	},
 	"shorting": {
