@@ -324,6 +324,7 @@
 				"col-debt-surplus": "Debt/Surplus",
 				"col-remaining": "Remaining"
 			},
+			"settling-fee": "Settling...",
 			"settle-fee": "Settle fee",
 			"claim-fee": "Claim fee"
 		}

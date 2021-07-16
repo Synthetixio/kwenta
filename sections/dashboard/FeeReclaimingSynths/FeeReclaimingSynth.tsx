@@ -15,9 +15,11 @@ import TransactionNotifier from 'containers/TransactionNotifier';
 import Currency from 'components/Currency';
 import Button from 'components/Button';
 import CircleEllipsis from 'assets/svg/app/circle-ellipsis.svg';
-import { formatCryptoCurrency } from 'utils/formatters/number';
-import { CurrencyKey } from 'constants/currency';
+import { formatCurrency } from 'utils/formatters/number';
+import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
+import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
 import useGas from 'hooks/useGas';
+import useCurrencyPrice from 'hooks/useCurrencyPrice';
 
 const FeeReclaimingSynth: FC<{
 	currencyKey: CurrencyKey;
@@ -33,10 +35,11 @@ const FeeReclaimingSynth: FC<{
 		waitingPeriod,
 	]);
 
+	const [isSettling, setIsSettling] = useState<boolean>(false);
 	const [txError, setTxError] = useState<string | null>(null);
 	const { monitorTransaction } = TransactionNotifier.useContainer();
 	const address = useRecoilValue(walletAddressState);
-
+	const price = useCurrencyPrice(currencyKey);
 	const { gasPrice, gasPriceWei, getGasLimitEstimate } = useGas();
 
 	const onSettleFee = async () => {
@@ -48,6 +51,8 @@ const FeeReclaimingSynth: FC<{
 			const params = [address, ethers.utils.formatBytes32String(currencyKey)];
 
 			try {
+				setIsSettling(true);
+
 				const gasLimitEstimate = await getGasLimitEstimate(() =>
 					Exchanger.estimateGas[method](...params)
 				);
@@ -73,6 +78,7 @@ const FeeReclaimingSynth: FC<{
 					setTxError(e.message);
 				}
 			} finally {
+				setIsSettling(false);
 			}
 		}
 	};
@@ -100,7 +106,7 @@ const FeeReclaimingSynth: FC<{
 							<Svg src={CircleEllipsis} />
 						</PendingIcon>
 					) : (
-						<Change {...{ currencyKey }} value={fee} />
+						<Change {...{ currencyKey }} value={fee.multipliedBy(price)} />
 					)}
 				</ColTitle>
 				<ColSubtitle>{t('dashboard.fee-reclaiming-synths.row.col-debt-surplus')}</ColSubtitle>
@@ -124,8 +130,16 @@ const FeeReclaimingSynth: FC<{
 					</>
 				) : (
 					<ColTitle>
-						<Button variant="primary" isRounded={true} onClick={onSettleFee} size="md">
-							{t('dashboard.fee-reclaiming-synths.settle-fee')}
+						<Button
+							variant="primary"
+							isRounded={true}
+							onClick={onSettleFee}
+							size="md"
+							disabled={isSettling}
+						>
+							{isSettling
+								? t('dashboard.fee-reclaiming-synths.settling-fee')
+								: t('dashboard.fee-reclaiming-synths.settle-fee')}
 						</Button>
 					</ColTitle>
 				)}
@@ -135,10 +149,11 @@ const FeeReclaimingSynth: FC<{
 };
 
 const Change: FC<{ currencyKey: CurrencyKey; value: BigNumber }> = ({ currencyKey, value }) => {
+	const { selectedPriceCurrency } = useSelectedPriceCurrency();
 	return (
 		<CurrencyChange isPositive={!value.isNegative()}>
-			{formatCryptoCurrency(value.toString(), {
-				currencyKey,
+			{formatCurrency(SYNTHS_MAP.sUSD, value.toString(), {
+				sign: selectedPriceCurrency.sign,
 			})}
 		</CurrencyChange>
 	);
