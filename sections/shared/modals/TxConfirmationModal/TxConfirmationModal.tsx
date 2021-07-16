@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styled from 'styled-components';
 import Img from 'react-optimized-image';
@@ -23,6 +23,8 @@ import BalancerImage from 'assets/svg/providers/balancer.svg';
 import { formatCurrency, LONG_CRYPTO_CURRENCY_DECIMALS } from 'utils/formatters/number';
 import { MessageButton } from 'sections/exchange/FooterCard/common';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
+import useCurrencyPrice from 'hooks/useCurrencyPrice';
+import useSettlementOwing from 'hooks/trades/useSettlementOwing';
 import { ESTIMATE_VALUE } from 'constants/placeholder';
 import { Svg } from 'react-optimized-image';
 import InfoIcon from 'assets/svg/app/info.svg';
@@ -67,6 +69,13 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 		formatCurrency(baseCurrencyKey, baseCurrencyAmount, {
 			minDecimals: decimals,
 		});
+
+	const priceUSD = useCurrencyPrice(quoteCurrencyKey ?? '');
+	const priceAdjustment = useSettlementOwing(quoteCurrencyKey ?? '');
+	const priceAdjustmentFeeUSD = useMemo(() => priceAdjustment.fee.times(priceUSD), [
+		priceAdjustment,
+		priceUSD,
+	]);
 
 	return (
 		<StyledBaseModal
@@ -187,6 +196,40 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 						</span>
 					</SummaryItemValue>
 				</SummaryItem>
+				{!priceAdjustmentFeeUSD ? null : (
+					<SummaryItem>
+						<SummaryItemLabel data-testid="price-adjustment-label">
+							<Trans
+								i18nKey="common.currency.price-adjustment"
+								components={[<NoTextTransform />]}
+							/>
+							&nbsp;
+							<StyledTooltip
+								placement="top"
+								content={
+									<Trans
+										i18nKey="modals.confirm-transaction.price-adjustment-hint"
+										values={{ currencyKey: baseCurrencyKey }}
+										components={[<ExternalLink href="https://synthetix.io/synths" />]}
+									/>
+								}
+								arrow={false}
+								interactive={true}
+							>
+								<TooltipItem>
+									<Svg src={InfoIcon} />
+								</TooltipItem>
+							</StyledTooltip>
+						</SummaryItemLabel>
+						<SummaryItemValue data-testid="price-adjustment-value">
+							<span>
+								{formatCurrency(selectedPriceCurrency.name, priceAdjustmentFeeUSD.toString(), {
+									sign: selectedPriceCurrency.sign,
+								})}
+							</span>
+						</SummaryItemValue>
+					</SummaryItem>
+				)}
 			</Summary>
 			{txProvider === '1inch' && (
 				<TxProviderContainer>
