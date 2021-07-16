@@ -18,7 +18,7 @@ export const useTxReclaimFee = (timestamp: number, options?: QueryConfig<BigNumb
 		async () => {
 			const exchangeEntrySettleds = await synthetixData({
 				networkId: network?.id!,
-			}).exchangeEntrySettled({
+			}).exchangeEntrySettleds({
 				from: walletAddress ?? undefined,
 				minExchangeTimestamp: timestamp,
 				maxExchangeTimestamp: timestamp,
