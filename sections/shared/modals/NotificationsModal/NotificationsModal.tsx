@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
 
 import { ordersByStatusState } from 'store/orders';
+import useFeeReclaimPeriods from 'hooks/synths/useFeeReclaimPeriods';
 
 import FullScreen from './FullScreen';
 import Popup from './Popup';
@@ -15,6 +16,11 @@ export const NotificationsModal: FC<NotificationsModalProps> = ({ onDismiss }) =
 	const { t } = useTranslation();
 	const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
 	const ordersByStatus = useRecoilValue(ordersByStatusState);
+
+	const feeWaitingPeriods = useFeeReclaimPeriods();
+	const hasWaitingPeriod = useMemo(() => !!feeWaitingPeriods.find((fw) => fw.waitingPeriod !== 0), [
+		feeWaitingPeriods,
+	]);
 
 	const orderGroups = useMemo(
 		() => [
@@ -37,13 +43,17 @@ export const NotificationsModal: FC<NotificationsModalProps> = ({ onDismiss }) =
 	);
 
 	return isFullScreen ? (
-		<FullScreen onDismiss={onDismiss} orderGroups={orderGroups} />
+		<FullScreen {...{ onDismiss, feeWaitingPeriods, hasWaitingPeriod, orderGroups }} />
 	) : (
 		<Popup
-			onDismiss={onDismiss}
-			orderGroups={orderGroups}
-			setIsFullScreen={setIsFullScreen}
-			ordersByStatus={ordersByStatus}
+			{...{
+				onDismiss,
+				feeWaitingPeriods,
+				hasWaitingPeriod,
+				orderGroups,
+				setIsFullScreen,
+				ordersByStatus,
+			}}
 		/>
 	);
 };

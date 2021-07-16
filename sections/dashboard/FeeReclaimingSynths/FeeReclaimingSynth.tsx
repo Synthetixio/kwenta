@@ -1,96 +1,109 @@
-import { FC, useMemo, useEffect } from 'react';
+import { FC, useMemo, useState } from 'react';
+import { ethers } from 'ethers';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import Countdown, { zeroPad } from 'react-countdown';
-import add from 'date-fns/add';
+import addTime from 'date-fns/add';
 import { Svg } from 'react-optimized-image';
 import BigNumber from 'bignumber.js';
 
+import synthetix from 'lib/synthetix';
+import { useRecoilValue } from 'recoil';
+import { walletAddressState } from 'store/wallet';
 import media from 'styles/media';
+import TransactionNotifier from 'containers/TransactionNotifier';
 import Currency from 'components/Currency';
 import Button from 'components/Button';
 import CircleEllipsis from 'assets/svg/app/circle-ellipsis.svg';
-import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
-import useSettlementOwing from 'hooks/trades/useSettlementOwing';
-import useFeeReclaimPeriodQuery from 'queries/synths/useFeeReclaimPeriodQuery';
-import { formatCurrency, toBigNumber } from 'utils/formatters/number';
-import { SYNTHS_MAP, CurrencyKey } from 'constants/currency';
+import { formatCryptoCurrency } from 'utils/formatters/number';
+import { CurrencyKey } from 'constants/currency';
+import useGas from 'hooks/useGas';
 
-const FeeReclaimingSynth: FC<{ currencyKey: CurrencyKey }> = ({ currencyKey }) => {
+const FeeReclaimingSynth: FC<{
+	currencyKey: CurrencyKey;
+	waitingPeriod: number;
+	fee: BigNumber;
+}> = ({ currencyKey, waitingPeriod, fee }) => {
 	const { t } = useTranslation();
 
-	const feeReclaimPeriodSecQuery = useFeeReclaimPeriodQuery(currencyKey);
-	const feeReclaimPeriodSec = useMemo(
-		() => (feeReclaimPeriodSecQuery.isSuccess ? feeReclaimPeriodSecQuery.data : 0),
-		[feeReclaimPeriodSecQuery.isSuccess, feeReclaimPeriodSecQuery.data]
-	);
-
-	const adjustmentEndDate = useMemo(() => add(new Date(), { seconds: feeReclaimPeriodSec }), [
-		feeReclaimPeriodSec,
-	]);
-	const adjustmentEnded = useMemo(() => feeReclaimPeriodSec === 0, [feeReclaimPeriodSec]);
-
-	const { fee, numEntries } = useSettlementOwing(currencyKey);
-
-	// const adjustmentEndDate = useMemo(() => add(new Date(), { seconds: 1000 }), []);
-	// const fee =
-	// 	currencyKey === 'sRUNE'
-	// 		? toBigNumber(1.7)
-	// 		: currencyKey === 'sBTC'
-	// 		? toBigNumber(-18.77)
-	// 		: toBigNumber(0);
-	// const adjustmentEnded = false;
-
+	const hasWaitingPeriod = useMemo(() => waitingPeriod !== 0, [waitingPeriod]);
 	const hasFee = useMemo(() => !fee.isZero(), [fee]);
+	const adjustmentEndDate = useMemo(() => addTime(new Date(), { seconds: waitingPeriod }), [
+		waitingPeriod,
+	]);
 
-	const onSettleFee = () => {};
+	const [txError, setTxError] = useState<string | null>(null);
+	const { monitorTransaction } = TransactionNotifier.useContainer();
+	const address = useRecoilValue(walletAddressState);
 
-	// useEffect(() => {
-	// 	if (adjustmentEnded) {
+	const { gasPrice, gasPriceWei, getGasLimitEstimate } = useGas();
 
-	// 	} else {
+	const onSettleFee = async () => {
+		if (synthetix.js != null && gasPrice != null) {
+			setTxError(null);
 
-	// 	}
-	// }, [adjustmentEndDate, adjustmentEnded]);
+			const { Exchanger } = synthetix.js!.contracts;
+			const method = 'settle';
+			const params = [address, ethers.utils.formatBytes32String(currencyKey)];
 
-	return adjustmentEnded ? null : (
+			try {
+				let transaction: ethers.ContractTransaction | null = null;
+
+				const gasLimitEstimate = await getGasLimitEstimate(() =>
+					Exchanger.estimateGas[method](...params)
+				);
+
+				transaction = (await Exchanger[method](...params, {
+					gasPrice: gasPriceWei,
+					gasLimit: gasLimitEstimate,
+				})) as ethers.ContractTransaction;
+
+				if (transaction != null) {
+					monitorTransaction({
+						txHash: transaction.hash,
+					});
+
+					await transaction.wait();
+				}
+			} catch (e) {
+				try {
+					await Exchanger.callStatic[method](...params);
+					throw e;
+				} catch (e) {
+					console.log(e);
+					setTxError(e.message);
+				}
+			} finally {
+			}
+		}
+	};
+
+	return !(hasWaitingPeriod || hasFee) ? null : (
 		<Container>
 			<ColorLine />
 			<Currency.Icon currencyKey={currencyKey} width="24px" height="24px" />
 			<Col>
 				<MainColTitle>{currencyKey}</MainColTitle>
 				<MainColSubtitle>
-					{hasFee
-						? t('dashboard.fee-reclaiming-synths.row.main-col-complete-subtitle')
-						: t('dashboard.fee-reclaiming-synths.row.main-col-subtitle')}
+					{hasWaitingPeriod
+						? t('dashboard.fee-reclaiming-synths.row.main-col-subtitle')
+						: t('dashboard.fee-reclaiming-synths.row.main-col-complete-subtitle')}
 				</MainColSubtitle>
 			</Col>
 			<Col>
-				<ColTitle>{numEntries.toString()}</ColTitle>
-				<ColSubtitle>{t('dashboard.fee-reclaiming-synths.row.col-trades')}</ColSubtitle>
-			</Col>
-			<Col>
 				<ColTitle>
-					{hasFee ? (
-						<Change value={fee} />
-					) : (
+					{hasWaitingPeriod ? (
 						<PendingIcon>
 							<Svg src={CircleEllipsis} />
 						</PendingIcon>
+					) : (
+						<Change {...{ currencyKey }} value={fee} />
 					)}
 				</ColTitle>
 				<ColSubtitle>{t('dashboard.fee-reclaiming-synths.row.col-debt-surplus')}</ColSubtitle>
 			</Col>
 			<Col>
-				{hasFee ? (
-					<>
-						<ColTitle>
-							<Button variant="primary" isRounded={true} onClick={onSettleFee} size="md">
-								{t('dashboard.fee-reclaiming-synths.settle-fee')}
-							</Button>
-						</ColTitle>
-					</>
-				) : (
+				{hasWaitingPeriod ? (
 					<>
 						<ColTitle>
 							<Countdown
@@ -106,18 +119,23 @@ const FeeReclaimingSynth: FC<{ currencyKey: CurrencyKey }> = ({ currencyKey }) =
 						</ColTitle>
 						<ColSubtitle>{t('dashboard.fee-reclaiming-synths.row.col-remaining')}</ColSubtitle>
 					</>
+				) : (
+					<ColTitle>
+						<Button variant="primary" isRounded={true} onClick={onSettleFee} size="md">
+							{t('dashboard.fee-reclaiming-synths.settle-fee')}
+						</Button>
+					</ColTitle>
 				)}
 			</Col>
 		</Container>
 	);
 };
 
-const Change: FC<{ value: BigNumber }> = ({ value }) => {
-	const { selectedPriceCurrency } = useSelectedPriceCurrency();
+const Change: FC<{ currencyKey: CurrencyKey; value: BigNumber }> = ({ currencyKey, value }) => {
 	return (
 		<CurrencyChange isPositive={!value.isNegative()}>
-			{formatCurrency(SYNTHS_MAP.sUSD, value.toString(), {
-				sign: selectedPriceCurrency.sign,
+			{formatCryptoCurrency(value.toString(), {
+				currencyKey,
 			})}
 		</CurrencyChange>
 	);

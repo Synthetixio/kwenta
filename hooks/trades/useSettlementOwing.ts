@@ -17,7 +17,7 @@ const useSettlementOwing = (currencyKey: CurrencyKey) => {
 		return settlementOwingQuery.data;
 	}, [settlementOwingQuery.isSuccess, settlementOwingQuery.data]);
 	return {
-		fee: toBigNumber(rebate.sub(reclaim).toString()),
+		fee: toBigNumber(rebate.sub(reclaim).toString()).div(1e18),
 		numEntries: toBigNumber(numEntries.toString()),
 	};
 };

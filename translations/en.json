@@ -320,7 +320,6 @@
 			"row": {
 				"main-col-subtitle": "Price adjustment in progress",
 				"main-col-complete-subtitle": "Price adjustment complete",
-				"col-trades": "Trades",
 				"col-debt-surplus": "Debt/Surplus",
 				"col-remaining": "Remaining"
 			},
@@ -555,6 +554,9 @@
 		},
 		"notifications": {
 			"title": "notifications",
+			"fee-reclaiming-synths": {
+				"title": "Fee reclaiming currencies"
+			},
 			"open-orders": {
 				"title": "open orders",
 				"no-results": "No open orders"
@@ -587,7 +589,9 @@
 			"buy-currency": "Buy <0>{{currencyKey}}</0>",
 			"get-currency": "Get <0>{{currencyKey}}</0>",
 			"currency-exchange": "<0>{{orderType}}</0> <1>{{quoteCurrencyAmount}}</1> <2>{{quoteCurrencyKey}}</2> for <3>{{baseCurrencyAmount}}</3> <4>{{baseCurrencyKey}}</4>",
-			"swap-currency": "Swap for <0>{{currencyKey}}</0>"
+			"swap-currency": "Swap for <0>{{currencyKey}}</0>",
+			"trade-into": "Trade into <0>{{currencyKey}}</0>",
+			"price-adjustment": "Price Adjustment"
 		},
 		"total-assets": "{{total}} assets",
 		"total-results": "{{total}} results",

@@ -1,4 +1,5 @@
 import * as ethers from 'ethers';
+import BigNumber from 'bignumber.js';
 import { CurrencyKey } from 'constants/currency';
 
 export type HistoricalTrade = {
@@ -26,4 +27,10 @@ export type SettlementOwing = {
 	reclaim: ethers.BigNumber;
 	rebate: ethers.BigNumber;
 	numEntries: ethers.BigNumber;
+};
+
+export type SynthFeeAndWaitingPeriod = {
+	currencyKey: CurrencyKey;
+	fee: BigNumber;
+	waitingPeriod: number;
 };

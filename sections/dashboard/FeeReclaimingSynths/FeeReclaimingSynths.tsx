@@ -1,26 +1,28 @@
-import { FC, ReactNode } from 'react';
+import { FC, useMemo } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
 import { CardTitle } from 'sections/dashboard/common';
-// import useFeeReclaimingSynths from 'hooks/trades/useFeeReclaimingSynths';
-import { SYNTHS } from 'constants/currency';
-
+import useFeeReclaimPeriods from 'hooks/synths/useFeeReclaimPeriods';
 import FeeReclaimingSynth from './FeeReclaimingSynth';
 
 const FeeReclaimingSynths: FC = () => {
 	const { t } = useTranslation();
 
-	const feeReclaimingSynths: ReactNode[] = SYNTHS.map((currencyKey) => (
-		<FeeReclaimingSynth key={currencyKey} {...{ currencyKey }} />
-	));
-
-	const show = feeReclaimingSynths.find((synth) => !!synth);
+	const feeAndWaitingPeriods = useFeeReclaimPeriods();
+	const show = useMemo(
+		() => !!feeAndWaitingPeriods.find((fw) => !fw.fee.isZero() || fw.waitingPeriod !== 0),
+		[feeAndWaitingPeriods]
+	);
 
 	return !show ? null : (
 		<Container>
 			<Title>{t('dashboard.fee-reclaiming-synths.title')}</Title>
-			<Card>{feeReclaimingSynths}</Card>
+			<Card>
+				{feeAndWaitingPeriods.map(({ currencyKey, waitingPeriod, fee }) => (
+					<FeeReclaimingSynth key={currencyKey} {...{ currencyKey, waitingPeriod, fee }} />
+				))}
+			</Card>
 		</Container>
 	);
 };

@@ -60,6 +60,7 @@ export const QUERY_KEYS = {
 		FrozenSynths: ['synths', 'frozenSynths'],
 		Suspension: (currencyKey: CurrencyKey) => ['synths', 'suspension', currencyKey],
 		FeeReclaimPeriod: (currencyKey: CurrencyKey) => ['synths', 'feeReclaimPeriod', currencyKey],
+		FeeReclaimPeriods: () => ['synths', 'feeReclaimPeriods'],
 		ExchangeFeeRate: (quoteCurrencyKey: CurrencyKey, baseCurrencyKey: CurrencyKey) => [
 			'synths',
 			'exchangeFeeRate',

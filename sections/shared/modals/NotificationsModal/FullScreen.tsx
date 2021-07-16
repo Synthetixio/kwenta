@@ -2,24 +2,40 @@ import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
-import CurrencyExchange from './CurrencyExchange';
-
 import Card from 'components/Card';
+import { SYNTHS } from 'constants/currency';
 
 import { OrdersGroupListItem, NoResults } from './common';
 import FullScreenModal from 'components/FullScreenModal';
 import { OrderGroup } from './types';
+import CurrencyFeeReclaim from './CurrencyFeeReclaim';
+import CurrencyExchange from './CurrencyExchange';
+import { SynthFeeAndWaitingPeriod } from 'queries/trades/types';
 
 type FullScreenProps = {
 	onDismiss?: () => void;
 	orderGroups: OrderGroup[];
+	feeWaitingPeriods: SynthFeeAndWaitingPeriod[];
+	hasWaitingPeriod: boolean;
 };
 
-export const FullScreen: FC<FullScreenProps> = ({ orderGroups }) => {
+export const FullScreen: FC<FullScreenProps> = ({ orderGroups, feeWaitingPeriods }) => {
 	const { t } = useTranslation();
 
 	return (
 		<StyledFullScreenModal isOpen={true} title={t('modals.notifications.title')}>
+			<StyledCard>
+				<StyledCardHeader>{t('modals.notifications.fee-reclaiming-synths.title')}</StyledCardHeader>
+				<StyledCardBody>
+					{feeWaitingPeriods.map(({ waitingPeriod }, i) => {
+						const currencyKey = SYNTHS[i];
+						return waitingPeriod === 0 ? null : (
+							<CurrencyFeeReclaim key={currencyKey} {...{ currencyKey, waitingPeriod }} />
+						);
+					})}
+				</StyledCardBody>
+			</StyledCard>
+
 			{orderGroups.map((group) => (
 				<StyledCard key={group.id}>
 					<StyledCardHeader>{group.title}</StyledCardHeader>
