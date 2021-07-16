@@ -33,4 +33,5 @@ export type SynthFeeAndWaitingPeriod = {
 	currencyKey: CurrencyKey;
 	fee: BigNumber;
 	waitingPeriod: number;
+	noOfTrades: number;
 };

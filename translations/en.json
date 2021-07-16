@@ -320,6 +320,7 @@
 			"row": {
 				"main-col-subtitle": "Price adjustment in progress",
 				"main-col-complete-subtitle": "Price adjustment complete",
+				"col-trades": "Trades",
 				"col-debt-surplus": "Debt/Surplus",
 				"col-remaining": "Remaining"
 			},

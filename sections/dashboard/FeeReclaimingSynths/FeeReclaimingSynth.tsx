@@ -23,7 +23,8 @@ const FeeReclaimingSynth: FC<{
 	currencyKey: CurrencyKey;
 	waitingPeriod: number;
 	fee: BigNumber;
-}> = ({ currencyKey, waitingPeriod, fee }) => {
+	noOfTrades: number;
+}> = ({ currencyKey, waitingPeriod, fee, noOfTrades }) => {
 	const { t } = useTranslation();
 
 	const hasWaitingPeriod = useMemo(() => waitingPeriod !== 0, [waitingPeriod]);
@@ -47,12 +48,11 @@ const FeeReclaimingSynth: FC<{
 			const params = [address, ethers.utils.formatBytes32String(currencyKey)];
 
 			try {
-				let transaction: ethers.ContractTransaction | null = null;
-
 				const gasLimitEstimate = await getGasLimitEstimate(() =>
 					Exchanger.estimateGas[method](...params)
 				);
 
+				let transaction: ethers.ContractTransaction | null = null;
 				transaction = (await Exchanger[method](...params, {
 					gasPrice: gasPriceWei,
 					gasLimit: gasLimitEstimate,
@@ -62,7 +62,6 @@ const FeeReclaimingSynth: FC<{
 					monitorTransaction({
 						txHash: transaction.hash,
 					});
-
 					await transaction.wait();
 				}
 			} catch (e) {
@@ -89,6 +88,10 @@ const FeeReclaimingSynth: FC<{
 						? t('dashboard.fee-reclaiming-synths.row.main-col-subtitle')
 						: t('dashboard.fee-reclaiming-synths.row.main-col-complete-subtitle')}
 				</MainColSubtitle>
+			</Col>
+			<Col>
+				<ColTitle>{noOfTrades}</ColTitle>
+				<ColSubtitle>{t('dashboard.fee-reclaiming-synths.row.col-trades')}</ColSubtitle>
 			</Col>
 			<Col>
 				<ColTitle>

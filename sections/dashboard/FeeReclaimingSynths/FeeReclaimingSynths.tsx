@@ -19,8 +19,11 @@ const FeeReclaimingSynths: FC = () => {
 		<Container>
 			<Title>{t('dashboard.fee-reclaiming-synths.title')}</Title>
 			<Card>
-				{feeAndWaitingPeriods.map(({ currencyKey, waitingPeriod, fee }) => (
-					<FeeReclaimingSynth key={currencyKey} {...{ currencyKey, waitingPeriod, fee }} />
+				{feeAndWaitingPeriods.map(({ currencyKey, waitingPeriod, fee, noOfTrades }) => (
+					<FeeReclaimingSynth
+						key={currencyKey}
+						{...{ currencyKey, waitingPeriod, fee, noOfTrades }}
+					/>
 				))}
 			</Card>
 		</Container>

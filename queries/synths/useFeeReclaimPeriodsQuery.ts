@@ -30,20 +30,31 @@ const useFeeReclaimPeriodsQuery = (options?: QueryConfig<SynthFeeAndWaitingPerio
 			};
 
 			const loadFee = async (currencyKey: CurrencyKey) => {
-				const [rebate, reclaim] = await synthetix.js?.contracts.Exchanger.settlementOwing(
+				const [
+					rebate,
+					reclaim,
+					noOfTrades,
+				] = await synthetix.js?.contracts.Exchanger.settlementOwing(
 					walletAddress,
 					ethers.utils.formatBytes32String(currencyKey)
 				);
-				return toBigNumber(rebate.sub(reclaim).toString()).div(1e18);
+				return {
+					fee: toBigNumber(rebate.sub(reclaim).toString()).div(1e18),
+					noOfTrades: Number(noOfTrades.toString()),
+				};
 			};
 
 			const waitingPeriods = await Promise.all(SYNTHS.map(loadWaitingPeriod));
 			const fees = await Promise.all(SYNTHS.map(loadFee));
-			return SYNTHS.map((currencyKey, i) => ({
-				currencyKey,
-				waitingPeriod: waitingPeriods[i],
-				fee: fees[i],
-			}));
+			return SYNTHS.map((currencyKey, i) => {
+				const { fee, noOfTrades } = fees[i];
+				return {
+					currencyKey,
+					waitingPeriod: waitingPeriods[i],
+					fee,
+					noOfTrades,
+				};
+			});
 		},
 		{
 			enabled: isAppReady && isWalletConnected,
