@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import { Trans, useTranslation } from 'react-i18next';
 import { CellProps } from 'react-table';
 import { Svg } from 'react-optimized-image';
-import Tippy from '@tippyjs/react';
 
 import { HistoricalTrade, HistoricalTrades } from 'queries/trades/types';
 
-import { formatCryptoCurrency, formatCurrency } from 'utils/formatters/number';
+import { formatCurrency } from 'utils/formatters/number';
 
 import { NO_VALUE } from 'constants/placeholder';
 
@@ -21,7 +20,9 @@ import Currency from 'components/Currency';
 import LinkIcon from 'assets/svg/app/link.svg';
 import NoNotificationIcon from 'assets/svg/app/no-notifications.svg';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
-import useTxReclaimFee from 'hooks/trades/useTxReclaimFee';
+
+import SynthFeeReclaimStatus from './SynthFeeReclaimStatus';
+import TxReclaimFee from './TxReclaimFee';
 
 type TradeHistoryProps = {
 	trades: HistoricalTrades;
@@ -45,8 +46,11 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 						<StyledTableHeader>{t('dashboard.transactions.table.orderType')}</StyledTableHeader>
 					),
 					accessor: 'orderType',
-					Cell: () => (
-						<StyledOrderType>{t('dashboard.transactions.order-type-sort.market')}</StyledOrderType>
+					Cell: (cellProps: CellProps<HistoricalTrade>) => (
+						<StyledOrderType>
+							{t('dashboard.transactions.order-type-sort.market')}
+							<SynthFeeReclaimStatus trade={cellProps.row.original} />
+						</StyledOrderType>
 					),
 					sortable: true,
 					width: 125,
@@ -155,34 +159,6 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 	);
 };
 
-const TxReclaimFee: FC<{ trade: HistoricalTrade }> = ({ trade }) => {
-	const { t } = useTranslation();
-	const fee = useTxReclaimFee(trade.timestamp / 1000);
-	return (
-		<TxReclaimFeeTooltip
-			placement="top"
-			content={<div>{t('dashboard.transactions.table.tx-reclaim-fee-hint')}</div>}
-		>
-			<TxReclaimFeeLabel isPositive={!fee.isNegative()}>
-				{formatCryptoCurrency(fee, { currencyKey: trade.toCurrencyKey })}
-			</TxReclaimFeeLabel>
-		</TxReclaimFeeTooltip>
-	);
-};
-
-const TxReclaimFeeLabel = styled.span<{ isPositive: boolean }>`
-	color: ${(props) => (props.isPositive ? props.theme.colors.green : props.theme.colors.red)};
-`;
-
-const TxReclaimFeeTooltip = styled(Tippy)`
-	font-size: 12px;
-	background-color: ${(props) => props.theme.colors.navy};
-	color: ${(props) => props.theme.colors.white};
-	.tippy-arrow {
-		color: ${(props) => props.theme.colors.navy};
-	}
-`;
-
 const StyledExternalLink = styled(ExternalLink)`
 	margin-left: auto;
 `;
@@ -207,6 +183,8 @@ const StyledTableHeader = styled.div`
 
 const StyledOrderType = styled.div`
 	color: ${(props) => props.theme.colors.white};
+	display: flex;
+	align-items: center;
 `;
 
 const StyledCurrencyKey = styled.span`
