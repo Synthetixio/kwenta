@@ -19,12 +19,15 @@ const SynthFeeReclaimStatus: FC<{ trade: HistoricalTrade }> = ({ trade }) => {
 		() => differenceInMinutes(new Date(), new Date(trade.timestamp)) < 30,
 		[trade.timestamp]
 	); // todo
+	const isConfirmed = secs === 0 || !isFreshTrade;
+
 	return (
 		<Tooltip
 			placement="top"
 			content={<div>{t('dashboard.transactions.table.price-adjustment-hint')}</div>}
+			disabled={isConfirmed}
 		>
-			{secs === 0 || !isFreshTrade ? (
+			{isConfirmed ? (
 				<ConfirmedIcon>
 					<Svg src={CircleTick} />
 				</ConfirmedIcon>
