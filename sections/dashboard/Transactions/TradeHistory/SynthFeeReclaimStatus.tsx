@@ -18,7 +18,7 @@ const SynthFeeReclaimStatus: FC<{ trade: HistoricalTrade }> = ({ trade }) => {
 	const isFreshTrade = useMemo(
 		() => differenceInMinutes(new Date(), new Date(trade.timestamp)) < 30,
 		[trade.timestamp]
-	); // todo
+	); // todo: determine this by comparing toCurrencyKey trade index against numEntries returned by Exchanger.settlementOwing
 	const isConfirmed = secs === 0 || !isFreshTrade;
 
 	return (
