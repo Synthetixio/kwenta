@@ -326,8 +326,7 @@
 				"col-remaining": "Remaining"
 			},
 			"settling-fee": "Settling...",
-			"settle-fee": "Settle fee",
-			"claim-fee": "Claim fee"
+			"settle-fee": "Settle fee"
 		}
 	},
 	"shorting": {
