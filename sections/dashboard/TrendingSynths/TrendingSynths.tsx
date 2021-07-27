@@ -1,7 +1,7 @@
 import { FC, useMemo } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useQueryCache } from 'react-query';
 
 import synthetix, { Synth } from 'lib/synthetix';
@@ -20,10 +20,11 @@ import { numericSort, toCurrencyKeyMap } from './utils';
 import { SYNTH_SORT_OPTIONS, SynthSort } from './constants';
 import { trendingSynthsOptionState } from 'store/ui';
 import L2TradingRewards from './L2TradingRewards';
+import { isL2State } from 'store/wallet';
 
 const TrendingSynths: FC = () => {
 	const { t } = useTranslation();
-
+	const isL2 = useRecoilValue(isL2State);
 	const [currentSynthSort, setCurrentSynthSort] = useRecoilState(trendingSynthsOptionState);
 
 	const queryCache = useQueryCache();
@@ -70,7 +71,7 @@ const TrendingSynths: FC = () => {
 	return (
 		<>
 			<Container>
-				<L2TradingRewards />
+				{!isL2 ? null : <L2TradingRewards />}
 
 				<TitleSortContainer>
 					<CardTitle>{t('dashboard.trending')}</CardTitle>

@@ -24,6 +24,7 @@ const useAvailableL2TradingRewardsQuery = (options?: QueryConfig<Ret>) => {
 				utils,
 			} = synthetix.js!;
 			const currentPeriod = await TradingRewards.getCurrentPeriod();
+			console.log(currentPeriod.toNumber());
 			const rewards = await TradingRewards.getAvailableRewardsForAccountForPeriod(
 				walletAddress,
 				currentPeriod
