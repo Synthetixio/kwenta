@@ -11,7 +11,7 @@ const FeeReclaimingSynths: FC = () => {
 
 	const feeAndWaitingPeriods = useFeeReclaimPeriods();
 	const show = useMemo(
-		() => !!feeAndWaitingPeriods.find((fw) => !fw.fee.isZero() || fw.waitingPeriod !== 0),
+		() => !!feeAndWaitingPeriods.find((fw) => fw.fee.gt(0) || fw.waitingPeriod !== 0),
 		[feeAndWaitingPeriods]
 	);
 

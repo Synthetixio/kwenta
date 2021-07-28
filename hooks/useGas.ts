@@ -2,11 +2,12 @@ import { useMemo, useCallback } from 'react';
 import { useRecoilValue } from 'recoil';
 import { BigNumber } from 'ethers';
 
-import useEthGasPriceQuery from 'queries/network/useEthGasPriceQuery';
+import useSynthetixQueries from '@synthetixio/queries';
 import { customGasPriceState, gasSpeedState } from 'store/wallet';
 import { normalizeGasLimit, gasPriceInWei } from 'utils/network';
 
 const useGas = () => {
+	const { useEthGasPriceQuery } = useSynthetixQueries();
 	const ethGasPriceQuery = useEthGasPriceQuery();
 	const customGasPrice = useRecoilValue(customGasPriceState);
 	const gasSpeed = useRecoilValue(gasSpeedState);

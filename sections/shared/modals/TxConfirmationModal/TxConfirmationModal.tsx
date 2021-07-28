@@ -2,7 +2,7 @@ import { FC, ReactNode, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styled from 'styled-components';
 import Img from 'react-optimized-image';
-import BigNumber from 'bignumber.js';
+import Wei from '@synthetixio/wei';
 import {
 	FlexDivRowCentered,
 	numericValueCSS,
@@ -11,8 +11,6 @@ import {
 	Tooltip,
 	ExternalLink,
 } from 'styles/common';
-
-import { CurrencyKey } from 'constants/currency';
 
 import BaseModal from 'components/BaseModal';
 import Currency from 'components/Currency';
@@ -28,6 +26,7 @@ import useSettlementOwing from 'hooks/trades/useSettlementOwing';
 import { ESTIMATE_VALUE } from 'constants/placeholder';
 import { Svg } from 'react-optimized-image';
 import InfoIcon from 'assets/svg/app/info.svg';
+import { CurrencyKey } from '@synthetixio/contracts-interface';
 
 export type TxProvider = 'synthetix' | '1inch' | 'balancer';
 
@@ -35,12 +34,12 @@ type TxConfirmationModalProps = {
 	onDismiss: () => void;
 	txError: string | null;
 	attemptRetry: () => void;
-	baseCurrencyKey: CurrencyKey;
+	baseCurrencyKey: string;
 	baseCurrencyAmount: string;
-	quoteCurrencyKey?: CurrencyKey;
+	quoteCurrencyKey?: string;
 	quoteCurrencyAmount?: string;
 	totalTradePrice: string;
-	feeCost?: BigNumber | null;
+	feeCost: Wei | null;
 	txProvider: TxProvider;
 	quoteCurrencyLabel?: ReactNode;
 	baseCurrencyLabel: ReactNode;
@@ -70,9 +69,9 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 			minDecimals: decimals,
 		});
 
-	const priceUSD = useCurrencyPrice(quoteCurrencyKey ?? '');
-	const priceAdjustment = useSettlementOwing(quoteCurrencyKey ?? '');
-	const priceAdjustmentFeeUSD = useMemo(() => priceAdjustment.fee.times(priceUSD), [
+	const priceUSD = useCurrencyPrice((quoteCurrencyKey ?? '') as CurrencyKey);
+	const priceAdjustment = useSettlementOwing((quoteCurrencyKey ?? '') as CurrencyKey);
+	const priceAdjustmentFeeUSD = useMemo(() => priceAdjustment.fee.mul(priceUSD), [
 		priceAdjustment,
 		priceUSD,
 	]);

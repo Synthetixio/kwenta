@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
-import BigNumber from 'bignumber.js';
+import Wei, { wei } from '@synthetixio/wei';
 
 import { useTxReclaimFee as useTxReclaimFeeQuery } from 'queries/trades/useTxReclaimFee';
-import { toBigNumber } from 'utils/formatters/number';
+import { zeroBN } from 'utils/formatters/number';
 
-const useTxReclaimFee = (timestamp: number): BigNumber => {
+const useTxReclaimFee = (timestamp: number): Wei => {
 	const txReclaimFeeQuery = useTxReclaimFeeQuery(timestamp);
 	const fee = useMemo(() => {
-		if (!(txReclaimFeeQuery.isSuccess && txReclaimFeeQuery.data)) return toBigNumber(0);
-		return txReclaimFeeQuery.data;
+		if (!(txReclaimFeeQuery.isSuccess && txReclaimFeeQuery.data)) return zeroBN;
+		return wei(txReclaimFeeQuery.data);
 	}, [txReclaimFeeQuery.isSuccess, txReclaimFeeQuery.data]);
 	return fee;
 };

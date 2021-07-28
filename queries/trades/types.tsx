@@ -1,6 +1,6 @@
 import * as ethers from 'ethers';
-import BigNumber from 'bignumber.js';
 import { CurrencyKey } from 'constants/currency';
+import Wei from '@synthetixio/wei';
 
 export type HistoricalTrade = {
 	block: number;
@@ -31,7 +31,7 @@ export type SettlementOwing = {
 
 export type SynthFeeAndWaitingPeriod = {
 	currencyKey: CurrencyKey;
-	fee: BigNumber;
+	fee: Wei;
 	waitingPeriod: number;
 	noOfTrades: number;
 };

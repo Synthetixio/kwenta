@@ -1,24 +1,29 @@
 import { useMemo } from 'react';
-import * as ethers from 'ethers';
+import { wei } from '@synthetixio/wei';
 
 import { useSettlementOwing as useSettlementOwingQuery } from 'queries/trades/useSettlementOwing';
 import { CurrencyKey } from 'constants/currency';
-import { toBigNumber } from 'utils/formatters/number';
+import { zeroBN } from 'utils/formatters/number';
 
 const useSettlementOwing = (currencyKey: CurrencyKey) => {
 	const settlementOwingQuery = useSettlementOwingQuery(currencyKey);
 	const { rebate, reclaim, numEntries } = useMemo(() => {
 		if (!(settlementOwingQuery.isSuccess && settlementOwingQuery.data))
 			return {
-				rebate: ethers.BigNumber.from(0),
-				reclaim: ethers.BigNumber.from(0),
-				numEntries: ethers.BigNumber.from(0),
+				rebate: zeroBN,
+				reclaim: zeroBN,
+				numEntries: zeroBN,
 			};
-		return settlementOwingQuery.data;
+		const { rebate, reclaim, numEntries } = settlementOwingQuery.data;
+		return {
+			rebate: wei(rebate),
+			reclaim: wei(reclaim),
+			numEntries: wei(numEntries),
+		};
 	}, [settlementOwingQuery.isSuccess, settlementOwingQuery.data]);
 	return {
-		fee: toBigNumber(rebate.sub(reclaim).toString()).div(1e18),
-		numEntries: toBigNumber(numEntries.toString()),
+		fee: rebate.sub(reclaim),
+		numEntries,
 	};
 };
 

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
 import Card from 'components/Card';
-import { SYNTHS } from 'constants/currency';
 
 import { OrdersGroupListItem, NoResults } from './common';
 import FullScreenModal from 'components/FullScreenModal';
@@ -27,12 +26,11 @@ export const FullScreen: FC<FullScreenProps> = ({ orderGroups, feeWaitingPeriods
 			<StyledCard>
 				<StyledCardHeader>{t('modals.notifications.fee-reclaiming-synths.title')}</StyledCardHeader>
 				<StyledCardBody>
-					{feeWaitingPeriods.map(({ waitingPeriod }, i) => {
-						const currencyKey = SYNTHS[i];
-						return waitingPeriod === 0 ? null : (
+					{feeWaitingPeriods.map(({ currencyKey, waitingPeriod }) =>
+						waitingPeriod === 0 ? null : (
 							<CurrencyFeeReclaim key={currencyKey} {...{ currencyKey, waitingPeriod }} />
-						);
-					})}
+						)
+					)}
 				</StyledCardBody>
 			</StyledCard>
 

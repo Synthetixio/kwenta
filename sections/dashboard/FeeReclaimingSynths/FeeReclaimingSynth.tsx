@@ -5,48 +5,49 @@ import { useTranslation } from 'react-i18next';
 import Countdown, { zeroPad } from 'react-countdown';
 import addTime from 'date-fns/add';
 import { Svg } from 'react-optimized-image';
-import BigNumber from 'bignumber.js';
-
-import synthetix from 'lib/synthetix';
 import { useRecoilValue } from 'recoil';
+
+import Wei, { wei } from '@synthetixio/wei';
 import { walletAddressState } from 'store/wallet';
 import media from 'styles/media';
 import TransactionNotifier from 'containers/TransactionNotifier';
+import Connector from 'containers/Connector';
 import Currency from 'components/Currency';
 import Button from 'components/Button';
 import CircleEllipsis from 'assets/svg/app/circle-ellipsis.svg';
 import { formatCurrency } from 'utils/formatters/number';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
-import { CurrencyKey, SYNTHS_MAP } from 'constants/currency';
+import { CurrencyKey, Synths } from 'constants/currency';
 import useGas from 'hooks/useGas';
 import useCurrencyPrice from 'hooks/useCurrencyPrice';
 
 const FeeReclaimingSynth: FC<{
 	currencyKey: CurrencyKey;
 	waitingPeriod: number;
-	fee: BigNumber;
+	fee: Wei;
 	noOfTrades: number;
 }> = ({ currencyKey, waitingPeriod, fee, noOfTrades }) => {
 	const { t } = useTranslation();
+	const { synthetixjs } = Connector.useContainer();
 
 	const hasWaitingPeriod = useMemo(() => waitingPeriod !== 0, [waitingPeriod]);
-	const hasFee = useMemo(() => !fee.isZero(), [fee]);
+	const hasFee = useMemo(() => fee.gt(0), [fee]);
 	const adjustmentEndDate = useMemo(() => addTime(new Date(), { seconds: waitingPeriod }), [
 		waitingPeriod,
 	]);
 
 	const [isSettling, setIsSettling] = useState<boolean>(false);
-	const [txError, setTxError] = useState<string | null>(null);
+	const [, setTxError] = useState<string | null>(null);
 	const { monitorTransaction } = TransactionNotifier.useContainer();
 	const address = useRecoilValue(walletAddressState);
 	const price = useCurrencyPrice(currencyKey);
 	const { gasPrice, gasPriceWei, getGasLimitEstimate } = useGas();
 
 	const onSettleFee = async () => {
-		if (synthetix.js != null && gasPrice != null) {
+		if (synthetixjs != null && gasPrice != null) {
 			setTxError(null);
 
-			const { Exchanger } = synthetix.js!.contracts;
+			const { Exchanger } = synthetixjs.contracts;
 			const method = 'settle';
 			const params = [address, ethers.utils.formatBytes32String(currencyKey)];
 
@@ -106,7 +107,7 @@ const FeeReclaimingSynth: FC<{
 							<Svg src={CircleEllipsis} />
 						</PendingIcon>
 					) : (
-						<Change {...{ currencyKey }} value={fee.multipliedBy(price)} />
+						<Change {...{ currencyKey }} value={wei(fee).mul(price)} />
 					)}
 				</ColTitle>
 				<ColSubtitle>{t('dashboard.fee-reclaiming-synths.row.col-debt-surplus')}</ColSubtitle>
@@ -148,11 +149,11 @@ const FeeReclaimingSynth: FC<{
 	);
 };
 
-const Change: FC<{ currencyKey: CurrencyKey; value: BigNumber }> = ({ currencyKey, value }) => {
+const Change: FC<{ currencyKey: CurrencyKey; value: Wei }> = ({ currencyKey, value }) => {
 	const { selectedPriceCurrency } = useSelectedPriceCurrency();
 	return (
-		<CurrencyChange isPositive={!value.isNegative()}>
-			{formatCurrency(SYNTHS_MAP.sUSD, value.toString(), {
+		<CurrencyChange isPositive={value.toNumber() >= 0}>
+			{formatCurrency(Synths.sUSD, value.toString(), {
 				sign: selectedPriceCurrency.sign,
 			})}
 		</CurrencyChange>

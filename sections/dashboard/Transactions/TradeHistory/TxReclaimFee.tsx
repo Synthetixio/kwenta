@@ -17,7 +17,7 @@ const TxReclaimFee: FC<{ trade: HistoricalTrade }> = ({ trade }) => {
 			placement="top"
 			content={<div>{t('dashboard.transactions.table.tx-reclaim-fee-hint')}</div>}
 		>
-			<TxReclaimFeeLabel isPositive={!fee.isNegative()}>
+			<TxReclaimFeeLabel isPositive={fee.toNumber() < 0}>
 				{formatCryptoCurrency(fee, { currencyKey: trade.toCurrencyKey })}
 			</TxReclaimFeeLabel>
 		</Tooltip>
