@@ -566,7 +566,8 @@ const useExchange = ({
 			base: null,
 			quote: null,
 		});
-	}, [network.id, setCurrencyPair]);
+		// eslint-disable-next-line	react-hooks/exhaustive-deps
+	}, [network.id]);
 
 	// An attempt to show correct gas fees while making as few calls as possible. (as soon as the submission is "valid", compute it once)
 	useEffect(() => {
