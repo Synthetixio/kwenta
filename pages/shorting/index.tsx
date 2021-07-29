@@ -1,4 +1,4 @@
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useEffect } from 'react';
 import Head from 'next/head';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,6 @@ import { DesktopOnlyView } from 'components/Media';
 import { isWalletConnectedState, isL2State } from 'store/wallet';
 import { useRouter } from 'next/router';
 import ROUTES from 'constants/routes';
-import { useEffect } from 'react';
 
 const Shorting: FC = () => {
 	const { t } = useTranslation();
