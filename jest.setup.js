@@ -20,7 +20,21 @@ jest.mock('react-optimized-image', () => {
 	return {
 		__esModule: true,
 		Img: () => React.Fragment,
-		Svg: () => React.Fragment,
+		Svg: (test) => React.createElement('span', null, JSON.stringify(test)),
 		default: () => React.Fragment,
 	};
 });
+
+jest.mock('bnc-onboard', () => {
+	return  {
+		__esModule: true,
+		default: () => jest.fn()
+	}
+})
+
+jest.mock('bnc-notify', () => {
+	return  {
+		__esModule: true,
+		default: () => jest.fn()
+	}
+})
