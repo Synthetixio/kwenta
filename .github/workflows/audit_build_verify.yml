@@ -60,9 +60,20 @@ jobs:
         continue-on-error: true
 
       - name: Install dependencies
-        run: npm ci --no-audit --unsafe-perm=true --allow-root
+        run: npm ci --no-audit --verbose
         env:
           NODE_OPTIONS: --max_old_space_size=7168
+
+      - name: Compress logs
+        if: always()
+        run: tar -zcvf logs.tar.gz /github/home/.npm/_logs
+
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@27121b0bdffd731efa15d66772be8dc71245d074 # pin@v2
+        with:
+          name: logs
+          path: logs.tar.gz
 
       - name: Lint
         # run only on master/dev branch and pull requests
