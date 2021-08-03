@@ -73,6 +73,7 @@ jobs:
       - name: Compress logs
         if: always()
         run: tar -zcvf logs.tar.gz /__w/kwenta/kwenta/.npm-cache/_logs
+        continue-on-error: true
 
       - name: Archive logs
         if: always()
@@ -80,6 +81,7 @@ jobs:
         with:
           name: logs
           path: logs.tar.gz
+        continue-on-error: true
 
       - name: Lint
         # run only on master/dev branch and pull requests
