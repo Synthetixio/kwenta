@@ -63,6 +63,7 @@ jobs:
         run: |
           node --version
           npm --version
+          npm cache clean --force --unsafe-perm
           npm ci --no-audit --verbose --cache=".npm-cache"
         env:
           NODE_OPTIONS: --max_old_space_size=7168
