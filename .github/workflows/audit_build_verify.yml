@@ -66,7 +66,7 @@ jobs:
 
       - name: Compress logs
         if: always()
-        run: tar -zcvf logs.tar.gz /github/home/.npm/_logs
+        run: tar -zcvf logs.tar.gz /__w/kwenta/kwenta/.npm-cache/_logs
 
       - name: Archive logs
         if: always()
