@@ -59,12 +59,14 @@ jobs:
             ${{ runner.os }}-node-
         continue-on-error: true
 
-      - name: Install dependencies
+      - name: Chown workspace
         run: |
-          node --version
-          npm --version
-          npm cache clean --force --unsafe-perm
-          npm ci --no-audit --verbose --cache=".npm-cache"
+          echo $(whoami)
+          echo $GITHUB_WORKSPACE
+          chown "$(whoami):$(whoami)" .
+
+      - name: Install dependencies
+        run: npm ci --no-audit --verbose --cache=".npm-cache"
         env:
           NODE_OPTIONS: --max_old_space_size=7168
 
