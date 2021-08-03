@@ -49,7 +49,6 @@ const CandlesticksChart: FC<CandlesticksChartProps> = ({
 					height={60}
 					hide={!chartData.length}
 					interval="preserveStart"
-					minTickGap={20}
 					tick={<CustomizedXAxisTick selectedChartPeriodLabel={selectedChartPeriodLabel} />}
 					tickLine={false}
 				/>

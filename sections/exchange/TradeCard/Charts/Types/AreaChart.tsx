@@ -78,7 +78,6 @@ const AreaChart: FC<{
 					height={60}
 					hide={!data.length}
 					interval="preserveStart"
-					minTickGap={20}
 					tick={<CustomizedXAxisTick selectedChartPeriodLabel={selectedChartPeriodLabel} />}
 					tickLine={false}
 				/>
