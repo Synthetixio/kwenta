@@ -13,7 +13,6 @@
 		"lint:fix": "eslint . --ext ts,.tsx --fix",
 		"test:e2e": "start-server-and-test 'npm run build && npm run start' http-get://localhost:3000 'synpress run'",
 		"test:e2e:ci": "synpress run --group smoke-tests --record --parallel",
-		"postinstall": "husky install",
 		"prepublishOnly": "pinst --disable",
 		"postpublish": "pinst --enable"
 	},
@@ -89,7 +88,6 @@
 		"eslint-plugin-prettier": "3.1.4",
 		"eslint-plugin-react": "7.21.5",
 		"eslint-plugin-react-hooks": "4.2.0",
-		"husky": "5.0.9",
 		"imagemin-mozjpeg": "9.0.0",
 		"imagemin-optipng": "8.0.0",
 		"imagemin-svgo": "8.0.0",
@@ -103,11 +101,6 @@
 	},
 	"resolutions": {
 		"webpack": "^5.0.0-beta.30"
-	},
-	"husky": {
-		"hooks": {
-			"pre-commit": "npm run lint"
-		}
 	},
 	"engines": {
 		"node": ">=14",
