@@ -2,22 +2,23 @@ import { FC, useState, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { CATEGORY_MAP } from 'constants/currency';
+import useSynthetixQueries, { HistoricalTrade } from '@synthetixio/queries';
+import { Synth } from '@synthetixio/contracts-interface';
+import { useRecoilValue } from 'recoil';
 
 import Select from 'components/Select';
-
+import { walletAddressState } from 'store/wallet';
 import { CapitalizedText, GridDiv } from 'styles/common';
+import Connector from 'containers/Connector';
 
 import TradeHistory from './TradeHistory';
-import { useWalletTradesQuery } from 'queries/trades/useWalletTradesQuery';
-import { HistoricalTrade } from 'queries/trades/types';
-import { Synth } from '@synthetixio/contracts-interface';
-import Connector from 'containers/Connector';
 
 const Transactions: FC = () => {
 	const { t } = useTranslation();
-	const walletTradesQuery = useWalletTradesQuery();
-
 	const { synthetixjs } = Connector.useContainer();
+	const walletAddress = useRecoilValue(walletAddressState);
+	const { useWalletTradesQuery } = useSynthetixQueries();
+	const walletTradesQuery = useWalletTradesQuery(walletAddress ?? '');
 
 	const synthFilterList = useMemo(
 		() => [
@@ -89,7 +90,15 @@ const Transactions: FC = () => {
 		[orderSizeList]
 	);
 
-	const trades = useMemo(() => walletTradesQuery.data || [], [walletTradesQuery.data]);
+	const trades = useMemo(() => {
+		const t = walletTradesQuery.data || [];
+
+		//TODO: move to parsing library
+		return t.map((trade) => ({
+			...trade,
+			hash: trade.id.split('-')[0],
+		}));
+	}, [walletTradesQuery.data]);
 	const filteredHistoricalTrades = useMemo(
 		() =>
 			trades

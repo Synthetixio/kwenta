@@ -14,7 +14,7 @@ import { formatPercent } from 'utils/formatters/number';
 import media from 'styles/media';
 import { GridDivCentered } from 'styles/common';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
-import Wei from '@synthetixio/wei';
+import Wei, { wei } from '@synthetixio/wei';
 import Connector from 'containers/Connector';
 
 export type SynthBalanceRowProps = {
@@ -53,19 +53,19 @@ const SynthBalanceRow: FC<SynthBalanceRowProps> = ({ exchangeRates, synth, total
 				<AmountCol>
 					<Currency.Amount
 						currencyKey={currencyKey}
-						amount={synth.balance}
-						totalValue={totalValue}
+						amount={wei(synth.balance)}
+						totalValue={wei(totalValue)}
 						sign={selectedPriceCurrency.sign}
-						conversionRate={selectPriceCurrencyRate}
+						conversionRate={wei(selectPriceCurrencyRate)}
 					/>
 				</AmountCol>
 				<ExchangeRateCol>
 					{price != null && (
 						<Currency.Price
 							currencyKey={currencyKey}
-							price={price}
+							price={wei(price)}
 							sign={selectedPriceCurrency.sign}
-							conversionRate={selectPriceCurrencyRate}
+							conversionRate={wei(selectPriceCurrencyRate)}
 							change={historicalRates.data?.change}
 						/>
 					)}

@@ -91,19 +91,6 @@ export const QUERY_KEYS = {
 			walletAddress,
 			networkId,
 		],
-		SettlementOwing: (walletAddress: string, currencyKey: CurrencyKey) => [
-			'trades',
-			'settlementOwing',
-			walletAddress,
-			currencyKey,
-		],
-		TxReclaimFee: (walletAddress: string, networkId: NetworkId, timestamp: number) => [
-			'trades',
-			'txReclaimFee',
-			walletAddress,
-			networkId,
-			timestamp,
-		],
 	},
 	SystemStatus: {
 		IsUpgrading: ['systemStatus', 'isUpgrading'],

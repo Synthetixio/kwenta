@@ -4,22 +4,29 @@ import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
 import Tippy from '@tippyjs/react';
 import { differenceInMinutes } from 'date-fns';
+import useSynthetixQueries, { HistoricalTrade } from '@synthetixio/queries';
+import { useRecoilValue } from 'recoil';
 
-import { HistoricalTrade } from 'queries/trades/types';
+import { walletAddressState } from 'store/wallet';
 
 import CircleEllipsis from 'assets/svg/app/circle-ellipsis.svg';
 import CircleTick from 'assets/svg/app/circle-tick.svg';
 
-import useFeeReclaimPeriod from 'hooks/synths/useFeeReclaimPeriod';
-
 const SynthFeeReclaimStatus: FC<{ trade: HistoricalTrade }> = ({ trade }) => {
 	const { t } = useTranslation();
-	const secs = useFeeReclaimPeriod(trade.toCurrencyKey);
+	const walletAddress = useRecoilValue(walletAddressState);
+
+	const { useFeeReclaimPeriodQuery } = useSynthetixQueries();
+	const feeReclaimPeriodQuery = useFeeReclaimPeriodQuery(trade.toCurrencyKey, walletAddress);
+	const feeReclaimPeriodInSeconds = feeReclaimPeriodQuery.isSuccess
+		? feeReclaimPeriodQuery.data ?? 0
+		: 0;
+
 	const isFreshTrade = useMemo(
 		() => differenceInMinutes(new Date(), new Date(trade.timestamp)) < 30,
 		[trade.timestamp]
 	); // todo: determine this by comparing toCurrencyKey trade index against numEntries returned by Exchanger.settlementOwing
-	const isConfirmed = secs === 0 || !isFreshTrade;
+	const isConfirmed = feeReclaimPeriodInSeconds === 0 || !isFreshTrade;
 
 	return (
 		<Tooltip

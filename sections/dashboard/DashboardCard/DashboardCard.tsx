@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/router';
 import castArray from 'lodash/castArray';
+import { wei } from '@synthetixio/wei';
 
 import ROUTES from 'constants/routes';
 
@@ -20,7 +21,6 @@ import { CardTitle, ConvertContainer } from '../common';
 import FeeReclaimingSynths from '../FeeReclaimingSynths';
 
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
-import { zeroBN } from 'utils/formatters/number';
 import { isL2State } from 'store/wallet';
 import useSynthetixQueries from '@synthetixio/queries';
 import { walletAddressState } from 'store/wallet';
@@ -110,8 +110,8 @@ const DashboardCard: FC = () => {
 				<PortfolioCard>
 					<StyledCurrencyPrice
 						currencyKey={selectedPriceCurrency.name as CurrencyKey}
-						price={synthBalances?.totalUSDBalance ?? 0}
-						conversionRate={selectPriceCurrencyRate}
+						price={wei(synthBalances?.totalUSDBalance ?? 0)}
+						conversionRate={wei(selectPriceCurrencyRate ?? 0)}
 						sign={selectedPriceCurrency.sign}
 					/>
 					<Title>{t('common.totals.total-synth-value')}</Title>
@@ -128,7 +128,7 @@ const DashboardCard: FC = () => {
 			<TabPanel name={Tab.SynthBalances} activeTab={activeTab}>
 				<SynthBalances
 					balances={synthBalances?.balances ?? []}
-					totalUSDBalance={synthBalances?.totalUSDBalance ?? zeroBN}
+					totalUSDBalance={wei(synthBalances?.totalUSDBalance ?? 0)}
 					exchangeRates={exchangeRates}
 				/>
 			</TabPanel>

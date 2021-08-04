@@ -1,9 +1,10 @@
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
+import useSynthetixQueries from '@synthetixio/queries';
 
+import { walletAddressState } from 'store/wallet';
 import { ordersByStatusState } from 'store/orders';
-import useFeeReclaimPeriods from 'hooks/synths/useFeeReclaimPeriods';
 
 import FullScreen from './FullScreen';
 import Popup from './Popup';
@@ -16,11 +17,17 @@ export const NotificationsModal: FC<NotificationsModalProps> = ({ onDismiss }) =
 	const { t } = useTranslation();
 	const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
 	const ordersByStatus = useRecoilValue(ordersByStatusState);
+	const walletAddress = useRecoilValue(walletAddressState);
 
-	const feeWaitingPeriods = useFeeReclaimPeriods();
-	const hasWaitingPeriod = useMemo(() => !!feeWaitingPeriods.find((fw) => fw.waitingPeriod !== 0), [
-		feeWaitingPeriods,
+	const { useFeeReclaimPeriodsQuery } = useSynthetixQueries();
+	const feeAndWaitingPeriodsQuery = useFeeReclaimPeriodsQuery(walletAddress ?? '');
+	const feeAndWaitingPeriods = useMemo(() => feeAndWaitingPeriodsQuery.data ?? [], [
+		feeAndWaitingPeriodsQuery.data,
 	]);
+	const hasWaitingPeriod = useMemo(
+		() => !!feeAndWaitingPeriods.find((fw) => fw.waitingPeriod !== 0),
+		[feeAndWaitingPeriods]
+	);
 
 	const orderGroups = useMemo(
 		() => [

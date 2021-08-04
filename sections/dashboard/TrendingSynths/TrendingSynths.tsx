@@ -59,7 +59,7 @@ const TrendingSynths: FC = () => {
 		const historicalRateQuery = queryCache.find([
 			'rates',
 			'historicalRates',
-			network.id,
+			network!.id,
 			synth.name,
 			Period.ONE_DAY,
 		]);
