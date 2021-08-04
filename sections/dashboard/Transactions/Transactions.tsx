@@ -2,8 +2,9 @@ import { FC, useState, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { CATEGORY_MAP } from 'constants/currency';
-import useSynthetixQueries, { HistoricalTrade } from '@synthetixio/queries';
+import useSynthetixQueries from '@synthetixio/queries';
 import { Synth } from '@synthetixio/contracts-interface';
+import { SynthExchangeExpanded } from '@synthetixio/data/build/node/src/types';
 import { useRecoilValue } from 'recoil';
 
 import Select from 'components/Select';
@@ -58,7 +59,7 @@ const Transactions: FC = () => {
 	const synths = useMemo(() => synthetixjs!.synths || [], [synthetixjs]);
 
 	const createSynthTypeFilter = useCallback(
-		(synths: Synth[], synthFilter: string) => (trade: HistoricalTrade) =>
+		(synths: Synth[], synthFilter: string) => (trade: SynthExchangeExpanded) =>
 			synths
 				.filter((synth) => synth.category === synthFilter || synthFilter === 'ALL_SYNTHS')
 				.map((synth) => synth.name)
@@ -68,12 +69,12 @@ const Transactions: FC = () => {
 
 	// This will always return true until we add limit orders back in.
 	const createOrderTypeFilter = useCallback(
-		(orderType: string) => (trade: HistoricalTrade) => true,
+		(orderType: string) => (trade: SynthExchangeExpanded) => true,
 		[]
 	);
 
 	const createOrderSizeFilter = useCallback(
-		(orderSize: string) => (trade: HistoricalTrade) => {
+		(orderSize: string) => (trade: SynthExchangeExpanded) => {
 			switch (orderSize) {
 				case orderSizeList[1].key:
 					return trade.fromAmount <= 1000;

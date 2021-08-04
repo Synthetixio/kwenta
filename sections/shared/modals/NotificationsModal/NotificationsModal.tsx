@@ -20,14 +20,13 @@ export const NotificationsModal: FC<NotificationsModalProps> = ({ onDismiss }) =
 	const walletAddress = useRecoilValue(walletAddressState);
 
 	const { useFeeReclaimPeriodsQuery } = useSynthetixQueries();
-	const feeAndWaitingPeriodsQuery = useFeeReclaimPeriodsQuery(walletAddress ?? '');
-	const feeAndWaitingPeriods = useMemo(() => feeAndWaitingPeriodsQuery.data ?? [], [
-		feeAndWaitingPeriodsQuery.data,
+	const feeWaitingPeriodsQuery = useFeeReclaimPeriodsQuery(walletAddress ?? '');
+	const feeWaitingPeriods = useMemo(() => feeWaitingPeriodsQuery.data ?? [], [
+		feeWaitingPeriodsQuery.data,
 	]);
-	const hasWaitingPeriod = useMemo(
-		() => !!feeAndWaitingPeriods.find((fw) => fw.waitingPeriod !== 0),
-		[feeAndWaitingPeriods]
-	);
+	const hasWaitingPeriod = useMemo(() => !!feeWaitingPeriods.find((fw) => fw.waitingPeriod !== 0), [
+		feeWaitingPeriods,
+	]);
 
 	const orderGroups = useMemo(
 		() => [

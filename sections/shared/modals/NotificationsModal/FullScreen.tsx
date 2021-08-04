@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
+import { SynthFeeAndWaitingPeriod } from '@synthetixio/queries';
 
 import Card from 'components/Card';
 
@@ -9,7 +10,6 @@ import FullScreenModal from 'components/FullScreenModal';
 import { OrderGroup } from './types';
 import CurrencyFeeReclaim from './CurrencyFeeReclaim';
 import CurrencyExchange from './CurrencyExchange';
-import { SynthFeeAndWaitingPeriod } from 'queries/trades/types';
 
 type FullScreenProps = {
 	onDismiss?: () => void;

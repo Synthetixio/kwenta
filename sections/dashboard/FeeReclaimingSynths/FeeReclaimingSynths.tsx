@@ -16,7 +16,9 @@ const FeeReclaimingSynths: FC = () => {
 	const walletAddress = useRecoilValue(walletAddressState);
 	const { useFeeReclaimPeriodsQuery } = useSynthetixQueries();
 	const feeAndWaitingPeriodsQuery = useFeeReclaimPeriodsQuery(walletAddress ?? '');
-	const feeAndWaitingPeriods = feeAndWaitingPeriodsQuery.data ?? [];
+	const feeAndWaitingPeriods = useMemo(() => feeAndWaitingPeriodsQuery.data ?? [], [
+		feeAndWaitingPeriodsQuery.data,
+	]);
 	const show = useMemo(
 		() => !!feeAndWaitingPeriods.find((fw) => fw.fee.gt(0) || fw.waitingPeriod !== 0),
 		[feeAndWaitingPeriods]

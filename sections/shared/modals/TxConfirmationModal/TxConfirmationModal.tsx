@@ -91,10 +91,10 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 		[priceAdjustmentQuery.data]
 	);
 
-	const priceAdjustmentFeeUSD = useMemo(() => priceAdjustment.fee.mul(priceUSD), [
-		priceAdjustment,
-		priceUSD,
-	]);
+	const priceAdjustmentFeeUSD = useMemo(
+		() => priceAdjustment.rebate.sub(priceAdjustment.reclaim).mul(priceUSD),
+		[priceAdjustment, priceUSD]
+	);
 
 	return (
 		<StyledBaseModal

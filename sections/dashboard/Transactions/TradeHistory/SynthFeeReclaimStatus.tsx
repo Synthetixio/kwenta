@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import { Svg } from 'react-optimized-image';
 import Tippy from '@tippyjs/react';
 import { differenceInMinutes } from 'date-fns';
-import useSynthetixQueries, { HistoricalTrade } from '@synthetixio/queries';
+import useSynthetixQueries from '@synthetixio/queries';
+import { SynthExchangeExpanded } from '@synthetixio/data/build/node/src/types';
 import { useRecoilValue } from 'recoil';
 
 import { walletAddressState } from 'store/wallet';
@@ -12,7 +13,7 @@ import { walletAddressState } from 'store/wallet';
 import CircleEllipsis from 'assets/svg/app/circle-ellipsis.svg';
 import CircleTick from 'assets/svg/app/circle-tick.svg';
 
-const SynthFeeReclaimStatus: FC<{ trade: HistoricalTrade }> = ({ trade }) => {
+const SynthFeeReclaimStatus: FC<{ trade: SynthExchangeExpanded }> = ({ trade }) => {
 	const { t } = useTranslation();
 	const walletAddress = useRecoilValue(walletAddressState);
 

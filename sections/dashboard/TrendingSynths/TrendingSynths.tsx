@@ -127,7 +127,7 @@ const TrendingSynths: FC = () => {
 			<Rows>
 				{sortedSynths.map((synth: Synth) => {
 					const price = exchangeRates && exchangeRates[synth.name];
-					return <SynthRow key={synth.name} synth={synth} price={price} />;
+					return <SynthRow key={synth.name} synth={synth} price={price?.toNumber() ?? 0} />;
 				})}
 			</Rows>
 		</>

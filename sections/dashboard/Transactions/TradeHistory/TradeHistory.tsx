@@ -4,8 +4,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { CellProps } from 'react-table';
 import { Svg } from 'react-optimized-image';
 import { wei } from '@synthetixio/wei';
-
-import { HistoricalTrade, HistoricalTrades } from '@synthetixio/queries';
+import { SynthExchangeExpanded } from '@synthetixio/data/build/node/src/types';
 
 import { formatCurrency } from 'utils/formatters/number';
 
@@ -26,7 +25,7 @@ import SynthFeeReclaimStatus from './SynthFeeReclaimStatus';
 import TxReclaimFee from './TxReclaimFee';
 
 type TradeHistoryProps = {
-	trades: HistoricalTrades;
+	trades: SynthExchangeExpanded[];
 	isLoading: boolean;
 	isLoaded: boolean;
 };
@@ -47,7 +46,7 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 						<StyledTableHeader>{t('dashboard.transactions.table.orderType')}</StyledTableHeader>
 					),
 					accessor: 'orderType',
-					Cell: (cellProps: CellProps<HistoricalTrade>) => (
+					Cell: (cellProps: CellProps<SynthExchangeExpanded>) => (
 						<StyledOrderType>
 							{t('dashboard.transactions.order-type-sort.market')}
 							<SynthFeeReclaimStatus trade={cellProps.row.original} />
@@ -60,7 +59,7 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 					Header: <StyledTableHeader>{t('dashboard.transactions.table.from')}</StyledTableHeader>,
 					accessor: 'fromAmount',
 					sortType: 'basic',
-					Cell: (cellProps: CellProps<HistoricalTrade>) => (
+					Cell: (cellProps: CellProps<SynthExchangeExpanded>) => (
 						<span>
 							<StyledCurrencyKey>{cellProps.row.original.fromCurrencyKey}</StyledCurrencyKey>
 							<StyledPrice>
@@ -78,7 +77,7 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 					Header: <StyledTableHeader>{t('dashboard.transactions.table.to')}</StyledTableHeader>,
 					accessor: 'toAmount',
 					sortType: 'basic',
-					Cell: (cellProps: CellProps<HistoricalTrade>) => (
+					Cell: (cellProps: CellProps<SynthExchangeExpanded>) => (
 						<span>
 							<StyledCurrencyKey>{cellProps.row.original.toCurrencyKey}</StyledCurrencyKey>
 							<StyledPrice>
@@ -104,7 +103,7 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 					),
 					accessor: 'amount',
 					sortType: 'basic',
-					Cell: (cellProps: CellProps<HistoricalTrade>) => (
+					Cell: (cellProps: CellProps<SynthExchangeExpanded>) => (
 						<Currency.Price
 							currencyKey={cellProps.row.original.toCurrencyKey}
 							price={cellProps.row.original.toAmountInUSD}
@@ -121,7 +120,7 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 					),
 					accessor: 'timestamp',
 					sortType: 'basic',
-					Cell: (cellProps: CellProps<HistoricalTrade>) => (
+					Cell: (cellProps: CellProps<SynthExchangeExpanded>) => (
 						<TxReclaimFee trade={cellProps.row.original} />
 					),
 					width: 175,
@@ -129,7 +128,7 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 				},
 				{
 					id: 'link',
-					Cell: (cellProps: CellProps<HistoricalTrade>) =>
+					Cell: (cellProps: CellProps<SynthExchangeExpanded>) =>
 						etherscanInstance != null && cellProps.row.original.hash ? (
 							<StyledExternalLink href={etherscanInstance.txLink(cellProps.row.original.hash)}>
 								<StyledLinkIcon

@@ -2,14 +2,15 @@ import React, { FC } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import Tippy from '@tippyjs/react';
-import useSynthetixQueries, { HistoricalTrade } from '@synthetixio/queries';
+import useSynthetixQueries from '@synthetixio/queries';
+import { SynthExchangeExpanded } from '@synthetixio/data/build/node/src/types';
 import { wei } from '@synthetixio/wei';
 import { useRecoilValue } from 'recoil';
 
 import { walletAddressState } from 'store/wallet';
 import { formatCryptoCurrency } from 'utils/formatters/number';
 
-const TxReclaimFee: FC<{ trade: HistoricalTrade }> = ({ trade }) => {
+const TxReclaimFee: FC<{ trade: SynthExchangeExpanded }> = ({ trade }) => {
 	const { t } = useTranslation();
 	const walletAddress = useRecoilValue(walletAddressState);
 	const { useTxReclaimFeeQuery } = useSynthetixQueries();

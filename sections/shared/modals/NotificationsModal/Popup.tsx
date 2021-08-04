@@ -1,9 +1,9 @@
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
+import { SynthFeeAndWaitingPeriod } from '@synthetixio/queries';
 
 import { TextButton } from 'styles/common';
-import { SynthFeeAndWaitingPeriod } from 'queries/trades/types';
 
 import { MenuModal } from '../common';
 
