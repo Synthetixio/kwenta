@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Trans, useTranslation } from 'react-i18next';
 import { CellProps } from 'react-table';
 import { Svg } from 'react-optimized-image';
-import { wei } from '@synthetixio/wei';
 import { SynthExchangeExpanded } from '@synthetixio/data/build/node/src/types';
 
 import { formatCurrency } from 'utils/formatters/number';
@@ -108,7 +107,7 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 							currencyKey={cellProps.row.original.toCurrencyKey}
 							price={cellProps.row.original.toAmountInUSD}
 							sign={selectedPriceCurrency.sign}
-							conversionRate={wei(selectPriceCurrencyRate)}
+							conversionRate={selectPriceCurrencyRate}
 						/>
 					),
 					width: 175,

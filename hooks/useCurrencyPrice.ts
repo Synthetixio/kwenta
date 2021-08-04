@@ -15,7 +15,7 @@ const useCurrencyPrice = (currencyKey: CurrencyKey) => {
 	const currencyUSDPrice = exchangeRates && exchangeRates[currencyKey];
 	return !(currencyUSDPrice && selectPriceCurrencyRate)
 		? zeroBN
-		: wei(currencyUSDPrice).div(wei(selectPriceCurrencyRate));
+		: wei(currencyUSDPrice).div(selectPriceCurrencyRate);
 };
 
 export default useCurrencyPrice;

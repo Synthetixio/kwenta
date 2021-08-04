@@ -6,8 +6,8 @@ import Countdown, { zeroPad } from 'react-countdown';
 import addTime from 'date-fns/add';
 import { Svg } from 'react-optimized-image';
 import { useRecoilValue } from 'recoil';
+import Wei from '@synthetixio/wei';
 
-import Wei, { wei } from '@synthetixio/wei';
 import { walletAddressState } from 'store/wallet';
 import media from 'styles/media';
 import TransactionNotifier from 'containers/TransactionNotifier';
@@ -107,7 +107,7 @@ const FeeReclaimingSynth: FC<{
 							<Svg src={CircleEllipsis} />
 						</PendingIcon>
 					) : (
-						<Change {...{ currencyKey }} value={wei(fee).mul(price)} />
+						<Change {...{ currencyKey }} value={fee.mul(price)} />
 					)}
 				</ColTitle>
 				<ColSubtitle>{t('dashboard.fee-reclaiming-synths.row.col-debt-surplus')}</ColSubtitle>

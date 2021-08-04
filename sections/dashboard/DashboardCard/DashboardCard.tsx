@@ -110,8 +110,8 @@ const DashboardCard: FC = () => {
 				<PortfolioCard>
 					<StyledCurrencyPrice
 						currencyKey={selectedPriceCurrency.name as CurrencyKey}
-						price={wei(synthBalances?.totalUSDBalance ?? 0)}
-						conversionRate={wei(selectPriceCurrencyRate ?? 0)}
+						price={synthBalances?.totalUSDBalance ?? 0}
+						conversionRate={selectPriceCurrencyRate ?? 0}
 						sign={selectedPriceCurrency.sign}
 					/>
 					<Title>{t('common.totals.total-synth-value')}</Title>

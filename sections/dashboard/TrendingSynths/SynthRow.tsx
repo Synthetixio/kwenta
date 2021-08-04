@@ -2,7 +2,6 @@ import { FC } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/router';
-import { wei } from '@synthetixio/wei';
 
 import Currency from 'components/Currency';
 
@@ -57,7 +56,7 @@ const SynthRow: FC<SynthRowProps> = ({ price, synth }) => {
 					currencyKey={selectedPriceCurrency.name as CurrencyKey}
 					price={price}
 					sign={selectedPriceCurrency.sign}
-					conversionRate={wei(selectPriceCurrencyRate)}
+					conversionRate={selectPriceCurrencyRate}
 					change={historicalRates.data?.change}
 				/>
 			) : (

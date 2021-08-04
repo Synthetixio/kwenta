@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import Wei from '@synthetixio/wei';
 
 import Currency from 'components/Currency';
 import ProgressBar from 'components/ProgressBar';
@@ -14,7 +15,6 @@ import { formatPercent } from 'utils/formatters/number';
 import media from 'styles/media';
 import { GridDivCentered } from 'styles/common';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
-import Wei, { wei } from '@synthetixio/wei';
 import Connector from 'containers/Connector';
 
 export type SynthBalanceRowProps = {
@@ -53,10 +53,10 @@ const SynthBalanceRow: FC<SynthBalanceRowProps> = ({ exchangeRates, synth, total
 				<AmountCol>
 					<Currency.Amount
 						currencyKey={currencyKey}
-						amount={wei(synth.balance)}
-						totalValue={wei(totalValue)}
+						amount={synth.balance}
+						totalValue={totalValue}
 						sign={selectedPriceCurrency.sign}
-						conversionRate={wei(selectPriceCurrencyRate)}
+						conversionRate={selectPriceCurrencyRate}
 						formatAmountOptions={{ minDecimals: 4 }}
 						formatTotalValueOptions={{ minDecimals: 2 }}
 					/>
@@ -65,9 +65,9 @@ const SynthBalanceRow: FC<SynthBalanceRowProps> = ({ exchangeRates, synth, total
 					{price != null && (
 						<Currency.Price
 							currencyKey={currencyKey}
-							price={wei(price)}
+							price={price}
 							sign={selectedPriceCurrency.sign}
-							conversionRate={wei(selectPriceCurrencyRate)}
+							conversionRate={selectPriceCurrencyRate}
 							change={historicalRates.data?.change}
 						/>
 					)}

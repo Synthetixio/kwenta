@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import useSynthetixQueries from '@synthetixio/queries';
 import { CurrencyKey } from '@synthetixio/contracts-interface';
-import { wei } from '@synthetixio/wei';
 import { useRecoilValue } from 'recoil';
 
 import { walletAddressState } from 'store/wallet';
@@ -32,7 +31,7 @@ const FeeReclaimingSynths: FC = () => {
 					<FeeReclaimingSynth
 						key={currencyKey}
 						currencyKey={currencyKey as CurrencyKey}
-						fee={wei(fee)}
+						fee={fee}
 						{...{ waitingPeriod, noOfTrades }}
 					/>
 				))}
