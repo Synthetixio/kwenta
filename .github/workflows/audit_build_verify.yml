@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: ghcr.io/synthetixio/docker-sec-tools/base:14.17
+      image: ghcr.io/synthetixio/docker-sec-tools/alpine:14.17
       credentials:
         username: synthetixio
         password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
@@ -59,29 +59,12 @@ jobs:
             ${{ runner.os }}-node-
         continue-on-error: true
 
+      # fixes permission issues on docker+npm@7
       - name: Chown workspace
-        run: |
-          echo $(whoami)
-          echo $GITHUB_WORKSPACE
-          chown "$(whoami):$(whoami)" .
+        run: chown -R $(whoami) .
 
       - name: Install dependencies
-        run: npm ci --no-audit --verbose --cache=".npm-cache"
-        env:
-          NODE_OPTIONS: --max_old_space_size=7168
-
-      - name: Compress logs
-        if: always()
-        run: tar -zcvf logs.tar.gz /__w/kwenta/kwenta/.npm-cache/_logs
-        continue-on-error: true
-
-      - name: Archive logs
-        if: always()
-        uses: actions/upload-artifact@27121b0bdffd731efa15d66772be8dc71245d074 # pin@v2
-        with:
-          name: logs
-          path: logs.tar.gz
-        continue-on-error: true
+        run: npm ci --prefer-offline --no-audit --no-optional --max_old_space_size=7168
 
       - name: Lint
         # run only on master/dev branch and pull requests
@@ -131,7 +114,7 @@ jobs:
         containers: [1, 2]
 
     container:
-      image: ghcr.io/synthetixio/docker-e2e/base:14.17
+      image: ghcr.io/synthetixio/docker-e2e/ubuntu:14.17
       credentials:
         username: synthetixio
         password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
@@ -156,10 +139,13 @@ jobs:
             ${{ runner.os }}-e2e-
         continue-on-error: true
 
+      # fixes permission issues on docker+npm@7
+      - name: Chown workspace
+        run: chown -R $(whoami) .
+
       - name: Install dependencies
-        run: npm ci --no-audit --ignore-scripts --no-optional
+        run: npm ci --prefer-offline --no-audit --no-optional --max_old_space_size=7168
         env:
-          NODE_OPTIONS: --max_old_space_size=7168
           CYPRESS_CACHE_FOLDER: ${{ github.workspace }}/node_modules/.cache/Cypress
 
       - name: Set deployment url
