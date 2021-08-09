@@ -64,7 +64,9 @@ jobs:
         run: chown -R $(whoami) .
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-optional --max_old_space_size=7168
+        run: npm ci --prefer-offline --no-audit --no-optional
+        env:
+          NODE_OPTIONS: --max_old_space_size=7168
 
       - name: Lint
         # run only on master/dev branch and pull requests
@@ -144,8 +146,9 @@ jobs:
         run: chown -R $(whoami) .
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-optional --max_old_space_size=7168
+        run: npm ci --prefer-offline --no-audit --no-optional
         env:
+          NODE_OPTIONS: --max_old_space_size=7168
           CYPRESS_CACHE_FOLDER: ${{ github.workspace }}/node_modules/.cache/Cypress
 
       - name: Set deployment url
