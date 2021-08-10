@@ -38,7 +38,7 @@ jobs:
       credentials:
         username: synthetixio
         password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
-      options: --shm-size=7gb
+      options: --shm-size=7gb -e npm_config_cache=$GITHUB_WORKSPACE/.npm-cache
 
     steps:
       - name: Checkout
@@ -120,7 +120,7 @@ jobs:
       credentials:
         username: synthetixio
         password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
-      options: --shm-size=7gb
+      options: --shm-size=7gb -e npm_config_cache=$GITHUB_WORKSPACE/.npm-cache
 
     steps:
       - name: Checkout
