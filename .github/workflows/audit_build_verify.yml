@@ -8,7 +8,8 @@ on:
 jobs:
   audit:
     # run only on master/dev branch and pull requests
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.event_name == 'pull_request'
+    # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.event_name == 'pull_request'
+    if: always()
     runs-on: ubuntu-latest
 
     container:
@@ -30,11 +31,12 @@ jobs:
   build:
     needs: audit
     # run only on audit success or audit skipped
-    if: always() && (needs.audit.result == 'success' || needs.audit.result == 'skipped')
+    # if: always() && (needs.audit.result == 'success' || needs.audit.result == 'skipped')
+    if: always()
     runs-on: ubuntu-latest
 
     container:
-      image: ghcr.io/synthetixio/docker-node/debian-stable:14.17
+      image: ghcr.io/synthetixio/docker-node/alpine:14.17
       credentials:
         username: synthetixio
         password: ${{ secrets.GH_PACKAGES_READ_ONLY }}
@@ -45,7 +47,7 @@ jobs:
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # pin@v2
 
       - name: Set npm cache directory
-        run: npm config set cache $GITHUB_WORKSPACE/.npm-cache --global 
+        run: npm config set cache ${{ github.workspace }}/.npm-cache --global 
         continue-on-error: true
 
       - name: Get npm cache directory
@@ -56,10 +58,12 @@ jobs:
       - uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
         id: npm-cache
         with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: |
+            ${{ steps.npm-cache-dir.outputs.dir }}
+            ${{ github.workspace }}/node_modules
+          key: ${{ runner.os }}-alpine-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-alpine-node-
         continue-on-error: true
 
       # fixes permission issues on docker+npm@7
@@ -67,18 +71,20 @@ jobs:
         run: chown -R $(whoami) .
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-optional
+        run: npm install --prefer-offline --no-audit --no-optional
         env:
           NODE_OPTIONS: --max_old_space_size=7168
 
       - name: Lint
         # run only on master/dev branch and pull requests
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.event_name == 'pull_request'
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.event_name == 'pull_request'
+        if: always()
         run: npm run lint:sarif
 
       - name: Upload lint results
         # run if lint failed and only on master/dev branch and pull requests
-        if: always() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.event_name == 'pull_request')
+        # if: always() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.event_name == 'pull_request')
+        if: always()
         uses: github/codeql-action/upload-sarif@21830ef0c1f0f06f2d82ba3f1f07cb3ffe543ed7 # pin@codeql-bundle-20210517
         with:
           sarif_file: lint-results.sarif
@@ -88,9 +94,9 @@ jobs:
         uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
         with:
           path: .next/cache
-          key: ${{ runner.os }}-next-cache-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-alpine-next-cache-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-next-cache-
+            ${{ runner.os }}-alpine-next-cache-
         continue-on-error: true
 
       - name: Build
@@ -100,7 +106,8 @@ jobs:
         run: tar -zcvf build.tar.gz .next
 
       - name: Archive build
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.event_name == 'pull_request'
+        # if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' || github.event_name == 'pull_request'
+        if: always()
         uses: actions/upload-artifact@27121b0bdffd731efa15d66772be8dc71245d074 # pin@v2
         with:
           name: build
@@ -131,7 +138,7 @@ jobs:
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # pin@v2
 
       - name: Set npm cache directory
-        run: npm config set cache $GITHUB_WORKSPACE/.npm-cache --global 
+        run: npm config set cache ${{ github.workspace }}/.npm-cache --global 
         continue-on-error: true
 
       - name: Get npm cache directory
@@ -142,10 +149,12 @@ jobs:
       - uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # pin@v2
         id: npm-cache
         with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-e2e-${{ hashFiles('**/package-lock.json') }}
+          path: |
+            ${{ steps.npm-cache-dir.outputs.dir }}
+            ${{ github.workspace }}/node_modules
+          key: ${{ runner.os }}-ubuntu-e2e-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-e2e-
+            ${{ runner.os }}-ubuntu-e2e-
         continue-on-error: true
 
       # fixes permission issues on docker+npm@7
@@ -153,7 +162,7 @@ jobs:
         run: chown -R $(whoami) .
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-optional
+        run: npm install --prefer-offline --no-audit --no-optional
         env:
           NODE_OPTIONS: --max_old_space_size=7168
           CYPRESS_CACHE_FOLDER: ${{ github.workspace }}/node_modules/.cache/Cypress
@@ -169,6 +178,7 @@ jobs:
             export BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed -e 's/\//-/g')
             echo "BASE_URL=https://${{ secrets.VERCEL_PREFIX }}-$BRANCH_NAME-${{ secrets.VERCEL_DOMAIN }}" >> $GITHUB_ENV
           fi
+
       - name: Download build
         uses: actions/download-artifact@3be87be14a055c47b01d3bd88f8fe02320a9bb60 # pin@v2
         with:
