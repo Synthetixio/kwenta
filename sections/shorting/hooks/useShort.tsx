@@ -134,7 +134,7 @@ const useShort = ({
 		() => getExchangeRatesForCurrencies(exchangeRates, quoteCurrencyKey, baseCurrencyKey),
 		[exchangeRates, quoteCurrencyKey, baseCurrencyKey]
 	);
-	const inverseRate = useMemo(() => (rate > 0 ? 1 / rate : 0), [rate]);
+	const inverseRate = useMemo(() => (rate.gt(0) ? rate.inv() : 0), [rate]);
 
 	const baseCurrencyBalance =
 		baseCurrencyKey != null && synthsWalletBalancesQuery.isSuccess
@@ -167,7 +167,7 @@ const useShort = ({
 
 	const totalTradePrice = useMemo(() => {
 		let tradePrice = quoteCurrencyAmountBN.mul(quotePriceRate);
-		if (selectPriceCurrencyRate && selectPriceCurrencyRate !== 0) {
+		if (selectPriceCurrencyRate && !selectPriceCurrencyRate.eq(0)) {
 			tradePrice = tradePrice.div(selectPriceCurrencyRate);
 		}
 
@@ -256,11 +256,10 @@ const useShort = ({
 		[customGasPrice, ethGasPriceQuery.data, gasSpeed]
 	);
 
-	const transactionFee = useMemo(() => getTransactionPrice(gasPrice, gasLimit, ethPriceRate), [
-		gasPrice,
-		gasLimit,
-		ethPriceRate,
-	]);
+	const transactionFee = useMemo(
+		() => getTransactionPrice(gasPrice, gasLimit, ethPriceRate.toNumber()),
+		[gasPrice, gasLimit, ethPriceRate]
+	);
 
 	const feeAmountInBaseCurrency = useMemo(() => {
 		if (issueFeeRate != null && baseCurrencyAmount) {

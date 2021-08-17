@@ -15,9 +15,10 @@ import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
 import useSynthetixQueries from '@synthetixio/queries';
 import { Synth } from '@synthetixio/contracts-interface';
 import { CurrencyKey } from 'constants/currency';
+import Wei from '@synthetixio/wei';
 
 type SynthRowProps = {
-	price: number | null;
+	price: Wei | null;
 	synth: Synth;
 };
 const SynthRow: FC<SynthRowProps> = ({ price, synth }) => {

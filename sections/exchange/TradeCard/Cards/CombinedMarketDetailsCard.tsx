@@ -12,12 +12,13 @@ import Card from 'components/Card';
 import useMarketHoursTimer from 'sections/exchange/hooks/useMarketHoursTimer';
 import { marketNextTransition, marketIsOpen } from 'utils/marketHours';
 import useCombinedRates from 'sections/exchange/TradeCard/Charts/hooks/useCombinedRates';
+import Wei from '@synthetixio/wei';
 
 type MarketDetailsCardProps = {
 	baseCurrencyKey: CurrencyKey | null;
 	quoteCurrencyKey: CurrencyKey | null;
-	basePriceRate: number | null;
-	quotePriceRate: number | null;
+	basePriceRate: Wei | null;
+	quotePriceRate: Wei | null;
 	className?: string;
 };
 

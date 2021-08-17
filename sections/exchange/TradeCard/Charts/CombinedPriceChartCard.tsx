@@ -40,12 +40,13 @@ import ChartTypeToggle from './common/ChartTypeTextsToggle';
 import AreaChart from './Types/AreaChart';
 import CompareChart from './Types/CompareChart';
 import CandlesticksChart from './Types/CandlesticksChart';
+import Wei, { wei } from '@synthetixio/wei';
 
 type CombinedPriceChartCardProps = {
 	baseCurrencyKey: CurrencyKey | null;
 	quoteCurrencyKey: CurrencyKey | null;
-	basePriceRate: number | null;
-	quotePriceRate: number | null;
+	basePriceRate: Wei | null;
+	quotePriceRate: Wei | null;
 	className?: string;
 	openAfterHoursModalCallback?: () => void;
 	selectedChartPeriod: Period;
@@ -104,7 +105,12 @@ const CombinedPriceChartCard: FC<CombinedPriceChartCardProps> = ({
 	const isMarketClosed = isBaseMarketClosed || isQuoteMarketClosed;
 
 	const [currentPrice, setCurrentPrice] = useState<number | null>(null);
-	const price = currentPrice || (basePriceRate ?? 1) / (quotePriceRate! || 1);
+	const price =
+		currentPrice ||
+		(
+			basePriceRate ??
+			(quotePriceRate != null && quotePriceRate.gt(0) ? quotePriceRate.inv() : wei(1))
+		).toNumber();
 
 	const eitherCurrencyIsSUSD = useMemo(
 		() => baseCurrencyKey === Synths.sUSD || quoteCurrencyKey === Synths.sUSD,

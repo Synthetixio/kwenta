@@ -32,7 +32,7 @@ type TradeSummaryCardProps = {
 	baseCurrencyAmount: string;
 	onSubmit: () => void;
 	totalTradePrice: string | null;
-	basePriceRate: number;
+	basePriceRate: Wei;
 	baseCurrency: Synth | null;
 	gasPrices: GasPrices | undefined;
 	feeReclaimPeriodInSeconds: number;

@@ -96,7 +96,7 @@ export const SelectShortCurrencyModal: FC<SelectShortCurrencyModalProps> = ({
 						<SynthRow
 							key={currencyKey}
 							synth={synth}
-							price={price}
+							price={price?.toNumber() ?? null}
 							onClick={() => {
 								onSelect(currencyKey);
 								onDismiss();

@@ -1,5 +1,6 @@
 import { CurrencyKey, Synths, CRYPTO_CURRENCY_MAP, FIAT_SYNTHS } from 'constants/currency';
 import { Rates } from '@synthetixio/queries';
+import { zeroBN } from './formatters/number';
 
 export const isSynth = (currencyKey: CurrencyKey) => !!Synths[currencyKey];
 export const isCryptoCurrency = (currencyKey: CurrencyKey) => !!CRYPTO_CURRENCY_MAP[currencyKey];
@@ -23,8 +24,8 @@ export const getExchangeRatesForCurrencies = (
 	quote == null ||
 	rates[base] === undefined ||
 	rates[quote] === undefined
-		? 0
-		: rates[base] * (1 / rates[quote]);
+		? zeroBN
+		: rates[base].mul(rates[quote].inv());
 
 export const getCurrencyKeyURLPath = (currencyKey: CurrencyKey) =>
 	`https:///www.synthetix.io/assets/synths/svg/${currencyKey}.svg`;

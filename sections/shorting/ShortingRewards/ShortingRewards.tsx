@@ -66,11 +66,10 @@ const ShortingRewards: FC = () => {
 		[exchangeRates, selectedPriceCurrency.name]
 	);
 
-	const transactionFee = useMemo(() => getTransactionPrice(gasPrice, gasLimit, ethPriceRate), [
-		gasPrice,
-		gasLimit,
-		ethPriceRate,
-	]);
+	const transactionFee = useMemo(
+		() => getTransactionPrice(gasPrice, gasLimit, ethPriceRate.toNumber()),
+		[gasPrice, gasLimit, ethPriceRate]
+	);
 
 	return (
 		<div>

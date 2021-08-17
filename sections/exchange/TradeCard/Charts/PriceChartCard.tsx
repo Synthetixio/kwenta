@@ -35,11 +35,12 @@ import {
 import { Side } from 'sections/exchange/TradeCard/types';
 import useAreaChartData from './hooks/useAreaChartData';
 import useCandleSticksChartData from './hooks/useCandleSticksChartData';
+import Wei from '@synthetixio/wei';
 
 type ChartCardProps = {
 	side: Side;
 	currencyKey: CurrencyKey | null;
-	priceRate: number | null;
+	priceRate: Wei;
 	className?: string;
 	openAfterHoursModalCallback?: () => void;
 	alignRight?: boolean;
@@ -105,7 +106,7 @@ const ChartCard: FC<ChartCardProps> = ({
 	const computedRates = useMemo(() => {
 		return rates.map(({ timestamp, rate }: { timestamp: number; rate: number }) => ({
 			timestamp,
-			value: !selectPriceCurrencyRate ? rate : rate / selectPriceCurrencyRate,
+			value: !selectPriceCurrencyRate ? rate : rate / selectPriceCurrencyRate.toNumber(),
 		}));
 	}, [rates, selectPriceCurrencyRate]);
 

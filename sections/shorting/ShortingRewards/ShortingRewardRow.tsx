@@ -22,14 +22,14 @@ import { CurrencyKey } from 'constants/currency';
 import useCollateralShortRewards from 'queries/collateral/useCollateralShortRewards';
 import Card from 'components/Card';
 import Currency from 'components/Currency';
-import { wei } from '@synthetixio/wei';
+import Wei, { wei } from '@synthetixio/wei';
 import Connector from 'containers/Connector';
 
 type ShortingRewardRowProps = {
 	currencyKey: CurrencyKey;
 	gasPrice: number | null;
 	setGasLimit: Dispatch<SetStateAction<number | null>>;
-	snxPriceRate: number;
+	snxPriceRate: Wei;
 };
 
 const ShortingRewardRow: FC<ShortingRewardRowProps> = ({

@@ -320,7 +320,7 @@ const useExchange = ({
 		() => getExchangeRatesForCurrencies(exchangeRates, quoteCurrencyKey, baseCurrencyKey),
 		[exchangeRates, quoteCurrencyKey, baseCurrencyKey]
 	);
-	const inverseRate = useMemo(() => (rate > 0 ? 1 / rate : 0), [rate]);
+	const inverseRate = useMemo(() => (wei(rate).gt(0) ? wei(rate).inv() : zeroBN), [rate]);
 
 	const quoteCurrencyBalance = useMemo(() => {
 		if (quoteCurrencyKey != null) {
@@ -364,8 +364,10 @@ const useExchange = ({
 				  quoteCurrencyTokenAddress != null &&
 				  selectPriceCurrencyRate != null &&
 				  coinGeckoPrices[quoteCurrencyTokenAddress.toLowerCase()] != null
-					? coinGeckoPrices[quoteCurrencyTokenAddress.toLowerCase()].usd / selectPriceCurrencyRate
-					: 0
+					? wei(coinGeckoPrices[quoteCurrencyTokenAddress.toLowerCase()].usd).div(
+							selectPriceCurrencyRate
+					  )
+					: zeroBN
 				: getExchangeRatesForCurrencies(
 						exchangeRates,
 						quoteCurrencyKey as CurrencyKey,
@@ -389,8 +391,10 @@ const useExchange = ({
 				  baseCurrencyTokenAddress != null &&
 				  selectPriceCurrencyRate != null &&
 				  coinGeckoPrices[baseCurrencyTokenAddress.toLowerCase()] != null
-					? coinGeckoPrices[baseCurrencyTokenAddress.toLowerCase()].usd / selectPriceCurrencyRate
-					: 0
+					? wei(coinGeckoPrices[baseCurrencyTokenAddress.toLowerCase()].usd).div(
+							selectPriceCurrencyRate.toNumber()
+					  )
+					: zeroBN
 				: getExchangeRatesForCurrencies(
 						exchangeRates,
 						baseCurrencyKey as CurrencyKey,
@@ -541,11 +545,10 @@ const useExchange = ({
 		[customGasPrice, ethGasPriceQuery.data, gasSpeed, isL2]
 	);
 
-	const transactionFee = useMemo(() => getTransactionPrice(gasPrice, gasLimit, ethPriceRate), [
-		gasPrice,
-		gasLimit,
-		ethPriceRate,
-	]);
+	const transactionFee = useMemo(
+		() => getTransactionPrice(gasPrice, gasLimit, ethPriceRate.toNumber()),
+		[gasPrice, gasLimit, ethPriceRate]
+	);
 
 	const feeAmountInBaseCurrency = useMemo(() => {
 		if (exchangeFeeRate != null && baseCurrencyAmount) {

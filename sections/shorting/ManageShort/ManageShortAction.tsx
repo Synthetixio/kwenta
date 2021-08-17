@@ -412,11 +412,10 @@ const ManageShortAction: FC<ManageShortActionProps> = ({
 		}
 	};
 
-	const transactionFee = useMemo(() => getTransactionPrice(gasPrice, gasLimit, ethPriceRate), [
-		gasPrice,
-		gasLimit,
-		ethPriceRate,
-	]);
+	const transactionFee = useMemo(
+		() => getTransactionPrice(gasPrice, gasLimit, ethPriceRate.toNumber()),
+		[gasPrice, gasLimit, ethPriceRate]
+	);
 
 	const issuanceFee = useMemo(() => {
 		if (issueFeeRate != null && inputAmountBN.gt(0)) {

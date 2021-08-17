@@ -50,7 +50,7 @@ const ShortingStats = () => {
 				const openInterest = shorts.mul(assetUSDPrice).div(selectPriceCurrencyRate);
 
 				const apr =
-					rewardsTotalSupply.gt(0) && assetUSDPrice !== 0
+					rewardsTotalSupply.gt(0) && !assetUSDPrice.eq(0)
 						? rewardsRate
 								.mul(SECONDS_IN_A_YR)
 								.mul(snxUSDPrice)

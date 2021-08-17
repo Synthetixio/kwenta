@@ -22,7 +22,7 @@ type TokenRowProps = {
 	balance?: Wei;
 	totalValue?: Wei;
 	selectedPriceCurrency: Synth;
-	selectPriceCurrencyRate: number | null;
+	selectPriceCurrencyRate: Wei | null;
 };
 const TokenRow: FC<TokenRowProps> = ({
 	token,
