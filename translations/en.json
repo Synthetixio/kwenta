@@ -62,6 +62,9 @@
 		"l2": {
 			"title": "Now on Optimism layer 2",
 			"copy": "Kwenta can now be used on Optimism's layer 2 solution for <0>low gas fees</0> and <0>fast transactions</0>. Trade like an elite.",
+			"transaction-cost": "Lower gas fees*",
+			"transaction-speed": "Transactions per second*",
+			"disclaimer": "* During the alpha phase Optimism(OΞ) will support an initial throughput of 0.6 transactions per second.",
 			"cta-buttons": {
 				"learn-more": "Learn more",
 				"switch-l2": "Switch to L2"
