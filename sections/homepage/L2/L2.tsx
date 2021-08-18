@@ -15,7 +15,7 @@ import { Copy, FlexSection, GridContainer, LeftSubHeader, Title } from '../commo
 import media, { Media } from 'styles/media';
 import Button from 'components/Button';
 
-import Optimism from 'assets/svg/marketing/OPTIMISM_alpha.svg';
+import Optimism from 'assets/svg/marketing/Optimism_Alpha.svg';
 import TransactionSpeedNumber from 'assets/svg/marketing/1.svg';
 import TransactionCostNumber from 'assets/svg/marketing/50x.svg';
 import Currency from 'components/Currency';
