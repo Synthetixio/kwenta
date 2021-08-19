@@ -11,7 +11,7 @@ import { NO_VALUE } from 'constants/placeholder';
 
 import { ExternalLink, GridDivCenteredRow, NoTextTransform } from 'styles/common';
 
-import Etherscan from 'containers/Etherscan';
+import BlockExplorer from 'containers/BlockExplorer';
 
 import Table from 'components/Table';
 import Currency from 'components/Currency';
@@ -31,7 +31,7 @@ type TradeHistoryProps = {
 
 const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) => {
 	const { t } = useTranslation();
-	const { etherscanInstance } = Etherscan.useContainer();
+	const { blockExplorerInstance } = BlockExplorer.useContainer();
 	const { selectPriceCurrencyRate, selectedPriceCurrency } = useSelectedPriceCurrency();
 
 	const columnsDeps = useMemo(() => [selectPriceCurrencyRate], [selectPriceCurrencyRate]);
@@ -128,8 +128,8 @@ const TradeHistory: FC<TradeHistoryProps> = ({ trades, isLoading, isLoaded }) =>
 				{
 					id: 'link',
 					Cell: (cellProps: CellProps<SynthExchangeExpanded>) =>
-						etherscanInstance != null && cellProps.row.original.hash ? (
-							<StyledExternalLink href={etherscanInstance.txLink(cellProps.row.original.hash)}>
+						blockExplorerInstance != null && cellProps.row.original.hash ? (
+							<StyledExternalLink href={blockExplorerInstance.txLink(cellProps.row.original.hash)}>
 								<StyledLinkIcon
 									src={LinkIcon}
 									viewBox={`0 0 ${LinkIcon.width} ${LinkIcon.height}`}
