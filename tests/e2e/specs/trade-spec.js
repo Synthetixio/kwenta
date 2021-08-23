@@ -12,7 +12,9 @@ describe('Trades tests', () => {
 				}
 			});
 			exchange.snxCheckWaitingPeriod(testedAsset);
+			exchange.interceptSynthetixRates();
 			exchange.visit(`${testedAsset}-sUSD`);
+			exchange.waitForSynthetixRates();
 			exchange.connectBrowserWallet();
 			exchange.acceptMetamaskAccessRequest();
 			exchange.waitUntilLoggedIn();

@@ -66,4 +66,16 @@ export default class ExchangePage extends Page {
 		const txUrl = this.notifications.getTransactionSuccessNotificationLink();
 		return txUrl.invoke('attr', 'href');
 	}
+
+	interceptSynthetixRates() {
+		cy.intercept('https://api.thegraph.com/subgraphs/name/synthetixio-team/synthetix-rates').as(
+			'synthetixRates'
+		);
+	}
+
+	waitForSynthetixRates() {
+		cy.wait('@synthetixRates').then((interception) => {
+			assert.isNotNull(interception.response.body, 'synthetixRates has data');
+		});
+	}
 }
