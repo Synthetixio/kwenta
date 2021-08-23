@@ -1,52 +1,20 @@
 import { FC } from 'react';
 import styled from 'styled-components';
-import Link from 'next/link';
-import { useTranslation, Trans } from 'react-i18next';
-
-import ROUTES from 'constants/routes';
-import { SYNTHS_MAP } from 'constants/currency';
-
-import Button from 'components/Button';
-
-import { SynthBalance } from 'queries/walletBalances/useSynthsBalancesQuery';
 
 import media from 'styles/media';
-import { GridDivCentered, NoTextTransform } from 'styles/common';
+import { GridDivCentered } from 'styles/common';
 
 import SynthBalanceRow, { SynthBalanceRowProps } from './SynthBalanceRow';
+import { SynthBalance } from '@synthetixio/queries';
+import NoSynthsCard from 'sections/exchange/FooterCard/NoSynthsCard';
 
 type SynthBalancesProps = Omit<SynthBalanceRowProps, 'synth'> & {
 	balances: SynthBalance[];
 };
 
-const { sUSD } = SYNTHS_MAP;
-
 const SynthBalances: FC<SynthBalancesProps> = ({ exchangeRates, balances, totalUSDBalance }) => {
-	const { t } = useTranslation();
-
 	if (balances.length === 0) {
-		return (
-			<NoBalancesContainer>
-				<Message>
-					<Trans
-						t={t}
-						i18nKey="exchange.onboard.message"
-						values={{ currencyKey: sUSD }}
-						components={[<NoTextTransform />]}
-					/>
-				</Message>
-				<Link href={ROUTES.Dashboard.Convert}>
-					<Button size="lg" variant="primary" isRounded={true}>
-						<Trans
-							t={t}
-							i18nKey="common.currency.buy-currency"
-							values={{ currencyKey: sUSD }}
-							components={[<NoTextTransform />]}
-						/>
-					</Button>
-				</Link>
-			</NoBalancesContainer>
-		);
+		return <NoSynthsCard />;
 	}
 
 	return (

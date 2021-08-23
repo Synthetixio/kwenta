@@ -1,21 +1,25 @@
 import { NetworkId } from '@synthetixio/contracts-interface';
-
 import { CurrencyKey } from './currency';
 import { Period } from './period';
 
 export const QUERY_KEYS = {
 	Rates: {
-		HistoricalVolume: (period: Period) => ['rates', 'historicalVolume', period],
-		HistoricalRates: (currencyKey: CurrencyKey, period: Period) => [
+		HistoricalVolume: (period: Period, networkId: NetworkId) => [
+			'rates',
+			'historicalVolume',
+			period,
+			networkId,
+		],
+		HistoricalRates: (currencyKey: string, period: Period, networkId: NetworkId) => [
 			'rates',
 			'historicalRates',
-			period,
 			currencyKey,
+			period,
+			networkId,
 		],
-		MarketCap: (currencyKey: CurrencyKey) => ['marketCap', currencyKey],
+		MarketCap: (currencyKey: string) => ['marketCap', currencyKey],
 		ExchangeRates: ['rates', 'exchangeRates'],
-		SynthExchanges: (period: Period) => ['rates', 'synthExchanges', period],
-		Candlesticks: (currencyKey: CurrencyKey, period: Period) => [
+		Candlesticks: (currencyKey: string, period: Period) => [
 			'rates',
 			'candlesticks',
 			currencyKey,
@@ -54,7 +58,6 @@ export const QUERY_KEYS = {
 	Synths: {
 		FrozenSynths: ['synths', 'frozenSynths'],
 		Suspension: (currencyKey: CurrencyKey) => ['synths', 'suspension', currencyKey],
-		FeeReclaimPeriod: (currencyKey: CurrencyKey) => ['synths', 'feeReclaimPeriod', currencyKey],
 		ExchangeFeeRate: (quoteCurrencyKey: CurrencyKey, baseCurrencyKey: CurrencyKey) => [
 			'synths',
 			'exchangeFeeRate',
@@ -79,15 +82,20 @@ export const QUERY_KEYS = {
 	},
 	Trades: {
 		AllTrades: ['trades', 'allTrades'],
-		WalletTrades: (walletAddress: string) => ['trades', 'walletTrades', walletAddress],
+		WalletTrades: (walletAddress: string, networkId: NetworkId) => [
+			'trades',
+			'walletTrades',
+			walletAddress,
+			networkId,
+		],
 	},
 	SystemStatus: {
 		IsUpgrading: ['systemStatus', 'isUpgrading'],
 	},
 	Convert: {
 		quote1Inch: (
-			quoteCurrencyKey: CurrencyKey,
-			baseCurrencyKey: CurrencyKey,
+			quoteCurrencyKey: string,
+			baseCurrencyKey: string,
 			amount: string,
 			networkId: NetworkId
 		) => ['convert', '1inch', quoteCurrencyKey, baseCurrencyKey, amount, networkId],
@@ -99,7 +107,7 @@ export const QUERY_KEYS = {
 		OneInch: ['tokenLists', 'oneInch'],
 	},
 	CMC: {
-		Quotes: (currencyKeys: CurrencyKey[]) => ['cmc', 'quotes', currencyKeys.join('|')],
+		Quotes: (currencyKeys: string[]) => ['cmc', 'quotes', currencyKeys.join('|')],
 	},
 	CoinGecko: {
 		CoinList: ['cg', 'coinList'],

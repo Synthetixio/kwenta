@@ -1,5 +1,5 @@
 import { NetworkId, Network as NetworkName } from '@synthetixio/contracts-interface';
-import { GasSpeed } from 'queries/network/useEthGasPriceQuery';
+import { GasSpeed } from '@synthetixio/queries';
 import { atom, selector } from 'recoil';
 
 import { truncateAddress } from 'utils/formatters/string';
@@ -9,11 +9,12 @@ import { getWalletKey } from '../utils';
 export type Network = {
 	id: NetworkId;
 	name: NetworkName;
+	useOvm?: boolean;
 };
 
-export const networkState = atom<Network | null>({
+export const networkState = atom<Network>({
 	key: getWalletKey('network'),
-	default: null,
+	default: { id: NetworkId.Mainnet, name: NetworkName.Mainnet },
 });
 
 export const isMainnetState = selector<boolean>({
@@ -50,4 +51,11 @@ export const gasSpeedState = atom<GasSpeed>({
 export const customGasPriceState = atom<string>({
 	key: getWalletKey('customGasPrice'),
 	default: '',
+});
+
+export const isL2State = selector<boolean>({
+	key: getWalletKey('isL2'),
+	get: ({ get }) => {
+		return get(networkState)?.useOvm ?? false;
+	},
 });

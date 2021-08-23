@@ -13,7 +13,7 @@ import useOneInchTokenList from 'queries/tokenLists/useOneInchTokenList';
 import { FlexDivCentered } from 'styles/common';
 
 export type CurrencyIconProps = {
-	currencyKey: CurrencyKey;
+	currencyKey: string;
 	type?: 'synth' | 'asset' | 'token';
 	className?: string;
 	width?: string;
@@ -53,31 +53,7 @@ export const CurrencyIcon: FC<CurrencyIconProps> = ({ currencyKey, type, ...rest
 		...rest,
 	};
 
-	if (
-		ZapperTokenListMap != null &&
-		ZapperTokenListMap[currencyKey] != null &&
-		!firstFallbackError
-	) {
-		return (
-			<TokenIcon
-				src={ZapperTokenListMap[currencyKey].logoURI}
-				onError={() => setFirstFallbackError(true)}
-				{...props}
-			/>
-		);
-	} else if (
-		OneInchTokenListMap != null &&
-		OneInchTokenListMap[currencyKey] != null &&
-		!secondFallbackError
-	) {
-		return (
-			<TokenIcon
-				src={OneInchTokenListMap[currencyKey].logoURI}
-				onError={() => setSecondFallbackError(true)}
-				{...props}
-			/>
-		);
-	} else if (thirdFallbackError) {
+	if (!firstFallbackError) {
 		switch (currencyKey) {
 			case CRYPTO_CURRENCY_MAP.ETH: {
 				return <Img src={ETHIcon} {...props} />;
@@ -91,14 +67,38 @@ export const CurrencyIcon: FC<CurrencyIconProps> = ({ currencyKey, type, ...rest
 						src={
 							synthetixTokenListMap != null && synthetixTokenListMap[currencyKey] != null
 								? synthetixTokenListMap[currencyKey].logoURI
-								: getSynthIcon(currencyKey)
+								: getSynthIcon(currencyKey as CurrencyKey)
 						}
-						onError={() => setThirdFallbackError(true)}
+						onError={() => setFirstFallbackError(true)}
 						{...props}
 						alt={currencyKey}
 					/>
 				);
 		}
+	} else if (
+		OneInchTokenListMap != null &&
+		OneInchTokenListMap[currencyKey] != null &&
+		!secondFallbackError
+	) {
+		return (
+			<TokenIcon
+				src={OneInchTokenListMap[currencyKey].logoURI}
+				onError={() => setSecondFallbackError(true)}
+				{...props}
+			/>
+		);
+	} else if (
+		ZapperTokenListMap != null &&
+		ZapperTokenListMap[currencyKey] != null &&
+		!thirdFallbackError
+	) {
+		return (
+			<TokenIcon
+				src={ZapperTokenListMap[currencyKey].logoURI}
+				onError={() => setThirdFallbackError(true)}
+				{...props}
+			/>
+		);
 	} else {
 		return (
 			<Placeholder style={{ width: props.width, height: props.height }}>{currencyKey}</Placeholder>

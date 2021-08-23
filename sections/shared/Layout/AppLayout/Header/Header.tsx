@@ -12,12 +12,16 @@ import Logo from '../../Logo';
 import Nav from './Nav';
 import UserMenu from './UserMenu';
 import MobileUserMenu from './MobileUserMenu';
+import { useRecoilValue } from 'recoil';
+import { isL2State } from 'store/wallet';
 
 const Header: FC = () => {
-	const logo = <Logo />;
+	const isL2 = useRecoilValue(isL2State);
+
+	const logo = <Logo isL2={isL2} />;
 
 	return (
-		<Container>
+		<Container isL2={isL2}>
 			<MobileHiddenView>
 				<LogoNav>
 					{logo}
@@ -33,7 +37,7 @@ const Header: FC = () => {
 	);
 };
 
-const Container = styled.header`
+const Container = styled.header<{ isL2: boolean }>`
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -45,6 +49,9 @@ const Container = styled.header`
 		box-shadow: 0 8px 8px 0 ${(props) => props.theme.colors.black};
 	`};
 	> div {
+		border-top: ${(props) =>
+			`2px solid ${props.isL2 ? props.theme.colors.goldColors.color2 : 'transparent'}`};
+		box-sizing: border-box;
 		height: ${HEADER_HEIGHT};
 		line-height: ${HEADER_HEIGHT};
 		padding: 0 20px;

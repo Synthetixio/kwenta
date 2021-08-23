@@ -1,7 +1,6 @@
 {
 	"languages": {
-		"en": "English",
-		"kr": "한국어"
+		"en": "English"
 	},
 	"meta": {
 		"description": "Gain exposure to cryptocurrencies, forex, equities, indices, and commodities on Ethereum with zero slippage",
@@ -15,6 +14,13 @@
 			"exchange": "exchange",
 			"dashboard": "dashboard",
 			"shorting": "shorting"
+		},
+		"networks-switcher": {
+			"l2": "Switch to L2",
+			"l1": "Switch to Layer 1",
+			"optimistic-gateway": "Optimistic L2 Gateway",
+			"optimistic-etherscan": "Optimistic Etherscan",
+			"learn-more": "Learn more"
 		}
 	},
 	"homepage": {
@@ -51,6 +57,21 @@
 			"synthetic-futures": {
 				"title": "Synthetic futures",
 				"copy": "Once futures is built on the Synthetix protocol, it will soon be supported on Kwenta, offering perpetual future contracts on a non-custodial, permissionless platform."
+			}
+		},
+		"l2": {
+			"title": "Now on Optimism layer 2",
+			"copy": "Kwenta can now be used on Optimism's layer 2 solution for <0>low gas fees</0> and <0>fast transactions</0>. Trade like an elite.",
+			"transaction-cost": "Lower gas fees*",
+			"transaction-speed": "Transactions speed*",
+			"disclaimer": "* These statistics are approximations. User experience will vary.",
+			"cta-buttons": {
+				"learn-more": "Learn more",
+				"switch-l2": "Switch to L2"
+			},
+			"markets": {
+				"title": "Live markets",
+				"copy": "Start trading now on Optimism layer 2"
 			}
 		},
 		"benefits": {
@@ -144,12 +165,14 @@
 			}
 		},
 		"market-details-card": {
-			"title": "market details",
+			"title": "Market Details",
 			"24h-vol": "24H Volume",
 			"24h-high": "24H High",
 			"24h-low": "24H Low",
 			"market-cap": "Market cap",
-			"price-feed": "Price Feed"
+			"price-feed": "Price Feed",
+			"opens-in": "Opens in",
+			"closes-in": "Closes in"
 		},
 		"price-chart-card": {
 			"compare": "compare",
@@ -204,7 +227,9 @@
 			}
 		},
 		"onboard": {
-			"message": "Your wallet has no Synths. Buy <0>{{currencyKey}}</0> to trade Synths:"
+			"message": "Your wallet has no Synths. Buy <0>{{currencyKey}}</0> to trade Synths:",
+			"l2-message": "Your wallet has no Synths. Mint <0>{{currencyKey}}</0> on Staking to trade Synths:",
+			"mint-button": "Visit Staking"
 		},
 		"connect-wallet-card": {
 			"message": "Connect your wallet to start trading"
@@ -236,6 +261,9 @@
 						"button-label": "Open Balancer Pool"
 					}
 				}
+			},
+			"get-l2-gas": {
+				"message": "Not enough L2 wETH for transaction fees. Get some via Optimism Bridge:"
 			}
 		},
 		"common": {
@@ -302,8 +330,23 @@
 				"from": "From",
 				"to": "To",
 				"value": "Value",
-				"no-results": "No transactions found"
+				"fee-reclaim": "Fee Rebate/Reclaim",
+				"no-results": "No transactions found",
+				"tx-reclaim-fee-hint": "Trransaction incurred a fee rebate if +ve. Otherwise, fee was reclaimed.",
+				"price-adjustment-hint": "Price adjustment currently in progress"
 			}
+		},
+		"fee-reclaiming-synths": {
+			"title": "In Progress",
+			"row": {
+				"main-col-subtitle": "Price adjustment in progress",
+				"main-col-complete-subtitle": "Price adjustment complete",
+				"col-trades": "Trades",
+				"col-debt-surplus": "Debt/Surplus",
+				"col-remaining": "Remaining"
+			},
+			"settling-fee": "Settling...",
+			"settle-fee": "Settle fee"
 		}
 	},
 	"shorting": {
@@ -499,7 +542,8 @@
 		"confirm-transaction": {
 			"title": "confirm transaction",
 			"confirm-with-provider": "Confirm your transaction through your wallet.",
-			"exchange-fee-hint": "The Synthetix protocol exchange fee for <0>{{currencyKey}}</0>. <1>Synth Fees</1>"
+			"exchange-fee-hint": "The Synthetix protocol exchange fee for <0>{{currencyKey}}</0>. <1>Synth Fees</1>",
+			"price-adjustment-hint": "This transaction is subject to a price adjustment period. <0>Learn more.</0>"
 		},
 		"approve-transaction": {
 			"title": "approve transaction",
@@ -532,6 +576,9 @@
 		},
 		"notifications": {
 			"title": "notifications",
+			"fee-reclaiming-synths": {
+				"title": "Fee reclaiming currencies"
+			},
 			"open-orders": {
 				"title": "open orders",
 				"no-results": "No open orders"
@@ -562,8 +609,11 @@
 			"synthetic-currency-name": "Synthetic {{currencyName}}",
 			"trade-to-currency": "Trade to <0>{{currencyKey}}</0>",
 			"buy-currency": "Buy <0>{{currencyKey}}</0>",
+			"get-currency": "Get <0>{{currencyKey}}</0>",
 			"currency-exchange": "<0>{{orderType}}</0> <1>{{quoteCurrencyAmount}}</1> <2>{{quoteCurrencyKey}}</2> for <3>{{baseCurrencyAmount}}</3> <4>{{baseCurrencyKey}}</4>",
-			"swap-currency": "Swap for <0>{{currencyKey}}</0>"
+			"swap-currency": "Swap for <0>{{currencyKey}}</0>",
+			"trade-into": "Trade into <0>{{currencyKey}}</0>",
+			"price-adjustment": "Price Adjustment"
 		},
 		"total-assets": "{{total}} assets",
 		"total-results": "{{total}} results",
@@ -589,7 +639,10 @@
 		"transaction": {
 			"revert-reason": "Error: {{reason}}",
 			"error": "An unexpected error occurred.",
-			"reattempt": "Try again"
+			"reattempt": "Try again",
+			"transaction-sent": "Your transaction has been sent to the network.",
+			"transaction-failed": "Your transaction has failed",
+			"transaction-confirmed": "Your transaction has succeeded!"
 		},
 		"price": "price",
 		"asset": "asset",

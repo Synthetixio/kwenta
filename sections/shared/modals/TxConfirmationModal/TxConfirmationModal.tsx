@@ -1,8 +1,10 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useMemo } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import styled from 'styled-components';
 import Img from 'react-optimized-image';
-import BigNumber from 'bignumber.js';
+import Wei, { wei } from '@synthetixio/wei';
+import { useRecoilValue } from 'recoil';
+
 import {
 	FlexDivRowCentered,
 	numericValueCSS,
@@ -12,7 +14,7 @@ import {
 	ExternalLink,
 } from 'styles/common';
 
-import { CurrencyKey } from 'constants/currency';
+import { walletAddressState } from 'store/wallet';
 
 import BaseModal from 'components/BaseModal';
 import Currency from 'components/Currency';
@@ -23,9 +25,12 @@ import BalancerImage from 'assets/svg/providers/balancer.svg';
 import { formatCurrency, LONG_CRYPTO_CURRENCY_DECIMALS } from 'utils/formatters/number';
 import { MessageButton } from 'sections/exchange/FooterCard/common';
 import useSelectedPriceCurrency from 'hooks/useSelectedPriceCurrency';
+import useCurrencyPrice from 'hooks/useCurrencyPrice';
 import { ESTIMATE_VALUE } from 'constants/placeholder';
 import { Svg } from 'react-optimized-image';
 import InfoIcon from 'assets/svg/app/info.svg';
+import { CurrencyKey } from '@synthetixio/contracts-interface';
+import useSynthetixQueries from '@synthetixio/queries';
 
 export type TxProvider = 'synthetix' | '1inch' | 'balancer';
 
@@ -33,12 +38,12 @@ type TxConfirmationModalProps = {
 	onDismiss: () => void;
 	txError: string | null;
 	attemptRetry: () => void;
-	baseCurrencyKey: CurrencyKey;
+	baseCurrencyKey: string;
 	baseCurrencyAmount: string;
-	quoteCurrencyKey?: CurrencyKey;
+	quoteCurrencyKey?: string;
 	quoteCurrencyAmount?: string;
 	totalTradePrice: string;
-	feeCost?: BigNumber | null;
+	feeCost: Wei | null;
 	txProvider: TxProvider;
 	quoteCurrencyLabel?: ReactNode;
 	baseCurrencyLabel: ReactNode;
@@ -62,11 +67,34 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 }) => {
 	const { t } = useTranslation();
 	const { selectedPriceCurrency } = useSelectedPriceCurrency();
+	const walletAddress = useRecoilValue(walletAddressState);
 
 	const getBaseCurrencyAmount = (decimals?: number) =>
 		formatCurrency(baseCurrencyKey, baseCurrencyAmount, {
 			minDecimals: decimals,
 		});
+
+	const { useSettlementOwingQuery } = useSynthetixQueries();
+
+	const priceUSD = useCurrencyPrice((quoteCurrencyKey ?? '') as CurrencyKey);
+	const priceAdjustmentQuery = useSettlementOwingQuery(
+		(quoteCurrencyKey ?? '') as CurrencyKey,
+		walletAddress ?? ''
+	);
+	const priceAdjustment = useMemo(
+		() =>
+			priceAdjustmentQuery.data ?? {
+				rebate: wei(0),
+				reclaim: wei(0),
+				numEntries: wei(0),
+			},
+		[priceAdjustmentQuery.data]
+	);
+
+	const priceAdjustmentFeeUSD = useMemo(
+		() => priceAdjustment.rebate.sub(priceAdjustment.reclaim).mul(priceUSD),
+		[priceAdjustment, priceUSD]
+	);
 
 	return (
 		<StyledBaseModal
@@ -187,6 +215,40 @@ export const TxConfirmationModal: FC<TxConfirmationModalProps> = ({
 						</span>
 					</SummaryItemValue>
 				</SummaryItem>
+				{!priceAdjustmentFeeUSD ? null : (
+					<SummaryItem>
+						<SummaryItemLabel data-testid="price-adjustment-label">
+							<Trans
+								i18nKey="common.currency.price-adjustment"
+								components={[<NoTextTransform />]}
+							/>
+							&nbsp;
+							<StyledTooltip
+								placement="top"
+								content={
+									<Trans
+										i18nKey="modals.confirm-transaction.price-adjustment-hint"
+										values={{ currencyKey: baseCurrencyKey }}
+										components={[<ExternalLink href="https://synthetix.io/synths" />]}
+									/>
+								}
+								arrow={false}
+								interactive={true}
+							>
+								<TooltipItem>
+									<Svg src={InfoIcon} />
+								</TooltipItem>
+							</StyledTooltip>
+						</SummaryItemLabel>
+						<SummaryItemValue data-testid="price-adjustment-value">
+							<span>
+								{formatCurrency(selectedPriceCurrency.name, priceAdjustmentFeeUSD.toString(), {
+									sign: selectedPriceCurrency.sign,
+								})}
+							</span>
+						</SummaryItemValue>
+					</SummaryItem>
+				)}
 			</Summary>
 			{txProvider === '1inch' && (
 				<TxProviderContainer>
