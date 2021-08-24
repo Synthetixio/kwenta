@@ -24,8 +24,7 @@ describe('Trades tests', () => {
 			exchange.getSubmitOrderBtn().click();
 			exchange.confirmMetamaskTransaction();
 			exchange.waitForTransactionSuccess();
-			exchange.getTransactionUrl().then((url) => {
-				const txId = url.split('tx/')[1];
+			exchange.getTransactionId().then((txId) => {
 				exchange.etherscanWaitForTxSuccess(txId);
 				expect(txId).to.have.lengthOf(66);
 			});
