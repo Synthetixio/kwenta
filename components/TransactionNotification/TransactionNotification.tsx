@@ -15,7 +15,7 @@ type NotificationProps = {
 
 const NotificationPending = () => {
 	return (
-		<NotificationContainer>
+		<NotificationContainer data-testid="notification-pending">
 			<IconContainer>
 				<StyledImg width={25} src={Spinner} />
 			</IconContainer>
@@ -26,7 +26,7 @@ const NotificationPending = () => {
 
 const NotificationSuccess = () => {
 	return (
-		<NotificationContainer>
+		<NotificationContainer data-testid="notification-success">
 			<IconContainer>
 				<StyledImg width={35} src={Success} />
 			</IconContainer>
@@ -37,7 +37,7 @@ const NotificationSuccess = () => {
 
 const NotificationError = ({ failureReason }: NotificationProps) => {
 	return (
-		<NotificationContainer>
+		<NotificationContainer data-testid="notification-error">
 			<IconContainer>
 				<StyledImg width={35} src={Failure} />
 			</IconContainer>

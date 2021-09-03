@@ -34,7 +34,7 @@ ENS link: [kwenta.eth](https://app.ens.domains/name/kwenta.eth).
 ### Install dependencies
 
 ```bash
-npm i
+npm i --legacy-peer-deps
 ```
 
 ### Set up environment variables
