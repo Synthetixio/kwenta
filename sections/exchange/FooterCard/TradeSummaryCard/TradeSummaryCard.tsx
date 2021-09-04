@@ -17,12 +17,13 @@ import { formatPercent } from 'utils/formatters/number';
 
 import { MessageContainer } from '../common';
 
-import { SummaryItems, SummaryItem, SummaryItemValue, SummaryItemLabel } from '../common';
+import { SummaryItems, SummaryItem, SummaryItemLabel, SummaryItemValue } from '../common';
 
-import GasPriceSummaryItem from './GasPriceSummaryItem';
+import GasPriceSelect from 'sections/shared/components/GasPriceSelect';
+import FeeRateSummary from 'sections/shared/components/FeeRateSummary';
+import FeeCostSummary from 'sections/shared/components/FeeCostSummary';
+
 import TotalTradePriceSummaryItem from './TotalTradePriceSummaryItem';
-import FeeRateSummaryItem from './FeeRateSummaryItem';
-import FeeCostSummaryItem from './FeeCostSummaryItem';
 import { GasPrices } from '@synthetixio/queries';
 import PoweredBy1Inch from 'components/PoweredBy1Inch';
 import { Synth } from '@synthetixio/contracts-interface';
@@ -78,7 +79,7 @@ const TradeSummaryCard: FC<TradeSummaryCardProps> = ({
 
 	const summaryItems = (
 		<SummaryItems attached={attached}>
-			<GasPriceSummaryItem gasPrices={gasPrices} transactionFee={transactionFee} />
+			<GasPriceSelect gasPrices={gasPrices} transactionFee={transactionFee} />
 			<SummaryItem>
 				{isCreateShort ? (
 					<>
@@ -93,8 +94,8 @@ const TradeSummaryCard: FC<TradeSummaryCardProps> = ({
 			</SummaryItem>
 			{showFee && (
 				<>
-					<FeeRateSummaryItem feeRate={feeRate} />
-					<FeeCostSummaryItem feeCost={feeCost} />
+					<FeeRateSummary feeRate={feeRate} />
+					<FeeCostSummary feeCost={feeCost} />
 				</>
 			)}
 		</SummaryItems>

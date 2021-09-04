@@ -16,13 +16,13 @@ type FeeRateSummaryItemProps = {
 	feeCost: Wei | null;
 };
 
-const FeeRateSummaryItem: FC<FeeRateSummaryItemProps> = ({ feeCost }) => {
+const FeeCostSummary: FC<FeeRateSummaryItemProps> = ({ feeCost, ...rest }) => {
 	const { t } = useTranslation();
 	const { selectedPriceCurrency } = useSelectedPriceCurrency();
 
 	return (
-		<SummaryItem>
-			<SummaryItemLabel>{t('exchange.summary-info.fee-cost')}</SummaryItemLabel>
+		<SummaryItem {...rest}>
+			<SummaryItemLabel>{t('common.summary.fee-cost')}</SummaryItemLabel>
 			<SummaryItemValue data-testid="exchange-fee-cost">
 				{feeCost != null
 					? formatCurrency(selectedPriceCurrency.name as CurrencyKey, feeCost, {
@@ -35,4 +35,4 @@ const FeeRateSummaryItem: FC<FeeRateSummaryItemProps> = ({ feeCost }) => {
 	);
 };
 
-export default FeeRateSummaryItem;
+export default FeeCostSummary;

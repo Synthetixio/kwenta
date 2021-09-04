@@ -13,7 +13,8 @@
 		"nav": {
 			"exchange": "exchange",
 			"dashboard": "dashboard",
-			"shorting": "shorting"
+			"shorting": "shorting",
+			"futures": "futures"
 		},
 		"networks-switcher": {
 			"l2": "Switch to L2",
@@ -202,14 +203,15 @@
 				}
 			},
 			"tooltip": {
-				"price": "price:"
+				"close": "close",
+				"high": "high",
+				"low": "low",
+				"open": "open",
+				"price": "price"
 			},
 			"no-data": "No data"
 		},
 		"summary-info": {
-			"gas-price-gwei": "gas price (GWEI)",
-			"fee": "fee",
-			"fee-cost": "fee cost",
 			"button": {
 				"approve": "approve",
 				"approving": "approving",
@@ -496,6 +498,149 @@
 			}
 		}
 	},
+	"futures": {
+		"page-title": "Futures | Kwenta",
+		"not-available-on-l1": "Futures is not available on L1",
+		"wallet-overview": {
+			"title": "wallet overview",
+			"open-position": "Open a position",
+			"balance": "sUSD balance",
+			"margin-deployed": "Margin deployed",
+			"performance": "wallet performance",
+			"positions": {
+				"title": "your positions",
+				"position": {
+					"title": "position",
+					"long": "long",
+					"short": "short"
+				},
+				"price": "Entry price",
+				"margin": "Remaining margin",
+				"liquidation": "liquidation price",
+				"roi": "ROI"
+			}
+		},
+		"hero": {
+			"welcome": {
+				"title": "Welcome to Decentralized Futures on Layer 2",
+				"subtitle": "Trade with up to 10x more capital.",
+				"body": "Open long or short leveraged positions with low gas fees, fast transactions, and the deepest liquidity available on the market.",
+				"button": "learn more"
+			},
+			"refer": {
+				"title": "Refer a friend for rewards",
+				"body": "Share Kwenta’s Futures trading experience and receive rewards.",
+				"button": "refer"
+			}
+		},
+		"markets": {
+			"title": "markets",
+			"table": {
+				"market": "market",
+				"price": "price",
+				"change": "24 HR change",
+				"funding": "24 HR funding rate"
+			}
+		},
+		"market": {
+			"page-title": "{{baseCurrencyKey}} Futures | Kwenta",
+			"page-title-rate": "{{baseCurrencyKey}} - {{rate}} Futures | Kwenta",
+			"info": {
+				"asset": "asset",
+				"size": "market size",
+				"volume": "24 HR volume",
+				"skew": "market skew",
+				"debt": "market debt",
+				"rate": "funding rate"
+			},
+			"trade": {
+				"title": "trade",
+				"input": {
+					"buy": "buy",
+					"sell": "sell",
+					"remaining-margin": "Remaining margin",
+					"max": "max",
+					"leverage": {
+						"title": "leverage",
+						"long": "long",
+						"short": "short",
+						"total-leverage": "Total leverage ≈ {{totalLeverage}}x",
+						"close-position": "100% close position + {{leverageDelta}}x leverage",
+						"partial-close-position": "{{closePositionDelta}}% close position"
+					}
+				},
+				"button": {
+					"enter-amount": "Enter amount",
+					"deposit-margin": "Deposit margin",
+					"withdraw-margin": "Withdraw margin",
+					"deposit": "Deposit",
+					"edit": "Edit",
+					"open-trade": "Submit order",
+					"warning": "WARNING: this will close your position"
+				},
+				"margin": {
+					"deposit-susd": "Deposit your sUSD to start trading",
+					"available-margin": "available margin",
+					"helper": "deposit your sUSD to start trading",
+					"available-balance": "sUSD balance",
+					"balance": "Balance",
+					"modal": {
+						"title": "Deposit margin",
+						"actions": {
+							"withdraw": "Withdraw",
+							"deposit": "Deposit"
+						}
+					}
+				},
+				"confirmation": {
+					"modal": {
+						"confirm-order": "Confirm order"
+					}
+				}
+			},
+			"user": {
+				"position": {
+					"tab": "Your Position",
+					"roi": "ROI:",
+					"entry": "entry price",
+					"liquidation": "liquidation price",
+					"margin": "remaining margin",
+					"ratio": "margin ratio",
+					"close": "close",
+					"modal-close": {
+						"title": "Close position",
+						"size": "Size",
+						"side": "Side",
+						"leverage": "Leverage",
+						"ROI": "ROI"
+					}
+				},
+				"orders": {
+					"tab": "Orders",
+					"table": {
+						"id": "ID",
+						"position": "position",
+						"leverage": "leverage",
+						"fee": "fee",
+						"status": "status",
+						"cancel": "cancel"
+					}
+				},
+				"trades": {
+					"tab": "History",
+					"table": {
+						"id": "ID",
+						"position": "position",
+						"leverage": "leverage",
+						"entry": "entry price",
+						"final": "final price",
+						"pnl": "PNL",
+						"status": "status"
+					}
+				}
+			}
+		}
+	},
 	"not-found": {
 		"page-title": "Not Found | Kwenta",
 		"title": "404",
@@ -553,13 +698,7 @@
 			"title": "Aftermarket Trading Pool",
 			"approve": "Approve",
 			"balancer-pool": "Balancer Pool",
-			"slippage-levels": {
-				"low": "Low",
-				"medium": "Medium",
-				"high": "High"
-			},
 			"powered-by-balancer": "Powered by Balancer",
-			"max-slippage-tolerance": "Max Slippage Tolerance",
 			"estimated-slippage": "Estimated Slippage",
 			"confirm-text": "Confirm your transaction with your web3 provider",
 			"notice-text": "During trading hours we provide exact prices based on Chainlink data. After trading hours you may trade at the going rate on Balancer. Please take note of potential price deviations as well as slippage on larger orders."
@@ -674,10 +813,22 @@
 			"failed": "failed"
 		},
 		"switch": "switch",
-		"gas-prices": {
-			"average": "Average",
-			"fast": "Fast",
-			"fastest": "Fastest"
+		"summary": {
+			"gas-prices": {
+				"title": "gas price (GWEI)",
+				"average": "Average",
+				"fast": "Fast",
+				"fastest": "Fastest"
+			},
+			"fee": "fee",
+			"fee-cost": "fee cost",
+			"max-slippage-tolerance": {
+				"title": "Max Slippage Tolerance",
+				"helper": "Choose the maximum amount of slippage you are willing to accept",
+				"low": "Low",
+				"medium": "Medium",
+				"high": "High"
+			}
 		},
 		"custom": "Custom",
 		"edit": "edit",
